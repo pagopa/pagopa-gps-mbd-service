@@ -25,7 +25,6 @@ import java.util.UUID;
 
 import static it.gov.pagopa.mdb.gps.service.util.CommonUtility.deNull;
 
-
 @Aspect
 @Component
 @Slf4j
