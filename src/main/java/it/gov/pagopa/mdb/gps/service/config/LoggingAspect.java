@@ -1,7 +1,10 @@
-package it.gov.pagopa.microservice.config;
+package it.gov.pagopa.mdb.gps.service.config;
 
-import it.gov.pagopa.microservice.exception.AppError;
-import it.gov.pagopa.microservice.model.ProblemJson;
+import it.gov.pagopa.mdb.gps.service.exception.AppError;
+import it.gov.pagopa.mdb.gps.service.model.ProblemJson;
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -16,14 +19,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static it.gov.pagopa.microservice.util.CommonUtility.deNull;
+import static it.gov.pagopa.mdb.gps.service.util.CommonUtility.deNull;
 
 
 @Aspect
@@ -42,21 +42,26 @@ public class LoggingAspect {
     public static final String OPERATION_ID = "operationId";
     public static final String ARGS = "args";
 
-    @Autowired
     HttpServletRequest httRequest;
+    HttpServletResponse httpResponse;
+    private final String name;
+    private final String version;
+    private final String environment;
 
     @Autowired
-    HttpServletResponse httpResponse;
-
-    @Value("${info.application.name}")
-    private String name;
-
-    @Value("${info.application.version}")
-    private String version;
-
-    @Value("${info.properties.environment}")
-    private String environment;
-
+    public LoggingAspect(
+            HttpServletRequest httRequest,
+            HttpServletResponse httpResponse,
+            @Value("${info.application.name}") String name,
+            @Value("${info.application.version}") String version,
+            @Value("${info.properties.environment}") String environment
+    ) {
+        this.httRequest = httRequest;
+        this.httpResponse = httpResponse;
+        this.name = name;
+        this.version = version;
+        this.environment = environment;
+    }
 
     @Pointcut("@within(org.springframework.web.bind.annotation.RestController)")
     public void restController() {
@@ -86,7 +91,7 @@ public class LoggingAspect {
         MDC.put(METHOD, joinPoint.getSignature().getName());
         MDC.put(START_TIME, String.valueOf(System.currentTimeMillis()));
         MDC.put(OPERATION_ID, UUID.randomUUID().toString());
-        if(MDC.get(REQUEST_ID) == null) {
+        if (MDC.get(REQUEST_ID) == null) {
             var requestId = UUID.randomUUID().toString();
             MDC.put(REQUEST_ID, requestId);
         }
@@ -129,20 +134,20 @@ public class LoggingAspect {
     }
 
     private static String getDetail(ResponseEntity<ProblemJson> result) {
-        if(result != null && result.getBody() != null && result.getBody().getDetail() != null) {
+        if (result != null && result.getBody() != null && result.getBody().getDetail() != null) {
             return result.getBody().getDetail();
         } else return AppError.UNKNOWN.getDetails();
     }
 
     private static String getTitle(ResponseEntity<ProblemJson> result) {
-        if(result != null && result.getBody() != null && result.getBody().getTitle() != null) {
+        if (result != null && result.getBody() != null && result.getBody().getTitle() != null) {
             return result.getBody().getTitle();
         } else return AppError.UNKNOWN.getTitle();
     }
 
     public static String getExecutionTime() {
         String startTime = MDC.get(START_TIME);
-        if(startTime != null) {
+        if (startTime != null) {
             long endTime = System.currentTimeMillis();
             long executionTime = endTime - Long.parseLong(startTime);
             return String.valueOf(executionTime);

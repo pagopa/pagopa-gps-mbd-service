@@ -11,10 +11,10 @@
   </parent>
 
   <groupId>it.gov.pagopa</groupId>
-  <artifactId>microservice</artifactId> <!--TODO: set your artifactId-->
+  <artifactId>pagopa-gps-mdb-service</artifactId>
   <version>0.0.0</version>
-  <name>Your Name</name> <!--TODO: set your name-->
-  <description>Your description</description> <!--TODO: set your description-->
+  <name>MDB GPS Service</name>
+  <description>MDB GPS Service</description>
 
   <properties>
     <java.version>17</java.version>
@@ -108,11 +108,6 @@
       <optional>true</optional>
     </dependency>
 
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>co.elastic.logging</groupId>
       <artifactId>logback-ecs-encoder</artifactId>

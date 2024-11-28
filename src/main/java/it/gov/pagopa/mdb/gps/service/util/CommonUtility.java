@@ -1,4 +1,4 @@
-package it.gov.pagopa.microservice.util;
+package it.gov.pagopa.mdb.gps.service.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -9,7 +9,6 @@ import java.util.Optional;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CommonUtility {
-
 
     /**
      * @param value value to deNullify.
@@ -50,6 +49,4 @@ public class CommonUtility {
     public static long getTimelapse(long startTime) {
         return Calendar.getInstance().getTimeInMillis() - startTime;
     }
-
-
 }
