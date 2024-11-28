@@ -34,6 +34,12 @@ public class MdbGpsController {
         this.modelMapper = modelMapper;
     }
 
+    /**
+     * Map MDB service specific data into payment option model
+     *
+     * @param mdbPaymentOptionRequest MDB data
+     * @return the mapped model
+     */
     @PostMapping("")
     @ResponseStatus(HttpStatus.OK)
     @ApiResponses(value = {
@@ -50,8 +56,8 @@ public class MdbGpsController {
     })
     @Operation(summary = "Create MDB payment option", security = {@SecurityRequirement(name = "ApiKey")})
     public @Valid MdbPaymentOptionResponse createMdbPaymentOption(
-            @RequestBody @NotNull @Valid MdbPaymentOptionRequest ciBundleAttributes
+            @RequestBody @NotNull @Valid MdbPaymentOptionRequest mdbPaymentOptionRequest
     ) {
-        return this.modelMapper.map(ciBundleAttributes, MdbPaymentOptionResponse.class);
+        return this.modelMapper.map(mdbPaymentOptionRequest, MdbPaymentOptionResponse.class);
     }
 }

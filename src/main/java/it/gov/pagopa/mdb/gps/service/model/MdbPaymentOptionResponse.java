@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+/**
+ * Model class that holds MDB GPS response
+ */
 @Data
 @Builder
 @AllArgsConstructor

@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Model class that holds MDB payment option data
+ */
 @Data
 @Builder
 @NoArgsConstructor

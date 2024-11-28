@@ -10,6 +10,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Model class that holds MDB transfer data
+ */
 @Data
 @Builder
 @NoArgsConstructor

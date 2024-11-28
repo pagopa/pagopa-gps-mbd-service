@@ -41,7 +41,11 @@ public class HomeController {
         return new RedirectView(basePath + "swagger-ui.html");
     }
 
-
+    /**
+     * Return app name, version and environment
+     *
+     * @return the app info
+     */
     @Operation(
             summary = "health check",
             description = "Return OK if application is started",
@@ -50,7 +54,6 @@ public class HomeController {
     @GetMapping(value = "/info")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<AppInfo> healthCheck() {
-        // Used just for health checking
         AppInfo info = AppInfo.builder().name(name).version(version).environment(environment).build();
         return ResponseEntity.status(HttpStatus.OK).body(info);
     }

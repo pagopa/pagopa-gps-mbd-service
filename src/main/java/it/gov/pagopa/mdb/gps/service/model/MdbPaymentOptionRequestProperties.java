@@ -9,6 +9,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Model class that holds MDB service specific data
+ */
 @Data
 @Builder
 @NoArgsConstructor
