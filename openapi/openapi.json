@@ -1,9 +1,9 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "description": "MDB GPS Service",
+    "description": "MBD GPS Service",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "title": "pagopa-gps-mdb-service",
+    "title": "pagopa-gps-mbd-service",
     "version": "0.0.0"
   },
   "servers": [
@@ -14,7 +14,7 @@
       "url": "https://{host}{basePath}",
       "variables": {
         "basePath": {
-          "default": "/mdb/gps/service/v1"
+          "default": "/pagopa-mbd-gps-service/v1"
         },
         "host": {
           "default": "api.dev.platform.pagopa.it",
@@ -90,7 +90,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MdbPaymentOptionRequest"
+                "$ref": "#/components/schemas/MbdPaymentOptionRequest"
               }
             }
           },
@@ -101,7 +101,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MdbPaymentOptionResponse"
+                  "$ref": "#/components/schemas/MbdPaymentOptionResponse"
                 }
               }
             },
@@ -119,7 +119,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MdbPaymentOptionResponse"
+                  "$ref": "#/components/schemas/MbdPaymentOptionResponse"
                 }
               }
             },
@@ -215,9 +215,9 @@
             "ApiKey": []
           }
         ],
-        "summary": "Create MDB payment option",
+        "summary": "Create MBD payment option",
         "tags": [
-          "MDB GPS"
+          "MBD GPS"
         ]
       }
     }
@@ -238,20 +238,67 @@
           }
         }
       },
-      "MdbPaymentOptionRequest": {
+      "MbdPaymentOptionRequest": {
+        "required": [
+          "properties"
+        ],
         "type": "object",
         "properties": {
-          "pippo": {
-            "type": "string"
+          "properties": {
+            "$ref": "#/components/schemas/MbdPaymentOptionRequestProperties"
           }
         }
       },
-      "MdbPaymentOptionResponse": {
+      "MbdPaymentOptionRequestProperties": {
+        "required": [
+          "amount",
+          "documentHash",
+          "firstName",
+          "fiscalCode",
+          "lastName",
+          "provincialResidence"
+        ],
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "description": "MBD amount",
+            "format": "int64"
+          },
+          "documentHash": {
+            "maxLength": 44,
+            "minLength": 44,
+            "type": "string",
+            "description": "MBD document's hash"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "Debtor's name"
+          },
+          "fiscalCode": {
+            "type": "string",
+            "description": "Debtor's fiscal code"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Debtor's last name"
+          },
+          "provincialResidence": {
+            "type": "string",
+            "description": "Debtor's residence province"
+          }
+        },
+        "description": "MBD payment option's properties"
+      },
+      "MbdPaymentOptionResponse": {
+        "required": [
+          "paymentOption"
+        ],
         "type": "object",
         "properties": {
           "paymentOption": {
             "type": "array",
-            "description": "MDB payment option",
+            "description": "MBD payment option",
             "items": {
               "$ref": "#/components/schemas/PaymentOption"
             }
@@ -265,7 +312,9 @@
           "dueDate",
           "firstName",
           "isPartialPayment",
-          "lastName"
+          "lastName",
+          "retentionDate",
+          "transfer"
         ],
         "type": "object",
         "properties": {
@@ -310,7 +359,7 @@
             }
           }
         },
-        "description": "MDB payment option"
+        "description": "MBD payment option"
       },
       "ProblemJson": {
         "type": "object",
@@ -367,7 +416,8 @@
         "required": [
           "amount",
           "idTransfer",
-          "remittanceInformation"
+          "remittanceInformation",
+          "stamp"
         ],
         "type": "object",
         "properties": {
