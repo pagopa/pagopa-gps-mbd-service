@@ -1,7 +1,6 @@
-package it.gov.pagopa.microservice;
+package it.gov.pagopa.mdb.gps.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.gov.pagopa.mdb.gps.service.Application;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -33,7 +32,7 @@ class OpenApiGenerationTest {
         mvc.perform(MockMvcRequestBuilders.get("/v3/api-docs").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andDo(
-                        (result) -> {
+                        result -> {
                             assertNotNull(result);
                             assertNotNull(result.getResponse());
                             final String content = result.getResponse().getContentAsString();

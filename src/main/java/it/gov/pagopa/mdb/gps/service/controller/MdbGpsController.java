@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/mbd/paymentOption", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "MDB GPS")
 public class MdbGpsController {
 
@@ -40,8 +40,8 @@ public class MdbGpsController {
      * @param mdbPaymentOptionRequest MDB data
      * @return the mapped model
      */
-    @PostMapping("")
-    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/mbd/paymentOption")
+    @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
