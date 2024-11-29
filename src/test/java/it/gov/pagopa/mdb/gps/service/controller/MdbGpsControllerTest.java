@@ -74,6 +74,90 @@ class MdbGpsControllerTest {
         assertEquals("st", transfer.getStamp().getStampType());
     }
 
+    @Test
+    void createMdbPaymentOptionTestFailAmountMissing() throws Exception {
+        MdbPaymentOptionRequest request = buildMdbPaymentOptionRequest();
+        request.getProperties().setAmount(null);
+
+        mvc.perform(post("/mbd/paymentOption")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
+
+    }
+
+    @Test
+    void createMdbPaymentOptionTestFailFirstNameMissing() throws Exception {
+        MdbPaymentOptionRequest request = buildMdbPaymentOptionRequest();
+        request.getProperties().setFirstName(null);
+
+        mvc.perform(post("/mbd/paymentOption")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
+
+    }
+
+    @Test
+    void createMdbPaymentOptionTestFailLastNameMissing() throws Exception {
+        MdbPaymentOptionRequest request = buildMdbPaymentOptionRequest();
+        request.getProperties().setLastName(null);
+
+        mvc.perform(post("/mbd/paymentOption")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
+
+    }
+
+    @Test
+    void createMdbPaymentOptionTestFailFiscalCodeMissing() throws Exception {
+        MdbPaymentOptionRequest request = buildMdbPaymentOptionRequest();
+        request.getProperties().setFiscalCode(null);
+
+        mvc.perform(post("/mbd/paymentOption")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
+
+    }
+
+    @Test
+    void createMdbPaymentOptionTestFailProvincialResidenceMissing() throws Exception {
+        MdbPaymentOptionRequest request = buildMdbPaymentOptionRequest();
+        request.getProperties().setProvincialResidence(null);
+
+        mvc.perform(post("/mbd/paymentOption")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
+
+    }
+
+    @Test
+    void createMdbPaymentOptionTestFailDocumentHashMissing() throws Exception {
+        MdbPaymentOptionRequest request = buildMdbPaymentOptionRequest();
+        request.getProperties().setDocumentHash(null);
+
+        mvc.perform(post("/mbd/paymentOption")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
+
+    }
+
+    @Test
+    void createMdbPaymentOptionTestFailDocumentHashWrongSize() throws Exception {
+        MdbPaymentOptionRequest request = buildMdbPaymentOptionRequest();
+        request.getProperties().setDocumentHash("asdfsdf");
+
+        mvc.perform(post("/mbd/paymentOption")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
+
+    }
+
     private MdbPaymentOptionRequest buildMdbPaymentOptionRequest() {
         return MdbPaymentOptionRequest.builder()
                 .properties(MdbPaymentOptionRequestProperties.builder()
