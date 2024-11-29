@@ -23,10 +23,6 @@ public class MdbPaymentOptionRequestProperties {
     private Long amount;
 
     @NotBlank
-    @Schema(description = "Description", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String description;
-
-    @NotBlank
     @Schema(description = "Debtor's name", requiredMode = Schema.RequiredMode.REQUIRED)
     private String firstName;
 

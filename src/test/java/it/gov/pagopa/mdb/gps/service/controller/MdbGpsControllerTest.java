@@ -56,7 +56,7 @@ class MdbGpsControllerTest {
         assertEquals(request.getProperties().getFirstName(), paymentOption.getFirstName());
         assertEquals(request.getProperties().getLastName(), paymentOption.getLastName());
         assertEquals(request.getProperties().getAmount(), paymentOption.getAmount());
-        assertEquals(request.getProperties().getDescription(), paymentOption.getDescription());
+        assertNotNull(paymentOption.getDescription());
         assertNotNull(paymentOption.getDueDate());
         assertNotNull(paymentOption.getRetentionDate());
         assertFalse(paymentOption.getIsPartialPayment());
@@ -67,7 +67,7 @@ class MdbGpsControllerTest {
         assertEquals(request.getProperties().getAmount(), transfer.getAmount());
         assertEquals(request.getProperties().getFiscalCode(), transfer.getOrganizationFiscalCode());
         assertEquals("1", transfer.getIdTransfer());
-        assertEquals("Pagamento MDB", transfer.getRemittanceInformation());
+        assertNotNull(transfer.getRemittanceInformation());
         assertNotNull(transfer.getStamp());
         assertEquals(request.getProperties().getProvincialResidence(), transfer.getStamp().getProvincialResidence());
         assertEquals(request.getProperties().getDocumentHash(), transfer.getStamp().getHashDocument());
@@ -78,7 +78,6 @@ class MdbGpsControllerTest {
         return MdbPaymentOptionRequest.builder()
                 .properties(MdbPaymentOptionRequestProperties.builder()
                         .amount(16L)
-                        .description("description")
                         .firstName("Mario")
                         .lastName("Rossi")
                         .fiscalCode("0000000000000000")
