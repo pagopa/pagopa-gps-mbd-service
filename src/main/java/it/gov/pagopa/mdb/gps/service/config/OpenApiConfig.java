@@ -21,7 +21,7 @@ import java.util.Optional;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.servers.ServerVariable;
 import io.swagger.v3.oas.models.servers.ServerVariables;
-import org.springdoc.core.customizers.OpenApiCustomiser;
+import org.springdoc.core.customizers.GlobalOpenApiCustomizer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -64,7 +64,7 @@ public class OpenApiConfig {
     }
 
     @Bean
-    public OpenApiCustomiser sortOperationsAlphabetically() {
+    public GlobalOpenApiCustomizer sortOperationsAlphabetically() {
         return openApi -> {
             Paths paths =
                     openApi
@@ -101,7 +101,7 @@ public class OpenApiConfig {
     }
 
     @Bean
-    public OpenApiCustomiser addCommonHeaders() {
+    public GlobalOpenApiCustomizer addCommonHeaders() {
         return openApi ->
                 openApi
                         .getPaths()

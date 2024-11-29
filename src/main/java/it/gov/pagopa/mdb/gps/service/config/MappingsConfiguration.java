@@ -1,6 +1,5 @@
 package it.gov.pagopa.mdb.gps.service.config;
 
-
 import it.gov.pagopa.mdb.gps.service.mapper.ConvertMdbPaymentOptionRequestToMdbPaymentOptionResponse;
 import it.gov.pagopa.mdb.gps.service.model.MdbPaymentOptionRequest;
 import it.gov.pagopa.mdb.gps.service.model.MdbPaymentOptionResponse;
