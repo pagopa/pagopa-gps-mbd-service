@@ -1,9 +1,9 @@
 locals {
-  repo_name = "TODO" # TODO add the name of the repository
+  repo_name = "pagopa-gps-mbd-service"
 
-  display_name = "TODO" # TODO
-  description  = "TODO" # TODO
-  path  = "TODO" # TODO add your base path
+  display_name = "MBD GPS Service"
+  description  = "API for MBD GPS Service"
+  path  = "pagopa-mbd-gps-service"
 
   host         = "api.${var.apim_dns_zone_prefix}.${var.external_domain}"
   hostname     = var.hostname

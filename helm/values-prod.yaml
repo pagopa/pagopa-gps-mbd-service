@@ -1,9 +1,9 @@
 microservice-chart:
-  namespace: "your-namespace" # TODO: set your AKS namespace
+  namespace: "ebollo"
   nameOverride: ""
-  fullnameOverride: ""
+  fullnameOverride: "pagopa-mbd-gps-service"
   image:
-    repository: ghcr.io/pagopa/yourname # TODO
+    repository: ghcr.io/pagopa/pagopa-mbd-gps-service
     tag: "0.0.0"
     pullPolicy: Always
   livenessProbe:
@@ -29,8 +29,8 @@ microservice-chart:
       - 8080
   ingress:
     create: true
-    host: "your.host" # TODO: set the host
-    path: /your-path-here/(.*) # TODO: set your path
+    host: "ebollo.itn.internal.platform.pagopa.it"
+    path: /pagopa-mbd-gps-service/(.*)
     servicePort: 8080
   serviceAccount:
     create: false
@@ -66,26 +66,24 @@ microservice-chart:
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "75"
   envConfig:
-    # TODO: set your name
-    WEBSITE_SITE_NAME: 'yourProjectName' # required to show cloud role name in application insights
+    APP_NAME: "pagopa-mbd-gps-service"
+    APP_ENVIRONMENT: "prod"
+    WEBSITE_SITE_NAME: 'pagopa-mbd-gps-service' # required to show cloud role name in application insights
     ENV: 'azure-prod'
     APP_LOGGING_LEVEL: 'INFO'
     DEFAULT_LOGGING_LEVEL: 'INFO'
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
-
-    OTEL_SERVICE_NAME: # TODO
-    OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=prod"
-    OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
-    OTEL_TRACES_EXPORTER: otlp
-    OTEL_METRICS_EXPORTER: otlp
-    OTEL_LOGS_EXPORTER: none
-    OTEL_TRACES_SAMPLER: "always_on"
+    MBD_PAYMENT_OPTION_DESCRIPTION: 'Pagamento marca da bollo digitale'
+    MBD_PAYMENT_OPTION_DUE_DATE_DELTA: 20
+    MBD_PAYMENT_OPTION_DUE_DATE_TIME_UNIT: 'Minutes'
+    MBD_PAYMENT_OPTION_RETENTION_DATE_DELTA: 1
+    MBD_PAYMENT_OPTION_RETENTION_DATE_TIME_UNIT: 'Hours'
+    MBD_TRANSFER_REMITTANCE_INFORMATION: 'Pagamento marca da bollo digitale'
   envSecret:
     # required
-    APPLICATIONINSIGHTS_CONNECTION_STRING: 'ai-p-connection-string'
-    OTEL_EXPORTER_OTLP_HEADERS: elastic-apm-secret-token
+    APPLICATIONINSIGHTS_CONNECTION_STRING: 'app-insight-connection-string'
   keyvault:
-    name: "pagopa-p-name-kv" #TODO
+    name: "pagopa-p-itn-ebollo-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
   nodeSelector: { }
   tolerations: [ ]
@@ -112,7 +110,7 @@ microservice-chart:
     deployment:
       create: true
       image:
-        repository: ghcr.io/pagopa/yourname # TODO
+        repository: ghcr.io/pagopa/pagopa-mbd-gps-service
         tag: "0.0.0"
         pullPolicy: Always
       envConfig: { }
