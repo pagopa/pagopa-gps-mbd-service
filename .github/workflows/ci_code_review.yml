@@ -18,7 +18,7 @@ on:
   workflow_dispatch:
 
 env:
-  PROJECT_KEY: paogpa_pagopa-gps-mbd-service
+  PROJECT_KEY: pagopa_pagopa-gps-mbd-service
 
 permissions:
   id-token: write
