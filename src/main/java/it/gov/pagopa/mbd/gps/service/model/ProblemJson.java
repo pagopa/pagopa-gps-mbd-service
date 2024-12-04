@@ -28,7 +28,9 @@ public class ProblemJson {
   @JsonProperty("title")
   @Schema(
       description =
-          "A short, summary of the problem type. Written in english and readable for engineers (usually not suited for non technical stakeholders and not localized); example: Service Unavailable")
+          "A short, summary of the problem type. Written in english and readable for engineers"
+              + " (usually not suited for non technical stakeholders and not localized); example:"
+              + " Service Unavailable")
   private String title;
 
   @JsonProperty("status")
