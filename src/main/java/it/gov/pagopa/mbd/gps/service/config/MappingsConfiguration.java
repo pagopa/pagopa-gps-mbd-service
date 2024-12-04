@@ -13,8 +13,7 @@ public class MappingsConfiguration {
 
   @Bean
   ModelMapper modelMapper(
-      ConvertMbdPaymentOptionRequestToMbdPaymentOptionResponse mdbPaymentOptionResponseConverter
-  ) {
+      ConvertMbdPaymentOptionRequestToMbdPaymentOptionResponse mdbPaymentOptionResponseConverter) {
     ModelMapper mapper = new ModelMapper();
     mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
