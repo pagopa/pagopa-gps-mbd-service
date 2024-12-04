@@ -85,7 +85,7 @@
         }
       ],
       "post": {
-        "operationId": "buildMdbPaymentOption",
+        "operationId": "buildMbdPaymentOption",
         "requestBody": {
           "content": {
             "application/json": {

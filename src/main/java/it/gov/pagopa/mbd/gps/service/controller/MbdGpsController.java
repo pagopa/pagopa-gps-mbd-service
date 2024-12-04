@@ -83,7 +83,7 @@ public class MbdGpsController {
   @Operation(
       summary = "Build MBD payment option model",
       security = {@SecurityRequirement(name = "ApiKey")})
-  public @Valid MbdPaymentOptionResponse buildMdbPaymentOption(
+  public @Valid MbdPaymentOptionResponse buildMbdPaymentOption(
       @RequestBody @NotNull @Valid MbdPaymentOptionRequest mbdPaymentOptionRequest) {
     return this.modelMapper.map(mbdPaymentOptionRequest, MbdPaymentOptionResponse.class);
   }
