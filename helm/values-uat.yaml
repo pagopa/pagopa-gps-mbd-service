@@ -1,9 +1,9 @@
 microservice-chart:
   namespace: "ebollo"
   nameOverride: ""
-  fullnameOverride: "pagopa-mbd-gps-service"
+  fullnameOverride: "pagopa-gps-mbd-service"
   image:
-    repository: ghcr.io/pagopa/pagopa-mbd-gps-service
+    repository: ghcr.io/pagopa/pagopa-gps-mbd-service
     tag: "0.0.0"
     pullPolicy: Always
   livenessProbe:
@@ -32,7 +32,7 @@ microservice-chart:
   ingress:
     create: true
     host: "ebollo.itn.internal.uat.platform.pagopa.it"
-    path: /pagopa-mbd-gps-service/(.*)
+    path: /pagopa-gps-mbd-service/(.*)
     servicePort: 8080
   serviceAccount:
     name: "ebollo-workload-identity"
@@ -68,9 +68,9 @@ microservice-chart:
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "75"
   envConfig:
-    APP_NAME: "pagopa-mbd-gps-service"
+    APP_NAME: "pagopa-gps-mbd-service"
     APP_ENVIRONMENT: "uat"
-    WEBSITE_SITE_NAME: 'pagopa-mbd-gps-service' # required to show cloud role name in application insights
+    WEBSITE_SITE_NAME: 'pagopa-gps-mbd-service' # required to show cloud role name in application insights
     ENV: 'azure-uat'
     APP_LOGGING_LEVEL: 'INFO'
     DEFAULT_LOGGING_LEVEL: 'INFO'
@@ -112,7 +112,7 @@ microservice-chart:
     deployment:
       create: true
       image:
-        repository: ghcr.io/pagopa/pagopa-mbd-gps-service
+        repository: ghcr.io/pagopa/pagopa-gps-mbd-service
         tag: "0.0.0"
         pullPolicy: Always
       envConfig: { }

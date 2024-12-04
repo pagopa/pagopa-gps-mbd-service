@@ -6,6 +6,6 @@ tags = {
   CreatedBy   = "Terraform"
   Environment = "Dev"
   Owner       = "pagoPA"
-  Source      = "https://github.com/pagopa/pagopa-mbd-gps-service"
+  Source      = "https://github.com/pagopa/pagopa-gps-mbd-service"
   CostCenter  = "TS310 - PAGAMENTI & SERVIZI"
 }

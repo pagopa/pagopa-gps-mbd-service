@@ -1,7 +1,7 @@
 locals {
   github = {
     org        = "pagopa"
-    repository = "pagopa-mbd-gps-service"
+    repository = "pagopa-gps-mbd-service"
   }
 
   prefix         = "pagopa"

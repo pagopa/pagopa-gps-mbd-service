@@ -5,7 +5,7 @@
 
 Expose an API that will be used by GPS Payments to generate MBD payment options
 
-- [pagoPA MBD GPS Service](#pagopa-mbd-gps-service)
+- [pagoPA MBD GPS Service](#pagopa-gps-mbd-service)
     * [Api Documentation 📖](#api-documentation-)
     * [Technology Stack](#technology-stack)
     * [Start Project Locally 🚀](#start-project-locally-)

@@ -3,7 +3,7 @@ locals {
 
   display_name = "MBD GPS Service"
   description  = "API for MBD GPS Service"
-  path  = "pagopa-mbd-gps-service"
+  path  = "pagopa-gps-mbd-service"
 
   host         = "api.${var.apim_dns_zone_prefix}.${var.external_domain}"
   hostname     = var.hostname

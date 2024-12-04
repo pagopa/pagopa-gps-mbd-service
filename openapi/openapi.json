@@ -14,7 +14,7 @@
       "url": "https://{host}{basePath}",
       "variables": {
         "basePath": {
-          "default": "/pagopa-mbd-gps-service/v1"
+          "default": "/pagopa-gps-mbd-service/v1"
         },
         "host": {
           "default": "api.dev.platform.pagopa.it",

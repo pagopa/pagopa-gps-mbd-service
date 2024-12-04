@@ -1,7 +1,7 @@
 <policies>
   <inbound>
     <base />
-    <set-backend-service base-url="https://${hostname}/pagopa-mbd-gps-service" />
+    <set-backend-service base-url="https://${hostname}/pagopa-gps-mbd-service" />
   </inbound>
   <outbound>
     <base />
