@@ -1,31 +1,40 @@
-# Template for Java Spring Microservice project
+# pagoPA MBD GPS Service
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=TODO-set-your-id&metric=alert_status)](https://sonarcloud.io/dashboard?id=TODO-set-your-id)
-[![Integration Tests](https://github.com/pagopa/<TODO-repo>/actions/workflows/ci_integration_test.yml/badge.svg?branch=main)](https://github.com/pagopa/<TODO-repo>/actions/workflows/ci_integration_test.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=paogpa_pagopa-gps-mbd-service&metric=alert_status)](https://sonarcloud.io/dashboard?id=paogpa_pagopa-gps-mbd-service)
+[![Integration Tests](https://github.com/pagopa/pagopa-gps-mbd-service/actions/workflows/ci_integration_test.yml/badge.svg?branch=main)](https://github.com/pagopa/pagopa-gps-mbd-service/actions/workflows/ci_integration_test.yml)
 
-TODO: add a description
+Expose an API that will be used by GPS Payments to generate MBD payment options
 
-TODO: generate a index with this tool: https://ecotrust-canada.github.io/markdown-toc/
-
-TODO: resolve all the TODOs in this template
+- [pagoPA MBD GPS Service](#pagopa-gps-mbd-service)
+    * [Api Documentation 📖](#api-documentation-)
+    * [Technology Stack](#technology-stack)
+    * [Start Project Locally 🚀](#start-project-locally-)
+        + [Prerequisites](#prerequisites)
+        + [Run docker container](#run-docker-container)
+    * [Develop Locally 💻](#develop-locally-)
+        + [Prerequisites](#prerequisites-1)
+        + [Run the project](#run-the-project)
+        + [Spring Profiles](#spring-profiles)
+        + [Testing 🧪](#testing-)
+            - [Unit testing](#unit-testing)
+            - [Integration testing](#integration-testing)
+            - [Performance testing](#performance-testing)
+    * [Contributors 👥](#contributors-)
+        + [Maintainers](#maintainers)
 
 ---
 
 ## Api Documentation 📖
 
-See the [OpenApi 3 here.](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/<TODO-repo>/main/openapi/openapi.json)
+See the [OpenApi 3 here.](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-gps-mbd-service/main/openapi/openapi.json)
 
 ---
 
 ## Technology Stack
 
-- Java 11
-- Spring Boot
+- Java 17
+- Spring Boot 3
 - Spring Web
-- Hibernate
-- JPA
-- ...
-- TODO
 
 ---
 
@@ -41,8 +50,6 @@ from `./docker` directory
 
 `sh ./run_docker.sh local`
 
-ℹ️ Note: for PagoPa ACR is required the login `az acr login -n <acr-name>`
-
 ---
 
 ## Develop Locally 💻
@@ -51,13 +58,13 @@ from `./docker` directory
 
 - git
 - maven
-- jdk-11
+- jdk-17
 
 ### Run the project
 
 Start the springboot application with this command:
 
-`mvn spring-boot:run -Dspring-boot.run.profiles=local`
+`mvn spring-boot:run -Dspring.profiles.active=local`
 
 ### Spring Profiles
 

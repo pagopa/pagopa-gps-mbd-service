@@ -34,8 +34,8 @@ data "azurerm_user_assigned_identity" "identity_pr_01" {
 }
 
 data "azurerm_key_vault" "domain_key_vault" {
-  name                = "pagopa-${var.env_short}-${local.domain}-kv"
-  resource_group_name = "pagopa-${var.env_short}-${local.domain}-sec-rg"
+  name                = "pagopa-${var.env_short}-itn-${local.domain}-kv"
+  resource_group_name = "pagopa-${var.env_short}-itn-${local.domain}-sec-rg"
 }
 
 data "azurerm_key_vault_secret" "key_vault_sonar" {
@@ -56,4 +56,9 @@ data "azurerm_key_vault_secret" "key_vault_cucumber_token" {
 data "azurerm_key_vault_secret" "key_vault_integration_test_subkey" {
   name         = "integration-test-subkey"
   key_vault_id = data.azurerm_key_vault.key_vault.id
+}
+
+data "azurerm_user_assigned_identity" "workload_identity_clientid" {
+  name                = "ebollo-workload-identity"
+  resource_group_name = "pagopa-${var.env_short}-itn-${var.env}-aks-rg"
 }

@@ -1,12 +1,13 @@
 microservice-chart:
-  namespace: "your-namespace" # TODO: set your AKS namespace
+  namespace: "ebollo"
   nameOverride: ""
-  fullnameOverride: ""
+  fullnameOverride: "pagopa-gps-mbd-service"
   image:
-    repository: ghcr.io/pagopa/yourname # TODO
+    repository: ghcr.io/pagopa/pagopa-gps-mbd-service
     tag: "0.0.0"
     pullPolicy: Always
   livenessProbe:
+    handlerType: httpGet
     httpGet:
       path: /actuator/health/liveness
       port: 8080
@@ -14,6 +15,7 @@ microservice-chart:
     failureThreshold: 6
     periodSeconds: 10
   readinessProbe:
+    handlerType: httpGet
     httpGet:
       path: /actuator/health/readiness
       port: 8080
@@ -22,6 +24,15 @@ microservice-chart:
     periodSeconds: 10
   deployment:
     create: true
+  serviceMonitor:
+    create: true
+    endpoints:
+      - interval: 10s #jmx-exporter
+        targetPort: 12345
+        path: /metrics
+  ports:
+    - 8080
+    - 12345 #jmx-exporter
   service:
     create: true
     type: ClusterIP
@@ -29,13 +40,13 @@ microservice-chart:
       - 8080
   ingress:
     create: true
-    host: "your.host" # TODO: set the host
-    path: /your-path-here/(.*) # TODO: set your path
+    host: "ebollo.itn.internal.dev.platform.pagopa.it"
+    path: /pagopa-gps-mbd-service/(.*)
     servicePort: 8080
   serviceAccount:
-    create: false
-    annotations: { }
-    name: ""
+    name: "ebollo-workload-identity"
+  azure:
+    workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
   podAnnotations: { }
   podSecurityContext:
     seccompProfile:
@@ -51,8 +62,8 @@ microservice-chart:
       memory: "512Mi"
       cpu: "0.25"
     limits:
-      memory: "512Mi"
-      cpu: "0.25"
+      memory: "768Mi"
+      cpu: "0.5"
   autoscaling:
     enable: true
     minReplica: 1
@@ -66,26 +77,24 @@ microservice-chart:
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "75"
   envConfig:
-    # TODO: set your name
-    WEBSITE_SITE_NAME: 'yourProjectName' # required to show cloud role name in application insights
+    APP_NAME: "pagopa-gps-mbd-service"
+    APP_ENVIRONMENT: "dev"
+    WEBSITE_SITE_NAME: 'pagopa-gps-mbd-service' # required to show cloud role name in application insights
     ENV: 'azure-dev'
-    APP_LOGGING_LEVEL: 'DEBUG'
+    APP_LOGGING_LEVEL: 'INFO'
     DEFAULT_LOGGING_LEVEL: 'INFO'
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
-
-    OTEL_SERVICE_NAME: # TODO
-    OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=dev"
-    OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
-    OTEL_TRACES_EXPORTER: otlp
-    OTEL_METRICS_EXPORTER: otlp
-    OTEL_LOGS_EXPORTER: none
-    OTEL_TRACES_SAMPLER: "always_on"
+    MBD_PAYMENT_OPTION_DESCRIPTION: 'Pagamento marca da bollo digitale'
+    MBD_PAYMENT_OPTION_DUE_DATE_DELTA: 20
+    MBD_PAYMENT_OPTION_DUE_DATE_TIME_UNIT: 'Minutes'
+    MBD_PAYMENT_OPTION_RETENTION_DATE_DELTA: 1
+    MBD_PAYMENT_OPTION_RETENTION_DATE_TIME_UNIT: 'Hours'
+    MBD_TRANSFER_REMITTANCE_INFORMATION: 'Pagamento marca da bollo digitale'
   envSecret:
     # required
-    APPLICATIONINSIGHTS_CONNECTION_STRING: 'ai-d-connection-string'
-    OTEL_EXPORTER_OTLP_HEADERS: elastic-apm-secret-token
+    APPLICATIONINSIGHTS_CONNECTION_STRING: 'app-insight-connection-string'
   keyvault:
-    name: "pagopa-d-name-kv" #TODO
+    name: "pagopa-d-itn-ebollo-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
   nodeSelector: { }
   tolerations: [ ]
@@ -112,7 +121,7 @@ microservice-chart:
     deployment:
       create: true
       image:
-        repository: ghcr.io/pagopa/yourname # TODO
+        repository: ghcr.io/pagopa/pagopa-gps-mbd-service
         tag: "0.0.0"
         pullPolicy: Always
       envConfig: { }

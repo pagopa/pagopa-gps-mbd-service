@@ -1,1 +1,467 @@
-{}
+{
+  "openapi": "3.0.1",
+  "info": {
+    "description": "MBD GPS Service",
+    "termsOfService": "https://www.pagopa.gov.it/",
+    "title": "pagopa-gps-mbd-service",
+    "version": "0.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080"
+    },
+    {
+      "url": "https://{host}{basePath}",
+      "variables": {
+        "basePath": {
+          "default": "/pagopa-gps-mbd-service/v1"
+        },
+        "host": {
+          "default": "api.dev.platform.pagopa.it",
+          "enum": [
+            "api.dev.platform.pagopa.it",
+            "api.uat.platform.pagopa.it",
+            "api.platform.pagopa.it"
+          ]
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/info": {
+      "get": {
+        "description": "Return OK if application is started",
+        "operationId": "healthCheck",
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppInfo"
+                }
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "summary": "health check",
+        "tags": [
+          "Home"
+        ]
+      },
+      "parameters": [
+        {
+          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+          "in": "header",
+          "name": "X-Request-Id",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/mbd/paymentOption": {
+      "parameters": [
+        {
+          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+          "in": "header",
+          "name": "X-Request-Id",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "buildMbdPaymentOption",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MbdPaymentOptionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MbdPaymentOptionResponse"
+                }
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MbdPaymentOptionResponse"
+                }
+              }
+            },
+            "description": "Created",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Not found",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Service unavailable",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "summary": "Build MBD payment option model",
+        "tags": [
+          "MBD GPS"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AppInfo": {
+        "type": "object",
+        "properties": {
+          "environment": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "MbdPaymentOptionRequest": {
+        "required": [
+          "properties"
+        ],
+        "type": "object",
+        "properties": {
+          "properties": {
+            "$ref": "#/components/schemas/MbdPaymentOptionRequestProperties"
+          }
+        }
+      },
+      "MbdPaymentOptionRequestProperties": {
+        "required": [
+          "amount",
+          "documentHash",
+          "firstName",
+          "fiscalCode",
+          "lastName",
+          "provincialResidence"
+        ],
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "description": "MBD amount",
+            "format": "int64"
+          },
+          "documentHash": {
+            "maxLength": 44,
+            "minLength": 44,
+            "type": "string",
+            "description": "MBD document's hash"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "Debtor's name"
+          },
+          "fiscalCode": {
+            "type": "string",
+            "description": "Debtor's fiscal code"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Debtor's last name"
+          },
+          "provincialResidence": {
+            "type": "string",
+            "description": "Debtor's residence province"
+          }
+        },
+        "description": "MBD payment option's properties"
+      },
+      "MbdPaymentOptionResponse": {
+        "required": [
+          "paymentOption"
+        ],
+        "type": "object",
+        "properties": {
+          "paymentOption": {
+            "type": "array",
+            "description": "MBD payment option",
+            "items": {
+              "$ref": "#/components/schemas/PaymentOption"
+            }
+          }
+        }
+      },
+      "PaymentOption": {
+        "required": [
+          "amount",
+          "description",
+          "dueDate",
+          "firstName",
+          "isPartialPayment",
+          "lastName",
+          "retentionDate",
+          "transfer"
+        ],
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "description": "Payment option's amount",
+            "format": "int64"
+          },
+          "description": {
+            "maxLength": 140,
+            "minLength": 0,
+            "type": "string",
+            "description": "Payment option's description"
+          },
+          "dueDate": {
+            "type": "string",
+            "description": "Payment option's due date",
+            "format": "date-time"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "Debtor's name"
+          },
+          "isPartialPayment": {
+            "type": "boolean",
+            "description": "Payment option's is partial payment flag"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Debtor's last name"
+          },
+          "retentionDate": {
+            "type": "string",
+            "description": "Payment option's retention date",
+            "format": "date-time"
+          },
+          "transfer": {
+            "type": "array",
+            "description": "Payment option's transfer list",
+            "items": {
+              "$ref": "#/components/schemas/Transfer"
+            }
+          }
+        },
+        "description": "MBD payment option"
+      },
+      "ProblemJson": {
+        "type": "object",
+        "properties": {
+          "detail": {
+            "type": "string",
+            "description": "A human readable explanation specific to this occurrence of the problem.",
+            "example": "There was an error processing the request"
+          },
+          "status": {
+            "maximum": 600,
+            "minimum": 100,
+            "type": "integer",
+            "description": "The HTTP status code generated by the origin server for this occurrence of the problem.",
+            "format": "int32",
+            "example": 200
+          },
+          "title": {
+            "type": "string",
+            "description": "A short, summary of the problem type. Written in english and readable for engineers (usually not suited for non technical stakeholders and not localized); example: Service Unavailable"
+          }
+        }
+      },
+      "Stamp": {
+        "required": [
+          "hashDocument",
+          "provincialResidence",
+          "stampType"
+        ],
+        "type": "object",
+        "properties": {
+          "hashDocument": {
+            "maxLength": 72,
+            "minLength": 0,
+            "type": "string",
+            "description": "Document hash type is stBase64Binary72 as described in https://github.com/pagopa/pagopa-api."
+          },
+          "provincialResidence": {
+            "pattern": "[A-Z]{2}",
+            "type": "string",
+            "description": "The province of residence",
+            "example": "RM"
+          },
+          "stampType": {
+            "maxLength": 2,
+            "minLength": 2,
+            "type": "string",
+            "description": "The type of the stamp"
+          }
+        },
+        "description": "Transfer's stamp"
+      },
+      "Transfer": {
+        "required": [
+          "amount",
+          "idTransfer",
+          "remittanceInformation",
+          "stamp"
+        ],
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "description": "Transfer's amount",
+            "format": "int64"
+          },
+          "idTransfer": {
+            "type": "string",
+            "description": "Transfer's id",
+            "enum": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5"
+            ]
+          },
+          "organizationFiscalCode": {
+            "type": "string",
+            "description": "Fiscal code related to the organization targeted by this transfer.",
+            "example": "00000000000"
+          },
+          "remittanceInformation": {
+            "maxLength": 140,
+            "minLength": 0,
+            "type": "string",
+            "description": "Transfer's remittance information"
+          },
+          "stamp": {
+            "$ref": "#/components/schemas/Stamp"
+          }
+        },
+        "description": "Payment option's transfer list"
+      }
+    },
+    "securitySchemes": {
+      "ApiKey": {
+        "description": "The API key to access this function app.",
+        "in": "header",
+        "name": "Ocp-Apim-Subscription-Key",
+        "type": "apiKey"
+      }
+    }
+  }
+}
