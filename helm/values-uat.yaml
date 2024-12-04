@@ -24,15 +24,6 @@ microservice-chart:
     periodSeconds: 10
   deployment:
     create: true
-  serviceMonitor:
-    create: true
-    endpoints:
-      - interval: 10s #jmx-exporter
-        targetPort: 12345
-        path: /metrics
-  ports:
-    - 8080
-    - 12345 #jmx-exporter
   service:
     create: true
     type: ClusterIP
@@ -66,33 +57,38 @@ microservice-chart:
       cpu: "0.5"
   autoscaling:
     enable: true
-    minReplica: 3
-    maxReplica: 10
+    minReplica: 1
+    maxReplica: 1
     pollingInterval: 10 # seconds
-    cooldownPeriod: 50 # seconds
+    cooldownPeriod: 60 # seconds
     triggers:
       - type: cpu
         metadata:
           # Required
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "75"
+      - type: memory
+        metadata:
+          # Required
+          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
+          value: "70"
   envConfig:
     APP_NAME: "pagopa-gps-mbd-service"
     APP_ENVIRONMENT: "uat"
-    WEBSITE_SITE_NAME: 'pagopa-gps-mbd-service' # required to show cloud role name in application insights
-    ENV: 'azure-uat'
-    APP_LOGGING_LEVEL: 'INFO'
-    DEFAULT_LOGGING_LEVEL: 'INFO'
+    WEBSITE_SITE_NAME: "pagopa-gps-mbd-service" # required to show cloud role name in application insights
+    ENV: "azure-uat"
+    APP_LOGGING_LEVEL: "INFO"
+    DEFAULT_LOGGING_LEVEL: "INFO"
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
-    MBD_PAYMENT_OPTION_DESCRIPTION: 'Pagamento marca da bollo digitale'
-    MBD_PAYMENT_OPTION_DUE_DATE_DELTA: 20
-    MBD_PAYMENT_OPTION_DUE_DATE_TIME_UNIT: 'Minutes'
-    MBD_PAYMENT_OPTION_RETENTION_DATE_DELTA: 1
-    MBD_PAYMENT_OPTION_RETENTION_DATE_TIME_UNIT: 'Hours'
-    MBD_TRANSFER_REMITTANCE_INFORMATION: 'Pagamento marca da bollo digitale'
+    MBD_PAYMENT_OPTION_DESCRIPTION: "Pagamento marca da bollo digitale"
+    MBD_PAYMENT_OPTION_DUE_DATE_DELTA: "20"
+    MBD_PAYMENT_OPTION_DUE_DATE_TIME_UNIT: "Minutes"
+    MBD_PAYMENT_OPTION_RETENTION_DATE_DELTA: "1"
+    MBD_PAYMENT_OPTION_RETENTION_DATE_TIME_UNIT: "Hours"
+    MBD_TRANSFER_REMITTANCE_INFORMATION: "Pagamento marca da bollo digitale"
   envSecret:
     # required
-    APPLICATIONINSIGHTS_CONNECTION_STRING: 'app-insight-connection-string'
+    APPLICATIONINSIGHTS_CONNECTION_STRING: "app-insight-connection-string"
   keyvault:
     name: "pagopa-u-itn-ebollo-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
