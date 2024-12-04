@@ -81,9 +81,9 @@ public class MbdGpsController {
                     schema = @Schema(implementation = ProblemJson.class)))
       })
   @Operation(
-      summary = "Create MBD payment option",
+      summary = "Build MBD payment option model",
       security = {@SecurityRequirement(name = "ApiKey")})
-  public @Valid MbdPaymentOptionResponse createMdbPaymentOption(
+  public @Valid MbdPaymentOptionResponse buildMdbPaymentOption(
       @RequestBody @NotNull @Valid MbdPaymentOptionRequest mbdPaymentOptionRequest) {
     return this.modelMapper.map(mbdPaymentOptionRequest, MbdPaymentOptionResponse.class);
   }

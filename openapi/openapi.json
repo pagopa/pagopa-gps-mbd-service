@@ -85,7 +85,7 @@
         }
       ],
       "post": {
-        "operationId": "createMdbPaymentOption",
+        "operationId": "buildMdbPaymentOption",
         "requestBody": {
           "content": {
             "application/json": {
@@ -215,7 +215,7 @@
             "ApiKey": []
           }
         ],
-        "summary": "Create MBD payment option",
+        "summary": "Build MBD payment option model",
         "tags": [
           "MBD GPS"
         ]

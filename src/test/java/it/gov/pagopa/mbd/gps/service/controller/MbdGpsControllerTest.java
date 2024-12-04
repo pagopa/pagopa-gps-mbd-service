@@ -30,8 +30,8 @@ class MbdGpsControllerTest {
   @Autowired private ObjectMapper objectMapper;
 
   @Test
-  void createMdbPaymentOptionTestSuccess() throws Exception {
-    MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
+  void buildMbdPaymentOptionTestSuccess() throws Exception {
+    MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
 
     MvcResult result =
         mvc.perform(
@@ -78,8 +78,8 @@ class MbdGpsControllerTest {
   }
 
   @Test
-  void createMdbPaymentOptionTestFailAmountMissing() throws Exception {
-    MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
+  void buildMbdPaymentOptionTestFailAmountMissing() throws Exception {
+    MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
     request.getProperties().setAmount(null);
 
     mvc.perform(
@@ -90,8 +90,8 @@ class MbdGpsControllerTest {
   }
 
   @Test
-  void createMdbPaymentOptionTestFailFirstNameMissing() throws Exception {
-    MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
+  void buildMbdPaymentOptionTestFailFirstNameMissing() throws Exception {
+    MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
     request.getProperties().setFirstName(null);
 
     mvc.perform(
@@ -102,8 +102,8 @@ class MbdGpsControllerTest {
   }
 
   @Test
-  void createMdbPaymentOptionTestFailLastNameMissing() throws Exception {
-    MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
+  void buildMbdPaymentOptionTestFailLastNameMissing() throws Exception {
+    MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
     request.getProperties().setLastName(null);
 
     mvc.perform(
@@ -114,8 +114,8 @@ class MbdGpsControllerTest {
   }
 
   @Test
-  void createMdbPaymentOptionTestFailFiscalCodeMissing() throws Exception {
-    MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
+  void buildMbdPaymentOptionTestFailFiscalCodeMissing() throws Exception {
+    MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
     request.getProperties().setFiscalCode(null);
 
     mvc.perform(
@@ -126,8 +126,8 @@ class MbdGpsControllerTest {
   }
 
   @Test
-  void createMdbPaymentOptionTestFailProvincialResidenceMissing() throws Exception {
-    MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
+  void buildMbdPaymentOptionTestFailProvincialResidenceMissing() throws Exception {
+    MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
     request.getProperties().setProvincialResidence(null);
 
     mvc.perform(
@@ -138,8 +138,8 @@ class MbdGpsControllerTest {
   }
 
   @Test
-  void createMdbPaymentOptionTestFailDocumentHashMissing() throws Exception {
-    MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
+  void buildMbdPaymentOptionTestFailDocumentHashMissing() throws Exception {
+    MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
     request.getProperties().setDocumentHash(null);
 
     mvc.perform(
@@ -150,8 +150,8 @@ class MbdGpsControllerTest {
   }
 
   @Test
-  void createMdbPaymentOptionTestFailDocumentHashWrongSize() throws Exception {
-    MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
+  void buildMbdPaymentOptionTestFailDocumentHashWrongSize() throws Exception {
+    MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
     request.getProperties().setDocumentHash("asdfsdf");
 
     mvc.perform(
@@ -161,7 +161,7 @@ class MbdGpsControllerTest {
         .andExpect(status().is4xxClientError());
   }
 
-  private MbdPaymentOptionRequest buildMdbPaymentOptionRequest() {
+  private MbdPaymentOptionRequest buildMbdPaymentOptionRequest() {
     return MbdPaymentOptionRequest.builder()
         .properties(
             MbdPaymentOptionRequestProperties.builder()
