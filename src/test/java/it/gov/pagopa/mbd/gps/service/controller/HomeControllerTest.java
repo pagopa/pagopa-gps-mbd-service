@@ -20,4 +20,9 @@ class HomeControllerTest {
     void healthCheckTestSuccess() throws Exception {
         mvc.perform(get("/info")).andExpect(status().isOk());
     }
+
+    @Test
+    void homeTestSuccess() throws Exception {
+        mvc.perform(get("")).andExpect(status().is3xxRedirection());
+    }
 }
