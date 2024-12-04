@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: "pagopa-gps-mbd-service"
   image:
     repository: ghcr.io/pagopa/pagopa-gps-mbd-service
-    tag: "0.0.0"
+    tag: "1.0.0"
     pullPolicy: Always
   livenessProbe:
     handlerType: httpGet
@@ -47,7 +47,7 @@ microservice-chart:
     name: "ebollo-workload-identity"
   azure:
     workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
-  podAnnotations: { }
+  podAnnotations: {}
   podSecurityContext:
     seccompProfile:
       type: RuntimeDefault
@@ -96,8 +96,8 @@ microservice-chart:
   keyvault:
     name: "pagopa-u-itn-ebollo-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
-  nodeSelector: { }
-  tolerations: [ ]
+  nodeSelector: {}
+  tolerations: []
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
@@ -108,7 +108,7 @@ microservice-chart:
                 values:
                   - user
   canaryDelivery:
-    create: true
+    create: false
     ingress:
       create: true
       canary:
@@ -124,6 +124,5 @@ microservice-chart:
         repository: ghcr.io/pagopa/pagopa-gps-mbd-service
         tag: "0.0.0"
         pullPolicy: Always
-      envConfig: { }
-      envSecret: { }
-
+      envConfig: {}
+      envSecret: {}
