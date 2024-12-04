@@ -17,44 +17,44 @@ import org.springframework.web.servlet.view.RedirectView;
 @Validated
 public class HomeController {
 
-    @Value("${server.servlet.context-path}")
-    String basePath;
+  @Value("${server.servlet.context-path}")
+  String basePath;
 
-    @Value("${info.application.name}")
-    private String name;
+  @Value("${info.application.name}")
+  private String name;
 
-    @Value("${info.application.version}")
-    private String version;
+  @Value("${info.application.version}")
+  private String version;
 
-    @Value("${info.properties.environment}")
-    private String environment;
+  @Value("${info.properties.environment}")
+  private String environment;
 
-    /**
-     * @return redirect to Swagger page documentation
-     */
-    @Hidden
-    @GetMapping("")
-    public RedirectView home() {
-        if (!basePath.endsWith("/")) {
-            basePath += "/";
-        }
-        return new RedirectView(basePath + "swagger-ui.html");
+  /**
+   * @return redirect to Swagger page documentation
+   */
+  @Hidden
+  @GetMapping("")
+  public RedirectView home() {
+    if (!basePath.endsWith("/")) {
+      basePath += "/";
     }
+    return new RedirectView(basePath + "swagger-ui.html");
+  }
 
-    /**
-     * Return app name, version and environment
-     *
-     * @return the app info
-     */
-    @Operation(
-            summary = "health check",
-            description = "Return OK if application is started",
-            security = {@SecurityRequirement(name = "ApiKey")},
-            tags = {"Home"})
-    @GetMapping(value = "/info")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<AppInfo> healthCheck() {
-        AppInfo info = AppInfo.builder().name(name).version(version).environment(environment).build();
-        return ResponseEntity.status(HttpStatus.OK).body(info);
-    }
+  /**
+   * Return app name, version and environment
+   *
+   * @return the app info
+   */
+  @Operation(
+      summary = "health check",
+      description = "Return OK if application is started",
+      security = {@SecurityRequirement(name = "ApiKey")},
+      tags = {"Home"})
+  @GetMapping(value = "/info")
+  @ResponseStatus(HttpStatus.OK)
+  public ResponseEntity<AppInfo> healthCheck() {
+    AppInfo info = AppInfo.builder().name(name).version(version).environment(environment).build();
+    return ResponseEntity.status(HttpStatus.OK).body(info);
+  }
 }

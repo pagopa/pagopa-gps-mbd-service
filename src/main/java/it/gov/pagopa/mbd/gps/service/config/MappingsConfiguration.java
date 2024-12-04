@@ -11,13 +11,16 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MappingsConfiguration {
 
-    @Bean
-    ModelMapper modelMapper(ConvertMbdPaymentOptionRequestToMbdPaymentOptionResponse mdbPaymentOptionResponseConverter) {
-        ModelMapper mapper = new ModelMapper();
-        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+  @Bean
+  ModelMapper modelMapper(
+      ConvertMbdPaymentOptionRequestToMbdPaymentOptionResponse mdbPaymentOptionResponseConverter
+  ) {
+    ModelMapper mapper = new ModelMapper();
+    mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
-        mapper.createTypeMap(MbdPaymentOptionRequest.class, MbdPaymentOptionResponse.class)
-                .setConverter(mdbPaymentOptionResponseConverter);
-        return mapper;
-    }
+    mapper
+        .createTypeMap(MbdPaymentOptionRequest.class, MbdPaymentOptionResponse.class)
+        .setConverter(mdbPaymentOptionResponseConverter);
+    return mapper;
+  }
 }

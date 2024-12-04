@@ -1,10 +1,17 @@
 package it.gov.pagopa.mbd.gps.service.controller;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.gov.pagopa.mbd.gps.service.model.MbdPaymentOptionRequestProperties;
-import it.gov.pagopa.mbd.gps.service.model.PaymentOption;
 import it.gov.pagopa.mbd.gps.service.model.MbdPaymentOptionRequest;
+import it.gov.pagopa.mbd.gps.service.model.MbdPaymentOptionRequestProperties;
 import it.gov.pagopa.mbd.gps.service.model.MbdPaymentOptionResponse;
+import it.gov.pagopa.mbd.gps.service.model.PaymentOption;
 import it.gov.pagopa.mbd.gps.service.model.Transfer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,160 +21,157 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @AutoConfigureMockMvc
 @SpringBootTest
 class MbdGpsControllerTest {
 
-    @Autowired
-    private MockMvc mvc;
+  @Autowired private MockMvc mvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+  @Autowired private ObjectMapper objectMapper;
 
-    @Test
-    void createMdbPaymentOptionTestSuccess() throws Exception {
-        MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
+  @Test
+  void createMdbPaymentOptionTestSuccess() throws Exception {
+    MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
 
-        MvcResult result = mvc.perform(post("/mbd/paymentOption")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andReturn();
+    MvcResult result =
+        mvc.perform(
+                post("/mbd/paymentOption")
+                    .content(objectMapper.writeValueAsString(request))
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isCreated())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andReturn();
 
-        String json = result.getResponse().getContentAsString();
+    String json = result.getResponse().getContentAsString();
 
-        assertNotNull(json);
+    assertNotNull(json);
 
-        MbdPaymentOptionResponse response = objectMapper.readValue(json, MbdPaymentOptionResponse.class);
+    MbdPaymentOptionResponse response =
+        objectMapper.readValue(json, MbdPaymentOptionResponse.class);
 
-        assertNotNull(response);
-        assertNotNull(response.getPaymentOption());
-        assertEquals(1, response.getPaymentOption().size());
+    assertNotNull(response);
+    assertNotNull(response.getPaymentOption());
+    assertEquals(1, response.getPaymentOption().size());
 
-        PaymentOption paymentOption = response.getPaymentOption().get(0);
-        assertEquals(request.getProperties().getFirstName(), paymentOption.getFirstName());
-        assertEquals(request.getProperties().getLastName(), paymentOption.getLastName());
-        assertEquals(request.getProperties().getAmount(), paymentOption.getAmount());
-        assertNotNull(paymentOption.getDescription());
-        assertNotNull(paymentOption.getDueDate());
-        assertNotNull(paymentOption.getRetentionDate());
-        assertFalse(paymentOption.getIsPartialPayment());
-        assertNotNull(paymentOption.getTransfer());
-        assertEquals(1, paymentOption.getTransfer().size());
+    PaymentOption paymentOption = response.getPaymentOption().get(0);
+    assertEquals(request.getProperties().getFirstName(), paymentOption.getFirstName());
+    assertEquals(request.getProperties().getLastName(), paymentOption.getLastName());
+    assertEquals(request.getProperties().getAmount(), paymentOption.getAmount());
+    assertNotNull(paymentOption.getDescription());
+    assertNotNull(paymentOption.getDueDate());
+    assertNotNull(paymentOption.getRetentionDate());
+    assertFalse(paymentOption.getIsPartialPayment());
+    assertNotNull(paymentOption.getTransfer());
+    assertEquals(1, paymentOption.getTransfer().size());
 
-        Transfer transfer = paymentOption.getTransfer().get(0);
-        assertEquals(request.getProperties().getAmount(), transfer.getAmount());
-        assertEquals(request.getProperties().getFiscalCode(), transfer.getOrganizationFiscalCode());
-        assertEquals("1", transfer.getIdTransfer());
-        assertNotNull(transfer.getRemittanceInformation());
-        assertNotNull(transfer.getStamp());
-        assertEquals(request.getProperties().getProvincialResidence(), transfer.getStamp().getProvincialResidence());
-        assertEquals(request.getProperties().getDocumentHash(), transfer.getStamp().getHashDocument());
-        assertEquals("st", transfer.getStamp().getStampType());
-    }
+    Transfer transfer = paymentOption.getTransfer().get(0);
+    assertEquals(request.getProperties().getAmount(), transfer.getAmount());
+    assertEquals(request.getProperties().getFiscalCode(), transfer.getOrganizationFiscalCode());
+    assertEquals("1", transfer.getIdTransfer());
+    assertNotNull(transfer.getRemittanceInformation());
+    assertNotNull(transfer.getStamp());
+    assertEquals(
+        request.getProperties().getProvincialResidence(),
+        transfer.getStamp().getProvincialResidence());
+    assertEquals(request.getProperties().getDocumentHash(), transfer.getStamp().getHashDocument());
+    assertEquals("st", transfer.getStamp().getStampType());
+  }
 
-    @Test
-    void createMdbPaymentOptionTestFailAmountMissing() throws Exception {
-        MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
-        request.getProperties().setAmount(null);
+  @Test
+  void createMdbPaymentOptionTestFailAmountMissing() throws Exception {
+    MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
+    request.getProperties().setAmount(null);
 
-        mvc.perform(post("/mbd/paymentOption")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is4xxClientError());
+    mvc.perform(
+            post("/mbd/paymentOption")
+                .content(objectMapper.writeValueAsString(request))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError());
+  }
 
-    }
+  @Test
+  void createMdbPaymentOptionTestFailFirstNameMissing() throws Exception {
+    MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
+    request.getProperties().setFirstName(null);
 
-    @Test
-    void createMdbPaymentOptionTestFailFirstNameMissing() throws Exception {
-        MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
-        request.getProperties().setFirstName(null);
+    mvc.perform(
+            post("/mbd/paymentOption")
+                .content(objectMapper.writeValueAsString(request))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError());
+  }
 
-        mvc.perform(post("/mbd/paymentOption")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is4xxClientError());
+  @Test
+  void createMdbPaymentOptionTestFailLastNameMissing() throws Exception {
+    MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
+    request.getProperties().setLastName(null);
 
-    }
+    mvc.perform(
+            post("/mbd/paymentOption")
+                .content(objectMapper.writeValueAsString(request))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError());
+  }
 
-    @Test
-    void createMdbPaymentOptionTestFailLastNameMissing() throws Exception {
-        MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
-        request.getProperties().setLastName(null);
+  @Test
+  void createMdbPaymentOptionTestFailFiscalCodeMissing() throws Exception {
+    MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
+    request.getProperties().setFiscalCode(null);
 
-        mvc.perform(post("/mbd/paymentOption")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is4xxClientError());
+    mvc.perform(
+            post("/mbd/paymentOption")
+                .content(objectMapper.writeValueAsString(request))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError());
+  }
 
-    }
+  @Test
+  void createMdbPaymentOptionTestFailProvincialResidenceMissing() throws Exception {
+    MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
+    request.getProperties().setProvincialResidence(null);
 
-    @Test
-    void createMdbPaymentOptionTestFailFiscalCodeMissing() throws Exception {
-        MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
-        request.getProperties().setFiscalCode(null);
+    mvc.perform(
+            post("/mbd/paymentOption")
+                .content(objectMapper.writeValueAsString(request))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError());
+  }
 
-        mvc.perform(post("/mbd/paymentOption")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is4xxClientError());
+  @Test
+  void createMdbPaymentOptionTestFailDocumentHashMissing() throws Exception {
+    MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
+    request.getProperties().setDocumentHash(null);
 
-    }
+    mvc.perform(
+            post("/mbd/paymentOption")
+                .content(objectMapper.writeValueAsString(request))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError());
+  }
 
-    @Test
-    void createMdbPaymentOptionTestFailProvincialResidenceMissing() throws Exception {
-        MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
-        request.getProperties().setProvincialResidence(null);
+  @Test
+  void createMdbPaymentOptionTestFailDocumentHashWrongSize() throws Exception {
+    MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
+    request.getProperties().setDocumentHash("asdfsdf");
 
-        mvc.perform(post("/mbd/paymentOption")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is4xxClientError());
+    mvc.perform(
+            post("/mbd/paymentOption")
+                .content(objectMapper.writeValueAsString(request))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError());
+  }
 
-    }
-
-    @Test
-    void createMdbPaymentOptionTestFailDocumentHashMissing() throws Exception {
-        MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
-        request.getProperties().setDocumentHash(null);
-
-        mvc.perform(post("/mbd/paymentOption")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is4xxClientError());
-
-    }
-
-    @Test
-    void createMdbPaymentOptionTestFailDocumentHashWrongSize() throws Exception {
-        MbdPaymentOptionRequest request = buildMdbPaymentOptionRequest();
-        request.getProperties().setDocumentHash("asdfsdf");
-
-        mvc.perform(post("/mbd/paymentOption")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is4xxClientError());
-
-    }
-
-    private MbdPaymentOptionRequest buildMdbPaymentOptionRequest() {
-        return MbdPaymentOptionRequest.builder()
-                .properties(MbdPaymentOptionRequestProperties.builder()
-                        .amount(16L)
-                        .firstName("Mario")
-                        .lastName("Rossi")
-                        .fiscalCode("0000000000000000")
-                        .provincialResidence("AS")
-                        .documentHash("1trA5qyjSZNwiwtGG46dyjRpL16TFgGCFvnfFzQrFHbB")
-                        .build())
-                .build();
-    }
+  private MbdPaymentOptionRequest buildMdbPaymentOptionRequest() {
+    return MbdPaymentOptionRequest.builder()
+        .properties(
+            MbdPaymentOptionRequestProperties.builder()
+                .amount(16L)
+                .firstName("Mario")
+                .lastName("Rossi")
+                .fiscalCode("0000000000000000")
+                .provincialResidence("AS")
+                .documentHash("1trA5qyjSZNwiwtGG46dyjRpL16TFgGCFvnfFzQrFHbB")
+                .build())
+        .build();
+  }
 }
