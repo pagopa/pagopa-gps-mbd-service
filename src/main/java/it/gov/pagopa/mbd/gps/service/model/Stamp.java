@@ -20,7 +20,8 @@ public class Stamp {
   @Size(max = 72)
   @Schema(
       description =
-          "Document hash type is stBase64Binary72 as described in https://github.com/pagopa/pagopa-api.",
+          "Document hash type is stBase64Binary72 as described in"
+              + " https://github.com/pagopa/pagopa-api.",
       requiredMode = Schema.RequiredMode.REQUIRED)
   // Stamp generally get as input a base64sha256, that is the SHA256 hash of a given string encoded
   // with Base64.
