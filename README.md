@@ -1,6 +1,6 @@
 # pagoPA MBD GPS Service
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=paogpa_pagopa-gps-mbd-service&metric=alert_status)](https://sonarcloud.io/dashboard?id=paogpa_pagopa-gps-mbd-service)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pagopa_pagopa-gps-mbd-service&metric=alert_status)](https://sonarcloud.io/dashboard?id=pagopa_pagopa-gps-mbd-service)
 [![Integration Tests](https://github.com/pagopa/pagopa-gps-mbd-service/actions/workflows/ci_integration_test.yml/badge.svg?branch=main)](https://github.com/pagopa/pagopa-gps-mbd-service/actions/workflows/ci_integration_test.yml)
 
 Expose an API that will be used by GPS Payments to generate MBD payment options
