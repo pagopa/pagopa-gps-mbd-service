@@ -10,6 +10,6 @@ tags = {
   CostCenter  = "TS310 - PAGAMENTI & SERVIZI"
 }
 
-apim_dns_zone_prefix               = "dev.platform"
-external_domain                    = "pagopa.it"
-hostname = "weudev.gps.internal.dev.platform.pagopa.it"
+apim_dns_zone_prefix = "dev.platform"
+external_domain      = "pagopa.it"
+hostname             = "ebollo.itn.internal.dev.platform.pagopa.it"
