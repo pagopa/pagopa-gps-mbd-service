@@ -82,12 +82,6 @@ jobs:
         # from https://github.com/actions/checkout/commits/main
         uses: actions/checkout@1f9a0c22da41e6ebfa534300ef656657ea2c6707
 
-      - shell: bash
-        if: ${{ inputs.pr_number != '' }}
-        run: |
-          mv ./infra/04_apim_api_staging.tf.disabled ./infra/04_apim_api_staging.tf 
-          echo "pr_number=\"${{ inputs.pr_number }}\"" >> ./infra/env/dev/terraform.tfvars
-
       - name: Setup Terraform
         # from https://github.com/hashicorp/setup-terraform/commits/main
         uses: hashicorp/setup-terraform@8feba2b913ea459066180f9cb177f58a881cf146
