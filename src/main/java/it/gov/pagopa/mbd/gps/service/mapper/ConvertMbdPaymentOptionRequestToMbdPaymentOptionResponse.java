@@ -65,8 +65,6 @@ public class ConvertMbdPaymentOptionRequestToMbdPaymentOptionResponse
 
     PaymentOption paymentOption =
         PaymentOption.builder()
-            .firstName(model.getFirstName())
-            .lastName(model.getLastName())
             .amount(model.getAmount())
             .description(description)
             .dueDate(LocalDateTime.now().plus(dueDateDelta, dueDateDeltaTimeUnit))
