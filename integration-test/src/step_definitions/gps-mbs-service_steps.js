@@ -7,8 +7,8 @@ const gpsMbdServiceHost = process.env.GPS_MBD_HOST;
 const poDescription = process.env.MBD_PO_DESCRIPTION;
 const transferRemittanceInformation = process.env.MBD_TRANSFER_REMITTANCE_INFORMATION;
 
-let body;
-let responseToCheck;
+this.body = null;
+this.responseToCheck = null;
 
 When('an http POST request is sent to gps-mbd-service with valid request body', async () => {
   this.body = buildRequestBody(16, "00000000000", "PR", "1trA5qyjSZNwiwtGG46dyjRpL16TFgGCFvnfFzQrFHbB");
