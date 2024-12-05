@@ -110,4 +110,4 @@ jobs:
           export ARM_USE_OIDC=true
           export ARM_ACCESS_KEY=$(az storage account keys list --resource-group io-infra-rg --account-name pagopainfraterraform${{inputs.environment}} --query '[0].value' -o tsv)
           bash ./terraform.sh init itn-${{ inputs.environment }}
-          bash ./terraform.sh apply itn-${{ inputs.environment }} ${{inputs.terraform_options} -auto-approve
+          bash ./terraform.sh apply itn-${{ inputs.environment }} ${{inputs.terraform_options}} -auto-approve
