@@ -1,4 +1,4 @@
-const { Given, When, Then } = require('@cucumber/cucumber')
+const { After, When, Then } = require('@cucumber/cucumber')
 const assert = require("assert");
 const { post } = require("./support/common");
 const { buildRequestBody } = require("./support/util");
@@ -9,6 +9,11 @@ const transferRemittanceInformation = process.env.MBD_TRANSFER_REMITTANCE_INFORM
 
 let body = null;
 let responseToCheck = null;
+
+After(async function () {
+  body = null;
+  responseToCheck = null;
+});
 
 When('an http POST request is sent to gps-mbd-service with valid request body', async () => {
   body = buildRequestBody(16, "00000000000", "PR", "1trA5qyjSZNwiwtGG46dyjRpL16TFgGCFvnfFzQrFHbB");
@@ -35,3 +40,16 @@ Then('the response body has the expected values', function () {
   assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].stamp.stampType, "st");
   assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].stamp.provincialResidence, body.properties.provincialResidence);
 });
+
+When('an http POST request is sent to gps-mbd-service with invalid {string} request body', async (invalidParam) => {
+  body = buildRequestBody(16, "00000000000", "PR", "1trA5qyjSZNwiwtGG46dyjRpL16TFgGCFvnfFzQrFHbB");
+
+  switch (invalidParam) {
+    case "amount": body.properties.amount = null; break;
+    case "fiscalCode": body.properties.fiscalCode = ""; break;
+    case "provincialResidence": body.properties.provincialResidence = ""; break;
+    case "documentHash": body.properties.documentHash = "tooShortHash"; break;
+  }
+
+  responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
+})
