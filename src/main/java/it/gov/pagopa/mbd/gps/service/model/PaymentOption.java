@@ -19,11 +19,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PaymentOption {
 
-  @NotBlank
   @Schema(description = "Debtor's name", requiredMode = Schema.RequiredMode.REQUIRED)
   private String firstName;
 
-  @NotBlank
   @Schema(description = "Debtor's last name", requiredMode = Schema.RequiredMode.REQUIRED)
   private String lastName;
 
