@@ -1,11 +1,13 @@
-function buildRequestBody(amount, fiscalCode, provincialResidence, documentHash) {
+function buildRequestBody(amount, ciFiscalCode, debtorProvince, documentHash) {
     return {
         "properties": {
             "amount": amount,
-            "firstName": "ANONYMOUS",
-            "lastName": "ANONYMOUS",
-            "fiscalCode": fiscalCode,
-            "provincialResidence": provincialResidence,
+            "debtorName": "ANONYMOUS",
+            "debtorSurname": "ANONYMOUS",
+            "debtorFiscalCode": "11111111111111111",
+            "debtorEmail": "email@test.it",
+            "ciFiscalCode": ciFiscalCode,
+            "debtorProvince": debtorProvince,
             "documentHash": documentHash
         }
     }
