@@ -81,12 +81,8 @@ jobs:
         id: checkout
         # from https://github.com/actions/checkout/commits/main
         uses: actions/checkout@1f9a0c22da41e6ebfa534300ef656657ea2c6707
-
-      - shell: bash
-        if: ${{ inputs.pr_number != '' }}
-        run: |
-          mv ./infra/04_apim_api_staging.tf.disabled ./infra/04_apim_api_staging.tf 
-          echo "pr_number=\"${{ inputs.pr_number }}\"" >> ./infra/env/dev/terraform.tfvars
+        with:
+          persist-credentials: false
 
       - name: Setup Terraform
         # from https://github.com/hashicorp/setup-terraform/commits/main
@@ -113,5 +109,5 @@ jobs:
           export ARM_TENANT_ID=$(az account show --query tenantId --output tsv)
           export ARM_USE_OIDC=true
           export ARM_ACCESS_KEY=$(az storage account keys list --resource-group io-infra-rg --account-name pagopainfraterraform${{inputs.environment}} --query '[0].value' -o tsv)
-          bash ./terraform.sh init ${{ inputs.environment }}
-          bash ./terraform.sh apply ${{ inputs.environment }} ${{inputs.terraform_options}} -auto-approve
+          bash ./terraform.sh init itn-${{ inputs.environment }}
+          bash ./terraform.sh apply itn-${{ inputs.environment }} ${{inputs.terraform_options}} -auto-approve
