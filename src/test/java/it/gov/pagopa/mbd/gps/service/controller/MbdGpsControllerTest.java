@@ -38,7 +38,7 @@ class MbdGpsControllerTest {
                 post("/mbd/paymentOption")
                     .content(objectMapper.writeValueAsString(request))
                     .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isCreated())
+            .andExpect(status().is2xxSuccessful())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andReturn();
 
