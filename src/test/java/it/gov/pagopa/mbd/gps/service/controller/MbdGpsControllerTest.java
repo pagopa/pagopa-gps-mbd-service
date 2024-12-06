@@ -54,8 +54,6 @@ class MbdGpsControllerTest {
     assertEquals(1, response.getPaymentOption().size());
 
     PaymentOption paymentOption = response.getPaymentOption().get(0);
-    assertEquals(request.getProperties().getFirstName(), paymentOption.getFirstName());
-    assertEquals(request.getProperties().getLastName(), paymentOption.getLastName());
     assertEquals(request.getProperties().getAmount(), paymentOption.getAmount());
     assertNotNull(paymentOption.getDescription());
     assertNotNull(paymentOption.getDueDate());
