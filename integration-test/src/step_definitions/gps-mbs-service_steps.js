@@ -32,13 +32,13 @@ Then('the response body has the expected values', function () {
   assert.notStrictEqual(responseToCheck.data.paymentOption[0].retentionDate, undefined);
   assert.strictEqual(responseToCheck.data.paymentOption[0].isPartialPayment, false);
   assert.strictEqual(responseToCheck.data.paymentOption[0].transfer.length, 1);
-  assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].organizationFiscalCode, body.properties.fiscalCode);
+  assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].organizationFiscalCode, body.properties.ciFiscalCode);
   assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].idTransfer, "1");
   assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].amount, body.properties.amount);
   assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].remittanceInformation, transferRemittanceInformation);
   assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].stamp.hashDocument, body.properties.documentHash);
   assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].stamp.stampType, "st");
-  assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].stamp.provincialResidence, body.properties.provincialResidence);
+  assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].stamp.provincialResidence, body.properties.debtorProvince);
 });
 
 When('an http POST request is sent to gps-mbd-service with invalid {string} request body', async (invalidParam) => {
@@ -46,8 +46,12 @@ When('an http POST request is sent to gps-mbd-service with invalid {string} requ
 
   switch (invalidParam) {
     case "amount": body.properties.amount = null; break;
-    case "fiscalCode": body.properties.fiscalCode = ""; break;
-    case "provincialResidence": body.properties.provincialResidence = ""; break;
+    case "debtorName": body.properties.debtorName = ""; break;
+    case "debtorSurname": body.properties.debtorSurname = ""; break;
+    case "debtorEmail": body.properties.debtorEmail = ""; break;
+    case "debtorFiscalCode": body.properties.debtorFiscalCode = ""; break;
+    case "ciFiscalCode": body.properties.ciFiscalCode = ""; break;
+    case "debtorProvince": body.properties.debtorProvince = ""; break;
     case "documentHash": body.properties.documentHash = "tooShortHash"; break;
   }
 

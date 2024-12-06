@@ -9,12 +9,28 @@ Feature: All about MBD payment option build request handled by pagopa-gps-mbd-se
     When an http POST request is sent to gps-mbd-service with invalid 'amount' request body
     Then the statusCode is 400
 
-  Scenario: fail build payment option request for empty fiscal code
-    When an http POST request is sent to gps-mbd-service with invalid 'fiscalCode' request body
+  Scenario: fail build payment option request for null debtor name
+    When an http POST request is sent to gps-mbd-service with invalid 'debtorName' request body
     Then the statusCode is 400
 
-  Scenario: fail build payment option request for empty residence provice
-    When an http POST request is sent to gps-mbd-service with invalid 'provincialResidence' request body
+  Scenario: fail build payment option request for null debtor surname
+    When an http POST request is sent to gps-mbd-service with invalid 'debtorSurname' request body
+    Then the statusCode is 400
+
+  Scenario: fail build payment option request for null debtor fiscal code
+    When an http POST request is sent to gps-mbd-service with invalid 'debtorFiscalCode' request body
+    Then the statusCode is 400
+
+  Scenario: fail build payment option request for null debtor email
+    When an http POST request is sent to gps-mbd-service with invalid 'debtorEmail' request body
+    Then the statusCode is 400
+
+  Scenario: fail build payment option request for empty CI fiscal code
+    When an http POST request is sent to gps-mbd-service with invalid 'ciFiscalCode' request body
+    Then the statusCode is 400
+
+  Scenario: fail build payment option request for empty debtor residence province
+    When an http POST request is sent to gps-mbd-service with invalid 'debtorProvince' request body
     Then the statusCode is 400
 
   Scenario: fail build payment option request for document hash too short
