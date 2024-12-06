@@ -6,7 +6,7 @@ locals {
 
   prefix         = "pagopa"
   domain         = "ebollo"
-  location_short = "weu"
+  location_short = "itn"
   product        = "${var.prefix}-${var.env_short}"
 
   app_name = "github-${local.github.org}-${local.github.repository}-${var.prefix}-${local.domain}-${var.env}-aks"
