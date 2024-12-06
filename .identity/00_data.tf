@@ -54,7 +54,7 @@ data "azurerm_key_vault_secret" "key_vault_cucumber_token" {
 }
 
 data "azurerm_key_vault_secret" "key_vault_integration_test_subkey" {
-  name         = "apikey-integration_test"
+  name         = "apikey-gps-mbd-integration-test"
   key_vault_id = data.azurerm_key_vault.domain_key_vault.id
 }
 
