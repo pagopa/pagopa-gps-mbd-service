@@ -1,8 +1,8 @@
 import http from 'k6/http';
 
-const subKey = `${__ENV.OCP_APIM_SUBSCRIPTION_KEY}`;
+const subKey = `${__ENV.API_SUBSCRIPTION_KEY}`;
 
-export function example(url, ciFiscalCode) {
+export function postToGPSMBDService(url, ciFiscalCode) {
   let headers = {
     'Ocp-Apim-Subscription-Key': subKey,
     "Content-Type": "application/json"

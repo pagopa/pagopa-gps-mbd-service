@@ -1,4 +1,4 @@
-import http from 'k6/http';
+import { postToGPSMBDService } from './modules/client.js';
 import { check } from 'k6';
 import { SharedArray } from 'k6/data';
 
@@ -33,7 +33,7 @@ function postcondition() {
 }
 
 export default function () {
-  let response = http.post(`${gpsMbdHost}/mbd/paymentOption`, "00000000000");
+  let response = postToGPSMBDService(`${gpsMbdHost}/mbd/paymentOption`, "00000000000");
   console.info(`GPS MBD Service buildMbdPaymentOption status ${response.status}`);
 
   let responseBody = JSON.parse(response.body);
