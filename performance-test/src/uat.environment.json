@@ -1,0 +1,8 @@
+{
+  "environment": [
+    {
+      "env": "uat",
+      "gpsMbdHost": "https://api.uat.platform.pagopa.it/pagopa-gps-mbd-service/v1"
+    }
+  ]
+}
