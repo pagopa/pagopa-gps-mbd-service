@@ -16,28 +16,36 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class MbdPaymentOptionRequestProperties {
 
-  @NotNull(message = "amount is required")
+  @NotNull(message = "Amount is required")
   @Schema(description = "MBD amount", requiredMode = Schema.RequiredMode.REQUIRED)
   private Long amount;
 
-  @NotBlank
+  @NotBlank(message = "Debtor first name must be not empty")
   @Schema(description = "Debtor's name", requiredMode = Schema.RequiredMode.REQUIRED)
-  private String firstName;
+  private String debtorName;
 
-  @NotBlank
+  @NotBlank(message = "Debtor last name must be not empty")
   @Schema(description = "Debtor's last name", requiredMode = Schema.RequiredMode.REQUIRED)
-  private String lastName;
+  private String debtorSurname;
 
-  @NotBlank
+  @NotBlank(message = "Debtor email must be not empty")
+  @Schema(description = "Debtor's email", requiredMode = Schema.RequiredMode.REQUIRED)
+  private String debtorEmail;
+
+  @NotBlank(message = "Debtor fiscal code must be not empty")
   @Schema(description = "Debtor's fiscal code", requiredMode = Schema.RequiredMode.REQUIRED)
-  private String fiscalCode;
+  private String debtorFiscalCode;
 
-  @NotBlank
+  @NotBlank(message = "Fiscal code must be not empty")
+  @Schema(description = "Creditor Institution's fiscal code", requiredMode = Schema.RequiredMode.REQUIRED)
+  private String ciFiscalCode;
+
+  @NotBlank(message = "Residence province must be not empty")
   @Schema(description = "Debtor's residence province", requiredMode = Schema.RequiredMode.REQUIRED)
-  private String provincialResidence;
+  private String debtorProvince;
 
-  @NotBlank
-  @Size(min = 44, max = 44)
+  @NotBlank(message = "MBD document's hash must be not empty")
+  @Size(min = 44, max = 44, message = "MBD document's hash must be exactly 44 characters long")
   @Schema(description = "MBD document's hash", requiredMode = Schema.RequiredMode.REQUIRED)
   private String documentHash;
 }
