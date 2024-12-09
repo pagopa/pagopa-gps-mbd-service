@@ -80,6 +80,7 @@ microservice-chart:
     APP_LOGGING_LEVEL: "INFO"
     DEFAULT_LOGGING_LEVEL: "INFO"
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
+    OTEL_SERVICE_NAME: "pagopa-gps-mbd-service"
     MBD_PAYMENT_OPTION_DESCRIPTION: "Pagamento marca da bollo digitale"
     MBD_PAYMENT_OPTION_DUE_DATE_DELTA: "20"
     MBD_PAYMENT_OPTION_DUE_DATE_TIME_UNIT: "Minutes"
