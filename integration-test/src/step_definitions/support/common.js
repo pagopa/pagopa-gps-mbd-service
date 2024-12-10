@@ -9,7 +9,7 @@ function post(url, body) {
     headers: {
       'Content-Type': 'application/json',
       'accept': 'application/json',
-      'Ocp-Apim-Subscription-Key': process.env.SUBKEY;
+      'Ocp-Apim-Subscription-Key': process.env.SUBKEY
     }
   })
   .then(res => {
