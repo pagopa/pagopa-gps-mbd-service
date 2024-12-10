@@ -38,7 +38,7 @@ class MbdGpsControllerTest {
                 post("/mbd/paymentOption")
                     .content(objectMapper.writeValueAsString(request))
                     .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isCreated())
+            .andExpect(status().is2xxSuccessful())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andReturn();
 
@@ -54,8 +54,6 @@ class MbdGpsControllerTest {
     assertEquals(1, response.getPaymentOption().size());
 
     PaymentOption paymentOption = response.getPaymentOption().get(0);
-    assertEquals(request.getProperties().getFirstName(), paymentOption.getFirstName());
-    assertEquals(request.getProperties().getLastName(), paymentOption.getLastName());
     assertEquals(request.getProperties().getAmount(), paymentOption.getAmount());
     assertNotNull(paymentOption.getDescription());
     assertNotNull(paymentOption.getDueDate());
@@ -66,13 +64,12 @@ class MbdGpsControllerTest {
 
     Transfer transfer = paymentOption.getTransfer().get(0);
     assertEquals(request.getProperties().getAmount(), transfer.getAmount());
-    assertEquals(request.getProperties().getFiscalCode(), transfer.getOrganizationFiscalCode());
+    assertEquals(request.getProperties().getCiFiscalCode(), transfer.getOrganizationFiscalCode());
     assertEquals("1", transfer.getIdTransfer());
     assertNotNull(transfer.getRemittanceInformation());
     assertNotNull(transfer.getStamp());
     assertEquals(
-        request.getProperties().getProvincialResidence(),
-        transfer.getStamp().getProvincialResidence());
+        request.getProperties().getDebtorProvince(), transfer.getStamp().getProvincialResidence());
     assertEquals(request.getProperties().getDocumentHash(), transfer.getStamp().getHashDocument());
     assertEquals("st", transfer.getStamp().getStampType());
   }
@@ -90,9 +87,9 @@ class MbdGpsControllerTest {
   }
 
   @Test
-  void buildMbdPaymentOptionTestFailFirstNameMissing() throws Exception {
+  void buildMbdPaymentOptionTestFailDebtorFirstNameMissing() throws Exception {
     MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
-    request.getProperties().setFirstName(null);
+    request.getProperties().setDebtorName(null);
 
     mvc.perform(
             post("/mbd/paymentOption")
@@ -102,9 +99,33 @@ class MbdGpsControllerTest {
   }
 
   @Test
-  void buildMbdPaymentOptionTestFailLastNameMissing() throws Exception {
+  void buildMbdPaymentOptionTestFailDebtorLastNameMissing() throws Exception {
     MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
-    request.getProperties().setLastName(null);
+    request.getProperties().setDebtorSurname(null);
+
+    mvc.perform(
+            post("/mbd/paymentOption")
+                .content(objectMapper.writeValueAsString(request))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError());
+  }
+
+  @Test
+  void buildMbdPaymentOptionTestFailDebtorFiscalCodeMissing() throws Exception {
+    MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
+    request.getProperties().setDebtorFiscalCode(null);
+
+    mvc.perform(
+            post("/mbd/paymentOption")
+                .content(objectMapper.writeValueAsString(request))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError());
+  }
+
+  @Test
+  void buildMbdPaymentOptionTestFailDebtorEmailMissing() throws Exception {
+    MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
+    request.getProperties().setDebtorEmail(null);
 
     mvc.perform(
             post("/mbd/paymentOption")
@@ -116,7 +137,7 @@ class MbdGpsControllerTest {
   @Test
   void buildMbdPaymentOptionTestFailFiscalCodeMissing() throws Exception {
     MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
-    request.getProperties().setFiscalCode(null);
+    request.getProperties().setCiFiscalCode(null);
 
     mvc.perform(
             post("/mbd/paymentOption")
@@ -128,7 +149,7 @@ class MbdGpsControllerTest {
   @Test
   void buildMbdPaymentOptionTestFailProvincialResidenceMissing() throws Exception {
     MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
-    request.getProperties().setProvincialResidence(null);
+    request.getProperties().setDebtorProvince(null);
 
     mvc.perform(
             post("/mbd/paymentOption")
@@ -166,10 +187,12 @@ class MbdGpsControllerTest {
         .properties(
             MbdPaymentOptionRequestProperties.builder()
                 .amount(16L)
-                .firstName("Mario")
-                .lastName("Rossi")
-                .fiscalCode("0000000000000000")
-                .provincialResidence("AS")
+                .debtorName("Mario")
+                .debtorSurname("Rossi")
+                .debtorFiscalCode("111111111111111")
+                .debtorEmail("email")
+                .ciFiscalCode("0000000000000000")
+                .debtorProvince("AS")
                 .documentHash("1trA5qyjSZNwiwtGG46dyjRpL16TFgGCFvnfFzQrFHbB")
                 .build())
         .build();

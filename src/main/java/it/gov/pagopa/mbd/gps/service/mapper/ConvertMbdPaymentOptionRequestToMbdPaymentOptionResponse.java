@@ -53,20 +53,18 @@ public class ConvertMbdPaymentOptionRequestToMbdPaymentOptionResponse
         Transfer.builder()
             .amount(model.getAmount())
             .idTransfer(ID_TRANSFER)
-            .organizationFiscalCode(model.getFiscalCode())
+            .organizationFiscalCode(model.getCiFiscalCode())
             .remittanceInformation(remittanceInformation)
             .stamp(
                 Stamp.builder()
                     .hashDocument(model.getDocumentHash())
-                    .provincialResidence(model.getProvincialResidence())
+                    .provincialResidence(model.getDebtorProvince())
                     .stampType(STAMP_TYPE)
                     .build())
             .build();
 
     PaymentOption paymentOption =
         PaymentOption.builder()
-            .firstName(model.getFirstName())
-            .lastName(model.getLastName())
             .amount(model.getAmount())
             .description(description)
             .dueDate(LocalDateTime.now().plus(dueDateDelta, dueDateDeltaTimeUnit))
