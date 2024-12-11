@@ -41,11 +41,12 @@ export default function () {
   if (response.status != 200) {
     console.log("ERROR: ", responseBody);
   }
+
   check(response, {
     'GPS MBD Service buildMbdPaymentOption status is 200': () => response.status === 200,
     'GPS MBD Service buildMbdPaymentOption body has one of payment option': () =>
-      Boolean(responseBody && responseBody.length && responseBody.length == 1),
-    'GPS MBD Service buildMbdPaymentOption the payment option has the expected CI fiscal code': () => responseBody[0].transfer[0].organizationFiscalCode === "00000000000"
+      Boolean(responseBody && responseBody.paymentOption && responseBody.paymentOption.length && responseBody.paymentOption.length == 1),
+    'GPS MBD Service buildMbdPaymentOption the payment option has the expected CI fiscal code': () => responseBody.paymentOption[0].transfer[0].organizationFiscalCode === "00000000000"
   });
 
   postcondition();

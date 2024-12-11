@@ -25,7 +25,7 @@ parameters:
     displayName: "DB name"
     type: string
     values:
-      - gpdk6
+      - ebollok6
 variables:
   ${{ if eq(parameters['ENVIRONMENT'], 'dev') }}:
     poolImage: 'pagopa-dev-loadtest-linux'
