@@ -43,7 +43,7 @@ public class MbdGpsController {
    * @return the mapped model
    */
   @PostMapping("/mbd/paymentOption")
-  @ResponseStatus(HttpStatus.CREATED)
+  @ResponseStatus(HttpStatus.OK)
   @ApiResponses(
       value = {
         @ApiResponse(

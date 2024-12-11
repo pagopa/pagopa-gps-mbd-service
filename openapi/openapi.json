@@ -4,7 +4,7 @@
     "description": "MBD GPS Service",
     "termsOfService": "https://www.pagopa.gov.it/",
     "title": "pagopa-gps-mbd-service",
-    "version": "1.0.2"
+    "version": "1.1.0"
   },
   "servers": [
     {
@@ -106,24 +106,6 @@
               }
             },
             "description": "OK",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MbdPaymentOptionResponse"
-                }
-              }
-            },
-            "description": "Created",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -252,11 +234,13 @@
       "MbdPaymentOptionRequestProperties": {
         "required": [
           "amount",
-          "documentHash",
-          "firstName",
-          "fiscalCode",
-          "lastName",
-          "provincialResidence"
+          "ciFiscalCode",
+          "debtorEmail",
+          "debtorFiscalCode",
+          "debtorName",
+          "debtorProvince",
+          "debtorSurname",
+          "documentHash"
         ],
         "type": "object",
         "properties": {
@@ -265,27 +249,35 @@
             "description": "MBD amount",
             "format": "int64"
           },
+          "ciFiscalCode": {
+            "type": "string",
+            "description": "Creditor Institution's fiscal code"
+          },
+          "debtorEmail": {
+            "type": "string",
+            "description": "Debtor's email"
+          },
+          "debtorFiscalCode": {
+            "type": "string",
+            "description": "Debtor's fiscal code"
+          },
+          "debtorName": {
+            "type": "string",
+            "description": "Debtor's name"
+          },
+          "debtorProvince": {
+            "type": "string",
+            "description": "Debtor's residence province"
+          },
+          "debtorSurname": {
+            "type": "string",
+            "description": "Debtor's last name"
+          },
           "documentHash": {
             "maxLength": 44,
             "minLength": 44,
             "type": "string",
             "description": "MBD document's hash"
-          },
-          "firstName": {
-            "type": "string",
-            "description": "Debtor's name"
-          },
-          "fiscalCode": {
-            "type": "string",
-            "description": "Debtor's fiscal code"
-          },
-          "lastName": {
-            "type": "string",
-            "description": "Debtor's last name"
-          },
-          "provincialResidence": {
-            "type": "string",
-            "description": "Debtor's residence province"
           }
         },
         "description": "MBD payment option's properties"

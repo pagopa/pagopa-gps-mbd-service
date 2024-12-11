@@ -84,7 +84,7 @@ To run the **Junit** tests:
 From `./integration-test/src`
 
 1. `yarn install`
-2. `yarn test`
+2. `yarn test:<env>`
 
 #### Performance testing
 
