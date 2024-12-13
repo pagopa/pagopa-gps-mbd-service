@@ -31,6 +31,7 @@ Then('the response body has the expected values', function () {
   assert.notStrictEqual(responseToCheck.data.paymentOption[0].dueDate, undefined);
   assert.notStrictEqual(responseToCheck.data.paymentOption[0].retentionDate, undefined);
   assert.strictEqual(responseToCheck.data.paymentOption[0].isPartialPayment, false);
+  assert.strictEqual(responseToCheck.data.paymentOption[0].organizationFiscalCode, body.properties.ciFiscalCode);
   assert.strictEqual(responseToCheck.data.paymentOption[0].transfer.length, 1);
   assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].organizationFiscalCode, body.properties.ciFiscalCode);
   assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].idTransfer, "1");

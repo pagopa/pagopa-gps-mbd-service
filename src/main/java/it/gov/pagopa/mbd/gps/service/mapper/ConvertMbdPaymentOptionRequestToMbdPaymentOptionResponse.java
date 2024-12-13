@@ -70,6 +70,7 @@ public class ConvertMbdPaymentOptionRequestToMbdPaymentOptionResponse
             .dueDate(LocalDateTime.now().plus(dueDateDelta, dueDateDeltaTimeUnit))
             .retentionDate(LocalDateTime.now().plus(retentionDateDelta, retentionDateDeltaTimeUnit))
             .isPartialPayment(IS_PARTIAL_PAYMENT)
+            .organizationFiscalCode(model.getCiFiscalCode())
             .transfer(Collections.singletonList(transfer))
             .build();
 
