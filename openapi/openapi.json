@@ -338,6 +338,11 @@
             "type": "string",
             "description": "Debtor's last name"
           },
+          "organizationFiscalCode": {
+            "type": "string",
+            "description": "Fiscal code related to the organization targeted by this transfer.",
+            "example": "00000000000"
+          },
           "retentionDate": {
             "type": "string",
             "description": "Payment option's retention date",

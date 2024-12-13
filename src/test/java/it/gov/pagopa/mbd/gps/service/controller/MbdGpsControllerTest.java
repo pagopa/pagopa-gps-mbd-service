@@ -59,6 +59,7 @@ class MbdGpsControllerTest {
     assertNotNull(paymentOption.getDueDate());
     assertNotNull(paymentOption.getRetentionDate());
     assertFalse(paymentOption.getIsPartialPayment());
+    assertEquals(request.getProperties().getCiFiscalCode(), paymentOption.getOrganizationFiscalCode());
     assertNotNull(paymentOption.getTransfer());
     assertEquals(1, paymentOption.getTransfer().size());
 

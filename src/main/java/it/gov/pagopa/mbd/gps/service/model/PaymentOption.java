@@ -49,6 +49,11 @@ public class PaymentOption {
       requiredMode = Schema.RequiredMode.REQUIRED)
   private LocalDateTime retentionDate;
 
+  @Schema(
+          description = "Fiscal code related to the organization targeted by this transfer.",
+          example = "00000000000")
+  private String organizationFiscalCode;
+
   @Valid
   @Schema(
       description = "Payment option's transfer list",
