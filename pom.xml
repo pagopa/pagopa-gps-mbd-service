@@ -12,7 +12,7 @@
 
     <groupId>it.gov.pagopa</groupId>
     <artifactId>pagopa-gps-mbd-service</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
     <name>MBD GPS Service</name>
     <description>MBD GPS Service</description>
 
