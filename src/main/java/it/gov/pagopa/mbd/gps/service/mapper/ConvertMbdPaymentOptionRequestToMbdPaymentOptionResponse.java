@@ -24,7 +24,7 @@ public class ConvertMbdPaymentOptionRequestToMbdPaymentOptionResponse
 
   private static final boolean IS_PARTIAL_PAYMENT = false;
   private static final String ID_TRANSFER = "1";
-  private static final String STAMP_TYPE = "st";
+  private static final String STAMP_TYPE = "01";
 
   @Value("${mbd.payment-option.description}")
   private String description;
