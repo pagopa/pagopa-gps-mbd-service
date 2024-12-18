@@ -72,7 +72,7 @@ class MbdGpsControllerTest {
     assertEquals(
         request.getProperties().getDebtorProvince(), transfer.getStamp().getProvincialResidence());
     assertEquals(request.getProperties().getDocumentHash(), transfer.getStamp().getHashDocument());
-    assertEquals("st", transfer.getStamp().getStampType());
+    assertEquals("01", transfer.getStamp().getStampType());
   }
 
   @Test

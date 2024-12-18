@@ -38,7 +38,7 @@ Then('the response body has the expected values', function () {
   assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].amount, body.properties.amount);
   assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].remittanceInformation, transferRemittanceInformation);
   assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].stamp.hashDocument, body.properties.documentHash);
-  assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].stamp.stampType, "st");
+  assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].stamp.stampType, "01");
   assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].stamp.provincialResidence, body.properties.debtorProvince);
 });
 
