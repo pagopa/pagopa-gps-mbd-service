@@ -24,7 +24,7 @@ locals {
     "CLIENT_ID" : data.azurerm_user_assigned_identity.identity_cd_01.client_id,
     "TENANT_ID" : data.azurerm_client_config.current.tenant_id,
     "SUBSCRIPTION_ID" : data.azurerm_subscription.current.subscription_id,
-    "SUBKEY" : data.azurerm_key_vault_secret.key_vault_integration_test_subkey.value,
+    "SUBKEY" : var.env_short != "p" ? data.azurerm_key_vault_secret.key_vault_integration_test_subkey[0].value : "-"
   }
   env_variables = {
     "CONTAINER_APP_ENVIRONMENT_NAME" : local.container_app_environment.name,
@@ -38,7 +38,7 @@ locals {
     "SONAR_TOKEN" : data.azurerm_key_vault_secret.key_vault_sonar.value,
     "BOT_TOKEN_GITHUB" : data.azurerm_key_vault_secret.key_vault_bot_token.value,
     "CUCUMBER_PUBLISH_TOKEN" : data.azurerm_key_vault_secret.key_vault_cucumber_token.value,
-    "SUBKEY" : data.azurerm_key_vault_secret.key_vault_integration_test_subkey.value,
+    "SUBKEY" : var.env_short != "p" ? data.azurerm_key_vault_secret.key_vault_integration_test_subkey[0].value : "-"
   }
   special_repo_secrets = {
     "CLIENT_ID" : {
@@ -55,7 +55,7 @@ locals {
     },
     "SUBKEY" : {
       "key" : "${upper(var.env)}_SUBKEY",
-      "value" : data.azurerm_key_vault_secret.key_vault_integration_test_subkey.value
+      "value" : var.env_short != "p" ? data.azurerm_key_vault_secret.key_vault_integration_test_subkey[0].value : "-"
     },
   }
 }
