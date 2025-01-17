@@ -53,7 +53,7 @@ jobs:
     needs: [integration_test]
     runs-on: ubuntu-latest
     name: Notify
-    if: ${{ always() && (inputs == null || inputs.notify == 'true')  }}
+    if: ${{ always() && (github.event_name == 'schedule' || inputs.notify == true ) }}
     steps:
       - name: Report Status
         uses: ravsamhq/notify-slack-action@be814b201e233b2dc673608aa46e5447c8ab13f2 # v2
@@ -65,4 +65,4 @@ jobs:
           message_format: "{emoji} <{run_url}|{workflow}> {status_message} in <{repo_url}|{repo}> in ${{ inputs.environment }}"
           footer: "Linked to <{workflow_url}| workflow file>"
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_TEST }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

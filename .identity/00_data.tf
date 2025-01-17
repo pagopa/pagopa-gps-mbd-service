@@ -60,6 +60,11 @@ data "azurerm_key_vault_secret" "key_vault_integration_test_subkey" {
   key_vault_id = data.azurerm_key_vault.domain_key_vault.id
 }
 
+data "azurerm_key_vault_secret" "key_vault_slack_webhook_url" {
+  name         = "SLACK-WEBHOOK-URL"
+  key_vault_id = data.azurerm_key_vault.domain_key_vault.id
+}
+
 data "azurerm_user_assigned_identity" "workload_identity_clientid" {
   name                = "ebollo-workload-identity"
   resource_group_name = "pagopa-${var.env_short}-itn-${var.env}-aks-rg"
