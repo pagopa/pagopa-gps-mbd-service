@@ -65,4 +65,4 @@ jobs:
           message_format: "{emoji} <{run_url}|{workflow}> {status_message} in <{repo_url}|{repo}> in ${{ inputs.environment }}"
           footer: "Linked to <{workflow_url}| workflow file>"
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_TEST }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
