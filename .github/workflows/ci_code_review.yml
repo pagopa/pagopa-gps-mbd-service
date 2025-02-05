@@ -45,7 +45,7 @@ jobs:
           java_version: 17
 
       - name: suggester / junit
-        uses: reviewdog/action-suggester@v1
+        uses: reviewdog/action-suggester@a3026c6020837c23b61a79d12db223a00df19e6a # v1
         with:
           tool_name: junit
 
