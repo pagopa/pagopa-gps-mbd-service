@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: "pagopa-gps-mbd-service"
   image:
     repository: ghcr.io/pagopa/pagopa-gps-mbd-service
-    tag: "1.2.3"
+    tag: "1.2.4"
     pullPolicy: Always
   livenessProbe:
     handlerType: httpGet

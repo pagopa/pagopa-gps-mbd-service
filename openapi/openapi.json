@@ -4,7 +4,7 @@
     "description": "MBD GPS Service",
     "termsOfService": "https://www.pagopa.gov.it/",
     "title": "pagopa-gps-mbd-service",
-    "version": "1.2.3"
+    "version": "1.2.4"
   },
   "servers": [
     {
