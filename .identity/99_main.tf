@@ -8,11 +8,15 @@ terraform {
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "3.45.0"
+      version = "<= 3.110.0"
     }
     github = {
       source  = "integrations/github"
       version = "5.18.3"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "= 2.18.1"
     }
   }
 
@@ -20,13 +24,20 @@ terraform {
 }
 
 provider "azurerm" {
+  skip_provider_registration = true
   features {}
 }
 
 provider "github" {
-  owner = "pagopa"
+  owner          = "pagopa"
+  write_delay_ms = "200"
+  read_delay_ms  = "200"
 }
 
 data "azurerm_subscription" "current" {}
 
 data "azurerm_client_config" "current" {}
+
+provider "kubernetes" {
+  config_path = "${var.k8s_kube_config_path_prefix}/config-${local.aks_cluster.name}"
+}
