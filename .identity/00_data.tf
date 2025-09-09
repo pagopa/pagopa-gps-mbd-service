@@ -1,8 +1,3 @@
-data "azurerm_storage_account" "tf_storage_account"{
-  name                = "pagopainfraterraform${var.env}"
-  resource_group_name = "io-infra-rg"
-}
-
 data "azurerm_resource_group" "dashboards" {
   name = "dashboards"
 }
@@ -44,8 +39,8 @@ data "azurerm_key_vault_secret" "key_vault_sonar" {
 }
 
 data "azurerm_key_vault_secret" "key_vault_bot_token" {
-  name         = "bot-token-github"
-  key_vault_id = data.azurerm_key_vault.key_vault.id
+  name         = "pagopa-platform-domain-github-bot-cd-pat"
+  key_vault_id = data.azurerm_key_vault.domain_key_vault.id
 }
 
 data "azurerm_key_vault_secret" "key_vault_cucumber_token" {
@@ -60,8 +55,13 @@ data "azurerm_key_vault_secret" "key_vault_integration_test_subkey" {
   key_vault_id = data.azurerm_key_vault.domain_key_vault.id
 }
 
-data "azurerm_key_vault_secret" "key_vault_slack_webhook_url" {
-  name         = "SLACK-WEBHOOK-URL"
+data "azurerm_key_vault_secret" "key_vault_deploy_slack_webhook" {
+  name         = "pagopa-pagamenti-deploy-slack-webhook"
+  key_vault_id = data.azurerm_key_vault.domain_key_vault.id
+}
+
+data "azurerm_key_vault_secret" "key_vault_integration_test_slack_webhook" {
+  name         = "pagopa-pagamenti-integration-test-slack-webhook"
   key_vault_id = data.azurerm_key_vault.domain_key_vault.id
 }
 

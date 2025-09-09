@@ -92,7 +92,7 @@ jobs:
       - run: echo "ENVIRNOMENT=${{ inputs.environment}}" >> $GITHUB_ENV
 
       - if: ${{ inputs.environment == null }}
-        run: echo "ENVIRNOMENT=dev" >> $GITHUB_ENV
+        run: echo "ENVIRONMENT=dev" >> $GITHUB_ENV
 
       - id: get_env
         name: Set Output
@@ -156,4 +156,4 @@ jobs:
           footer: 'Linked to <{workflow_url}| workflow file>'
           icon_success: ':white_check_mark:'
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_DEPLOY }}
