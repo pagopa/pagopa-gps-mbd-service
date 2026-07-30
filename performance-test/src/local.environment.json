@@ -1,8 +1,0 @@
-{
-  "environment": [
-    {
-      "env": "local",
-      "gpsMbdHost": "http://localhost:8080"
-    }
-  ]
-}

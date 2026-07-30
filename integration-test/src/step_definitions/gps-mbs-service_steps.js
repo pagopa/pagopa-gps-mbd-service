@@ -1,60 +1,75 @@
-const { After, When, Then } = require('@cucumber/cucumber')
-const assert = require("assert");
-const { post } = require("./support/common");
-const { buildRequestBody } = require("./support/util");
+const { After, When, Then } = require('@cucumber/cucumber');
+const assert = require('assert');
+const { post } = require('./support/common');
+const { buildRequestBody } = require('./support/util');
 
 const gpsMbdServiceHost = process.env.GPS_MBD_HOST;
-const poDescription = process.env.MBD_PO_DESCRIPTION;
-const transferRemittanceInformation = process.env.MBD_TRANSFER_REMITTANCE_INFORMATION;
 
 let body = null;
 let responseToCheck = null;
 
 After(async function () {
-  body = null;
-  responseToCheck = null;
+    body = null;
+    responseToCheck = null;
 });
 
-When('an http POST request is sent to gps-mbd-service with valid request body', async () => {
-  body = buildRequestBody(16, "00000000000", "PR", "1trA5qyjSZNwiwtGG46dyjRpL16TFgGCFvnfFzQrFHbB");
-  responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
+When('an http POST request is sent to gps-mbd-service for physical person with fiscal code {string}, name {string} and surname {string}', async function (fiscalCode, name, surname) {
+    body = buildRequestBody(100, fiscalCode, "MI", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=", name, surname);
+    responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
+});
+
+When('an http POST request is sent to gps-mbd-service for legal entity with VAT {string} and surname {string}', async function (vat, surname) {
+    body = buildRequestBody(100, vat, "MI", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=", null, surname);
+    responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
+});
+
+When('an http POST request is sent to gps-mbd-service for physical person with fiscal code {string} and missing name', async function (fiscalCode) {
+    body = buildRequestBody(100, fiscalCode, "MI", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=", null, "Rossi");
+    responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
 });
 
 Then('the statusCode is {int}', function (statusCode) {
-  assert.strictEqual(responseToCheck.status, statusCode);
+    assert.strictEqual(responseToCheck.status, statusCode);
 });
 
-Then('the response body has the expected values', function () {
-  assert.strictEqual(responseToCheck.data.paymentOption.length, 1);
-  assert.strictEqual(responseToCheck.data.paymentOption[0].amount, body.properties.amount);
-  assert.strictEqual(responseToCheck.data.paymentOption[0].description, poDescription);
-  assert.notStrictEqual(responseToCheck.data.paymentOption[0].dueDate, undefined);
-  assert.notStrictEqual(responseToCheck.data.paymentOption[0].retentionDate, undefined);
-  assert.strictEqual(responseToCheck.data.paymentOption[0].isPartialPayment, false);
-  assert.strictEqual(responseToCheck.data.paymentOption[0].organizationFiscalCode, body.properties.ciFiscalCode);
-  assert.strictEqual(responseToCheck.data.paymentOption[0].transfer.length, 1);
-  assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].organizationFiscalCode, body.properties.ciFiscalCode);
-  assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].idTransfer, "1");
-  assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].amount, body.properties.amount);
-  assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].remittanceInformation, transferRemittanceInformation);
-  assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].stamp.hashDocument, body.properties.documentHash);
-  assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].stamp.stampType, "01");
-  assert.strictEqual(responseToCheck.data.paymentOption[0].transfer[0].stamp.provincialResidence, body.properties.debtorProvince);
+When('an http POST request is sent to gps-mbd-service for legal entity with VAT {string} and missing surname', async function (vat) {
+   const body = buildRequestBody(100, vat, "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", null, null);
+    responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
 });
 
-When('an http POST request is sent to gps-mbd-service with invalid {string} request body', async (invalidParam) => {
-  body = buildRequestBody(16, "00000000000", "PR", "1trA5qyjSZNwiwtGG46dyjRpL16TFgGCFvnfFzQrFHbB");
+When('an http POST request is sent to gps-mbd-service with debtor fiscal code {string}', async function (invalidFiscalCode) {
+    const body = buildRequestBody(100, invalidFiscalCode, "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario", "Rossi");
+    responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
+});
 
-  switch (invalidParam) {
-    case "amount": body.properties.amount = null; break;
-    case "debtorName": body.properties.debtorName = ""; break;
-    case "debtorSurname": body.properties.debtorSurname = ""; break;
-    case "debtorEmail": body.properties.debtorEmail = ""; break;
-    case "debtorFiscalCode": body.properties.debtorFiscalCode = ""; break;
-    case "ciFiscalCode": body.properties.ciFiscalCode = ""; break;
-    case "debtorProvince": body.properties.debtorProvince = ""; break;
-    case "documentHash": body.properties.documentHash = "tooShortHash"; break;
-  }
+When('an http POST request is sent to gps-mbd-service with empty email', async function () {
+    const body = buildRequestBody(100, "RSSMRA85T10H501Z", "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario", "Rossi");
+    body.properties.debtorEmail = "";
+    responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
+});
 
-  responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
-})
+When('an http POST request is sent to gps-mbd-service with invalid documentHash {string}', async function (invalidHash) {
+    const body = buildRequestBody(100, "RSSMRA85T10H501Z", "MI", invalidHash, "Mario", "Rossi");
+    responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
+});
+
+When('an http POST request is sent to gps-mbd-service with non base64 documentHash {string}', async function (nonBase64Hash) {
+    const body = buildRequestBody(100, "RSSMRA85T10H501Z", "MI", nonBase64Hash, "Mario", "Rossi");
+    responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
+});
+
+When('an http POST request is sent to gps-mbd-service with null amount', async function () {
+    const body = buildRequestBody(null, "RSSMRA85T10H501Z", "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario", "Rossi");
+    responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
+});
+
+When('an http POST request is sent to gps-mbd-service with empty province', async function () {
+    const body = buildRequestBody(100, "RSSMRA85T10H501Z", "", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario", "Rossi");
+    responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
+});
+
+When('an http POST request is sent to gps-mbd-service for unknown creditor institution {string}', async function (unknownCiFiscalCode) {
+    const body = buildRequestBody(100, "RSSMRA85T10H501Z", "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario", "Rossi", unknownCiFiscalCode);
+    body.properties.ciFiscalCode = unknownCiFiscalCode;
+    responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
+});

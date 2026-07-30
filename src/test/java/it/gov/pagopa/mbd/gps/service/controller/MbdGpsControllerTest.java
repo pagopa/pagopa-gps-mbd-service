@@ -1,201 +1,104 @@
 package it.gov.pagopa.mbd.gps.service.controller;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.gov.pagopa.mbd.gps.service.exception.AppError;
+import it.gov.pagopa.mbd.gps.service.exception.AppException;
 import it.gov.pagopa.mbd.gps.service.model.MbdPaymentOptionRequest;
 import it.gov.pagopa.mbd.gps.service.model.MbdPaymentOptionRequestProperties;
-import it.gov.pagopa.mbd.gps.service.model.MbdPaymentOptionResponse;
-import it.gov.pagopa.mbd.gps.service.model.PaymentOption;
-import it.gov.pagopa.mbd.gps.service.model.Transfer;
+import it.gov.pagopa.mbd.gps.service.service.MbdGpsService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
-@AutoConfigureMockMvc
-@SpringBootTest
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(controllers = MbdGpsController.class)
+@ActiveProfiles("local")
 class MbdGpsControllerTest {
 
-  @Autowired private MockMvc mvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-  @Autowired private ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-  @Test
-  void buildMbdPaymentOptionTestSuccess() throws Exception {
-    MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
+    @MockBean
+    private MbdGpsService mbdGpsService;
 
-    MvcResult result =
-        mvc.perform(
-                post("/mbd/paymentOption")
-                    .content(objectMapper.writeValueAsString(request))
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().is2xxSuccessful())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andReturn();
+    @Test
+    @DisplayName("POST /mbd/paymentOption - Success (200 OK)")
+    void createPaymentOption_Success() throws Exception {
+        MbdPaymentOptionRequest request = createDummyRequest();
 
-    String json = result.getResponse().getContentAsString();
+        when(mbdGpsService.createDebtPosition(any(MbdPaymentOptionRequest.class)))
+                .thenReturn("MBD_77777777777_178463133495622");
 
-    assertNotNull(json);
+        mockMvc.perform(post("/mbd/paymentOption")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated());
 
-    MbdPaymentOptionResponse response =
-        objectMapper.readValue(json, MbdPaymentOptionResponse.class);
+        verify(mbdGpsService).createDebtPosition(any(MbdPaymentOptionRequest.class));
+    }
 
-    assertNotNull(response);
-    assertNotNull(response.getPaymentOption());
-    assertEquals(1, response.getPaymentOption().size());
+    @Test
+    @DisplayName("POST /mbd/paymentOption - KO: malformed JSON (400 Bad Request)")
+    void createPaymentOption_BadRequest() throws Exception {
+        mockMvc.perform(post("/mbd/paymentOption")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{ \"properties\": {"))
+                .andExpect(status().isBadRequest());
+    }
 
-    PaymentOption paymentOption = response.getPaymentOption().get(0);
-    assertEquals(request.getProperties().getAmount(), paymentOption.getAmount());
-    assertNotNull(paymentOption.getDescription());
-    assertNotNull(paymentOption.getDueDate());
-    assertNotNull(paymentOption.getRetentionDate());
-    assertFalse(paymentOption.getIsPartialPayment());
-    assertEquals(request.getProperties().getCiFiscalCode(), paymentOption.getOrganizationFiscalCode());
-    assertNotNull(paymentOption.getTransfer());
-    assertEquals(1, paymentOption.getTransfer().size());
+    @Test
+    @DisplayName("POST /mbd/paymentOption - KO: Ente Not Exist (404 Not Found)")
+    void createPaymentOption_NotFound() throws Exception {
+        MbdPaymentOptionRequest request = createDummyRequest();
 
-    Transfer transfer = paymentOption.getTransfer().get(0);
-    assertEquals(request.getProperties().getAmount(), transfer.getAmount());
-    assertEquals(request.getProperties().getCiFiscalCode(), transfer.getOrganizationFiscalCode());
-    assertEquals("1", transfer.getIdTransfer());
-    assertNotNull(transfer.getRemittanceInformation());
-    assertNotNull(transfer.getStamp());
-    assertEquals(
-        request.getProperties().getDebtorProvince(), transfer.getStamp().getProvincialResidence());
-    assertEquals(request.getProperties().getDocumentHash(), transfer.getStamp().getHashDocument());
-    assertEquals("01", transfer.getStamp().getStampType());
-  }
+        when(mbdGpsService.createDebtPosition(any(MbdPaymentOptionRequest.class)))
+                .thenThrow(new AppException(AppError.CREDITOR_INSTITUTION_NOT_FOUND));
 
-  @Test
-  void buildMbdPaymentOptionTestFailAmountMissing() throws Exception {
-    MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
-    request.getProperties().setAmount(null);
+        mockMvc.perform(post("/mbd/paymentOption")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+    }
 
-    mvc.perform(
-            post("/mbd/paymentOption")
-                .content(objectMapper.writeValueAsString(request))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().is4xxClientError());
-  }
+    @Test
+    @DisplayName("POST /mbd/paymentOption - KO: internal Error (500 Internal Server Error)")
+    void createPaymentOption_InternalServerError() throws Exception {
+        MbdPaymentOptionRequest request = createDummyRequest();
 
-  @Test
-  void buildMbdPaymentOptionTestFailDebtorFirstNameMissing() throws Exception {
-    MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
-    request.getProperties().setDebtorName(null);
+        when(mbdGpsService.createDebtPosition(any(MbdPaymentOptionRequest.class)))
+                .thenThrow(new RuntimeException("Generic Error"));
 
-    mvc.perform(
-            post("/mbd/paymentOption")
-                .content(objectMapper.writeValueAsString(request))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().is4xxClientError());
-  }
+        mockMvc.perform(post("/mbd/paymentOption")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isInternalServerError());
+    }
 
-  @Test
-  void buildMbdPaymentOptionTestFailDebtorLastNameMissing() throws Exception {
-    MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
-    request.getProperties().setDebtorSurname(null);
-
-    mvc.perform(
-            post("/mbd/paymentOption")
-                .content(objectMapper.writeValueAsString(request))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().is4xxClientError());
-  }
-
-  @Test
-  void buildMbdPaymentOptionTestFailDebtorFiscalCodeMissing() throws Exception {
-    MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
-    request.getProperties().setDebtorFiscalCode(null);
-
-    mvc.perform(
-            post("/mbd/paymentOption")
-                .content(objectMapper.writeValueAsString(request))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().is4xxClientError());
-  }
-
-  @Test
-  void buildMbdPaymentOptionTestFailDebtorEmailMissing() throws Exception {
-    MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
-    request.getProperties().setDebtorEmail(null);
-
-    mvc.perform(
-            post("/mbd/paymentOption")
-                .content(objectMapper.writeValueAsString(request))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().is4xxClientError());
-  }
-
-  @Test
-  void buildMbdPaymentOptionTestFailFiscalCodeMissing() throws Exception {
-    MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
-    request.getProperties().setCiFiscalCode(null);
-
-    mvc.perform(
-            post("/mbd/paymentOption")
-                .content(objectMapper.writeValueAsString(request))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().is4xxClientError());
-  }
-
-  @Test
-  void buildMbdPaymentOptionTestFailProvincialResidenceMissing() throws Exception {
-    MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
-    request.getProperties().setDebtorProvince(null);
-
-    mvc.perform(
-            post("/mbd/paymentOption")
-                .content(objectMapper.writeValueAsString(request))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().is4xxClientError());
-  }
-
-  @Test
-  void buildMbdPaymentOptionTestFailDocumentHashMissing() throws Exception {
-    MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
-    request.getProperties().setDocumentHash(null);
-
-    mvc.perform(
-            post("/mbd/paymentOption")
-                .content(objectMapper.writeValueAsString(request))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().is4xxClientError());
-  }
-
-  @Test
-  void buildMbdPaymentOptionTestFailDocumentHashWrongSize() throws Exception {
-    MbdPaymentOptionRequest request = buildMbdPaymentOptionRequest();
-    request.getProperties().setDocumentHash("asdfsdf");
-
-    mvc.perform(
-            post("/mbd/paymentOption")
-                .content(objectMapper.writeValueAsString(request))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().is4xxClientError());
-  }
-
-  private MbdPaymentOptionRequest buildMbdPaymentOptionRequest() {
-    return MbdPaymentOptionRequest.builder()
-        .properties(
-            MbdPaymentOptionRequestProperties.builder()
-                .amount(16L)
-                .debtorName("Mario")
-                .debtorSurname("Rossi")
-                .debtorFiscalCode("111111111111111")
-                .debtorEmail("email")
-                .ciFiscalCode("0000000000000000")
-                .debtorProvince("AS")
-                .documentHash("1trA5qyjSZNwiwtGG46dyjRpL16TFgGCFvnfFzQrFHbB")
-                .build())
-        .build();
-  }
+    private MbdPaymentOptionRequest createDummyRequest() {
+        MbdPaymentOptionRequest request = new MbdPaymentOptionRequest();
+        MbdPaymentOptionRequestProperties props = new MbdPaymentOptionRequestProperties();
+        props.setAmount(16L);
+        props.setDebtorName("Mario");
+        props.setDebtorSurname("Rossi");
+        props.setDebtorEmail("mario.rossi@example.com");
+        props.setDebtorFiscalCode("RSSMRA85T10H501Z");
+        props.setCiFiscalCode("77777777777");
+        props.setDebtorProvince("MI");
+        props.setDocumentHash("47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=");
+        request.setProperties(props);
+        return request;
+    }
 }

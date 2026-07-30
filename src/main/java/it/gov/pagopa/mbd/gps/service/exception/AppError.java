@@ -12,8 +12,11 @@ public enum AppError {
   FORBIDDEN(HttpStatus.FORBIDDEN, "Forbidden", "This method is forbidden"),
   RESPONSE_NOT_READABLE(
       HttpStatus.BAD_GATEWAY, "Response Not Readable", "The response body is not readable"),
-
-  UNKNOWN(null, null, null);
+    CACHE_NOT_AVAILABLE(
+            HttpStatus.INTERNAL_SERVER_ERROR, "Configuration Error", "Configuration data not available"),
+    CREDITOR_INSTITUTION_NOT_FOUND(
+            HttpStatus.NOT_FOUND, "Not Found", "Creditor Institution not registered in api-config"),
+    UNKNOWN(null, null, null);
 
   public final HttpStatus httpStatus;
   public final String title;

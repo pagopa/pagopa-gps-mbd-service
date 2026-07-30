@@ -8,14 +8,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.gov.pagopa.mbd.gps.service.model.MbdPaymentOptionRequest;
-import it.gov.pagopa.mbd.gps.service.model.MbdPaymentOptionResponse;
 import it.gov.pagopa.mbd.gps.service.model.ProblemJson;
+import it.gov.pagopa.mbd.gps.service.service.MbdGpsService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,21 +27,18 @@ import org.springframework.web.bind.annotation.RestController;
     consumes = MediaType.APPLICATION_JSON_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "MBD GPS")
+@RequiredArgsConstructor
 public class MbdGpsController {
 
-  private final ModelMapper modelMapper;
+    private final MbdGpsService mbdGpsService;
 
-  @Autowired
-  public MbdGpsController(ModelMapper modelMapper) {
-    this.modelMapper = modelMapper;
-  }
-
-  /**
-   * Map MBD service specific data into payment option model
-   *
-   * @param mbdPaymentOptionRequest MBD data
-   * @return the mapped model
-   */
+    /**
+     * Endpoint to create an MBD debt position.
+     * Generates the Notice Number (NAV) and creates the debt position on GPD Core V3.
+     *
+     * @param mbdPaymentOptionRequest the request body containing the debt position details
+     * @return ResponseEntity with status 201 CREATED if the debt position is successfully created
+     */
   @PostMapping("/mbd/paymentOption")
   @ResponseStatus(HttpStatus.OK)
   @ApiResponses(
@@ -52,7 +49,7 @@ public class MbdGpsController {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = MbdPaymentOptionResponse.class))),
+                    schema = @Schema(implementation = String.class))),
         @ApiResponse(
             responseCode = "400",
             description = "Bad Request",
@@ -81,10 +78,12 @@ public class MbdGpsController {
                     schema = @Schema(implementation = ProblemJson.class)))
       })
   @Operation(
-      summary = "Build MBD payment option model",
-      security = {@SecurityRequirement(name = "ApiKey")})
-  public @Valid MbdPaymentOptionResponse buildMbdPaymentOption(
+          summary = "Create MBD debt position and payment option",
+          description = "Generates NAV and creates the corresponding debt position on GPD Core V3.",
+          security = {@SecurityRequirement(name = "ApiKey")})
+  public ResponseEntity<String> createPaymentOption(
       @RequestBody @NotNull @Valid MbdPaymentOptionRequest mbdPaymentOptionRequest) {
-    return this.modelMapper.map(mbdPaymentOptionRequest, MbdPaymentOptionResponse.class);
+      var response = mbdGpsService.createDebtPosition(mbdPaymentOptionRequest);
+      return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 }

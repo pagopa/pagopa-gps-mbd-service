@@ -1,27 +1,28 @@
 import http from 'k6/http';
 
-const subKey = `${__ENV.API_SUBSCRIPTION_KEY}`;
+export function createPaymentOption(baseUrl, subkey) {
+  const url = `${baseUrl}/mbd/paymentOption`;
 
-export function postToGPSMBDService(url, ciFiscalCode) {
-  let headers = {
-    'Ocp-Apim-Subscription-Key': subKey,
-    "Content-Type": "application/json"
+  const payload = JSON.stringify({
+    properties: {
+      amount: 100,
+      debtorName: "Mario",
+      debtorSurname: "Rossi",
+      debtorEmail: "mario.rossi@example.com",
+      debtorFiscalCode: "RSSMRA85T10H501Z",
+      ciFiscalCode: "77777777777",
+      debtorProvince: "MI",
+      documentHash: "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="
+    }
+  });
+
+  const params = {
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Ocp-Apim-Subscription-Key': subkey,
+    },
   };
 
-  return http.post(url, JSON.stringify(buildRequestBody(ciFiscalCode)), { headers, responseType: "text" });
-}
-
-function buildRequestBody(ciFiscalCode) {
-  return {
-    "properties": {
-      "amount": 16,
-      "debtorName": "ANONYMOUS",
-      "debtorSurname": "ANONYMOUS",
-      "debtorFiscalCode": "11111111111111111",
-      "debtorEmail": "email@test.it",
-      "ciFiscalCode": ciFiscalCode,
-      "debtorProvince": "PR",
-      "documentHash": "1trA5qyjSZNwiwtGG46dyjRpL16TFgGCFvnfFzQrFHbB"
-    }
-  }
+  return http.post(url, payload, params);
 }
