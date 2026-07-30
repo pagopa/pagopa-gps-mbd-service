@@ -32,7 +32,7 @@
     <repositories>
         <repository>
             <id>github</id>
-            <url>https://public:${env.READ_PACKAGES_TOKEN}@maven.pkg.github.com/pagopa/pagopa-noticenumber-generator</url>
+            <url>https://public:${env.GITHUB_TOKEN_READ_PACKAGES}@maven.pkg.github.com/pagopa/pagopa-noticenumber-generator</url>
         </repository>
     </repositories>
 
