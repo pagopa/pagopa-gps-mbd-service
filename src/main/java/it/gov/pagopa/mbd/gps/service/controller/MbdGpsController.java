@@ -30,15 +30,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class MbdGpsController {
 
-    private final MbdGpsService mbdGpsService;
+  private final MbdGpsService mbdGpsService;
 
-    /**
-     * Endpoint to create an MBD debt position.
-     * Generates the Notice Number (NAV) and creates the debt position on GPD Core V3.
-     *
-     * @param mbdPaymentOptionRequest the request body containing the debt position details
-     * @return ResponseEntity with status 201 CREATED if the debt position is successfully created
-     */
+  /**
+   * Endpoint to create an MBD debt position. Generates the Notice Number (NAV) and creates the debt
+   * position on GPD Core V3.
+   *
+   * @param mbdPaymentOptionRequest the request body containing the debt position details
+   * @return ResponseEntity with status 201 CREATED if the debt position is successfully created
+   */
   @PostMapping("/mbd/paymentOption")
   @ResponseStatus(HttpStatus.OK)
   @ApiResponses(
@@ -78,12 +78,12 @@ public class MbdGpsController {
                     schema = @Schema(implementation = ProblemJson.class)))
       })
   @Operation(
-          summary = "Create MBD debt position and payment option",
-          description = "Generates NAV and creates the corresponding debt position on GPD Core V3.",
-          security = {@SecurityRequirement(name = "ApiKey")})
+      summary = "Create MBD debt position and payment option",
+      description = "Generates NAV and creates the corresponding debt position on GPD Core V3.",
+      security = {@SecurityRequirement(name = "ApiKey")})
   public ResponseEntity<String> createPaymentOption(
       @RequestBody @NotNull @Valid MbdPaymentOptionRequest mbdPaymentOptionRequest) {
-      var response = mbdGpsService.createDebtPosition(mbdPaymentOptionRequest);
-      return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    var response = mbdGpsService.createDebtPosition(mbdPaymentOptionRequest);
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 }

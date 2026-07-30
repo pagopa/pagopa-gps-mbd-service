@@ -9,14 +9,15 @@ import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest
 @ActiveProfiles("local")
-@TestPropertySource(properties = {
-        "apiConfigCacheClient.url=http://localhost:8080",
-        "service.gpd.host=http://localhost:8080"
-})
+@TestPropertySource(
+    properties = {
+      "apiConfigCacheClient.url=http://localhost:8080",
+      "service.gpd.host=http://localhost:8080"
+    })
 class ApplicationTest {
 
-    @Test
-    void contextLoads() {
-        assertTrue(true);
-    }
+  @Test
+  void contextLoads() {
+    assertTrue(true);
+  }
 }

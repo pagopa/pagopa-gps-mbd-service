@@ -8,9 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * CreditorInstitution
- */
+/** CreditorInstitution */
 @Getter
 @Setter
 @Builder
@@ -19,8 +17,6 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CreditorInstitution {
 
-    @JsonProperty("business_name")
-    private String businessName = null;
-
+  @JsonProperty("business_name")
+  private String businessName = null;
 }
-
