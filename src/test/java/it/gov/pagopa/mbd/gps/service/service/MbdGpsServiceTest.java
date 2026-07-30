@@ -6,7 +6,7 @@ import it.gov.pagopa.mbd.gps.service.model.MbdPaymentOptionRequestProperties;
 import it.gov.pagopa.mbd.gps.service.model.client.CreditorInstitution;
 import it.gov.pagopa.mbd.gps.service.model.client.PaymentPositionModelV3;
 import it.gov.pagopa.noticenumber.model.NoticeNumberGenerationResponse;
-import it.gov.pagopa.noticenumber.service.NoticeNumberGeneratorService; // 🟢 Importazione della libreria
+import it.gov.pagopa.noticenumber.service.NoticeNumberGeneratorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
