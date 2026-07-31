@@ -12,5 +12,8 @@ services:
         GITHUB_TOKEN_READ_PACKAGES: ${GITHUB_TOKEN_READ_PACKAGES}
     env_file:
       - ./.env
+    environment:
+      - REDIS_PORT=6379
+      - REDIS_HOST=localhost
     ports:
       - "8080:8080"
