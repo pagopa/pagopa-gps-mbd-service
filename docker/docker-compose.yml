@@ -8,6 +8,8 @@ services:
     build:
       dockerfile: Dockerfile
       context: ../
+      args:
+        GITHUB_TOKEN_READ_PACKAGES: ${GITHUB_TOKEN_READ_PACKAGES}
     env_file:
       - ./.env
     ports:
