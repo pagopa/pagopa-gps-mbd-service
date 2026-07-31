@@ -5,9 +5,17 @@ services:
   redis:
     image: redis:alpine
     container_name: redis
-    command: redis-server --requirepass secret  # <-- La password di Redis si imposta QUI!
+    command: redis-server --requirepass secret
     ports:
       - "6379:6379"
+
+  # Mock Server
+  apiconfig-mock:
+    image: wiremock/wiremock:latest
+    container_name: apiconfig-mock
+    ports:
+      - "9091:8080"
+    entrypoint: ["/docker-entrypoint.sh", "--global-response-templating", "--disable-gzip"]
 
   app:
     container_name: 'pagopa-gps-mbd-service'
@@ -26,14 +34,15 @@ services:
       - REDIS_PORT=6379
       - REDIS_PASSWORD=secret
 
-      # External Clients
-      - GPD_HOST=https://weudev.gps.internal.dev.platform.pagopa.it/pagopa-gpd-core
-      - APICONFIG_CACHE_URL=https://weudev.apiconfig.internal.dev.platform.pagopa.it/pagopa-api-config-cache-service
+      # External Clients Config
+      - GPD_HOST=http://apiconfig-mock:8080
+      - APICONFIG_CACHE_URL=http://apiconfig-mock:8080
       - APICONFIG_SUBKEY=mock-local-key
 
-      # Kafka Config 
+      # Kafka Config
       - SPRING_KAFKA_LISTENER_AUTO_STARTUP=false
     depends_on:
       - redis
+      - apiconfig-mock
     ports:
       - "8080:8080"
