@@ -15,5 +15,6 @@ services:
     environment:
       - REDIS_PORT=6379
       - REDIS_HOST=localhost
+      - SPRING_KAFKA_LISTENER_AUTO_STARTUP=false
     ports:
       - "8080:8080"
