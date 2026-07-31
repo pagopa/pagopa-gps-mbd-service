@@ -1,6 +1,13 @@
 version: '3.8'
 
 services:
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+
   app:
     container_name: 'pagopa-gps-mbd-service'
     image: ${image}
@@ -14,7 +21,9 @@ services:
       - ./.env
     environment:
       - REDIS_PORT=6379
-      - REDIS_HOST=localhost
+      - REDIS_HOST=redis 
       - SPRING_KAFKA_LISTENER_AUTO_STARTUP=false
+    depends_on:
+      - redis
     ports:
       - "8080:8080"
