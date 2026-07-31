@@ -116,7 +116,7 @@
         <dependency>
             <groupId>it.gov.pagopa</groupId>
             <artifactId>pagopa-noticenumber-generator</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.1</version>
         </dependency>
 
     </dependencies>
