@@ -24,6 +24,7 @@ permissions:
   id-token: write
   contents: read
   deployments: write
+  packages: read
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -71,6 +72,8 @@ jobs:
       - name: Run Service on Docker
         shell: bash
         id: run_service_docker
+        env:
+          GITHUB_TOKEN_READ_PACKAGES: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd ./docker
           chmod +x ./run_docker.sh
@@ -86,4 +89,3 @@ jobs:
           cd ./integration-test
           chmod +x ./run_integration_test.sh
           ./run_integration_test.sh local
-
