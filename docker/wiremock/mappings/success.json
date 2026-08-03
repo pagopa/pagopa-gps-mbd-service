@@ -1,7 +1,7 @@
 {
   "priority": 10,
   "request": {
-    "method": "ANY",
+    "method": "POST",
     "urlPattern": "/.*"
   },
   "response": {
