@@ -19,7 +19,6 @@ on:
 
 env:
   PROJECT_KEY: pagopa_pagopa-gps-mbd-service
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
 permissions:
   id-token: write
