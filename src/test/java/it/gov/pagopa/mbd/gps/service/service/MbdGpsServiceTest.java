@@ -53,7 +53,7 @@ class MbdGpsServiceTest {
     mockCreditorInstitutions.put(fiscalCode, ci);
     when(configCacheService.getCreditorInstitutions()).thenReturn(mockCreditorInstitutions);
 
-    when(noticeNumberGeneratorService.generateNoticeNumber(eq(fiscalCode)))
+    when(noticeNumberGeneratorService.generateNoticeNumber(fiscalCode))
         .thenReturn(new NoticeNumberGenerationResponse("352178463133495622"));
 
     PaymentPositionModelV3 gpdResponse = new PaymentPositionModelV3();

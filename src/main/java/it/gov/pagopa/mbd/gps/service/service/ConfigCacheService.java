@@ -8,6 +8,7 @@ import it.gov.pagopa.mbd.gps.service.model.client.CreditorInstitution;
 import it.gov.pagopa.mbd.gps.service.model.event.CacheUpdateEvent;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.RequiredArgsConstructor;
@@ -106,12 +107,19 @@ public class ConfigCacheService {
           apiConfigCacheClient.getCache(ocpSubKey, List.of("creditorInstitutions"));
 
       if (response != null && response.getCreditorInstitutions() != null) {
-        String incomingCacheVersion =
-            event != null
-                ? event.getCacheVersion()
-                : (current != null ? current.cacheVersion : null);
-        String incomingEventVersion =
-            event != null ? event.getVersion() : (current != null ? current.eventVersion : null);
+        String incomingCacheVersion;
+        String incomingEventVersion;
+
+        if (event != null) {
+          incomingCacheVersion = event.getCacheVersion();
+          incomingEventVersion = event.getVersion();
+        } else if (current != null) {
+          incomingCacheVersion = current.cacheVersion;
+          incomingEventVersion = current.eventVersion;
+        } else {
+          incomingCacheVersion = null;
+          incomingEventVersion = null;
+        }
 
         CacheSnapshot newSnapshot =
             new CacheSnapshot(
@@ -129,14 +137,16 @@ public class ConfigCacheService {
   }
 
   private boolean needsRefresh(CacheSnapshot current, CacheUpdateEvent evt) {
-    if (current.data == null) return true;
-    if (evt == null)
-      return false; // Se non c'è l'evento e la cache ha già dati, non serve rinfrescare
-    if (current.cacheVersion == null) return true;
-    if (evt.getCacheVersion() == null || !evt.getCacheVersion().equals(current.cacheVersion))
+    if (current.data == null || current.cacheVersion == null){
       return true;
+    }
 
-    return isNewer(evt.getVersion(), current.eventVersion);
+    if (evt == null){
+      return false;
+    }
+
+    return !Objects.equals(evt.getCacheVersion(), current.cacheVersion)
+            || isNewer(evt.getVersion(), current.eventVersion);
   }
 
   private boolean isNewer(String a, String b) {
