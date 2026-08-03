@@ -13,4 +13,4 @@ function buildRequestBody(amount, fiscalCode, province, documentHash, debtorName
     };
 }
 
-module.exports = { buildRequestBody };
+module.exports = {buildRequestBody};

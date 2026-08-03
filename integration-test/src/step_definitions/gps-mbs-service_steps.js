@@ -1,7 +1,7 @@
-const { After, When, Then, setDefaultTimeout } = require('@cucumber/cucumber');
+const {After, When, Then, setDefaultTimeout} = require('@cucumber/cucumber');
 const assert = require('assert');
-const { post } = require('./support/common');
-const { buildRequestBody } = require('./support/util');
+const {post} = require('./support/common');
+const {buildRequestBody} = require('./support/util');
 
 // Aumenta il timeout predefinito per le chiamate HTTP a 15 secondi
 setDefaultTimeout(15 * 1000);
