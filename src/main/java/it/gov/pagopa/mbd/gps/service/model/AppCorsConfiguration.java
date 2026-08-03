@@ -2,7 +2,12 @@ package it.gov.pagopa.mbd.gps.service.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @Builder(toBuilder = true)
@@ -13,6 +18,6 @@ import lombok.*;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AppCorsConfiguration {
 
-    private String[] origins;
-    private String[] methods;
+  private String[] origins;
+  private String[] methods;
 }

@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 public class CacheUpdateEvent {
 
-    private String cacheVersion;
-    private String version;
-    private String timestamp;
+  private String cacheVersion;
+  private String version;
+  private String timestamp;
 }

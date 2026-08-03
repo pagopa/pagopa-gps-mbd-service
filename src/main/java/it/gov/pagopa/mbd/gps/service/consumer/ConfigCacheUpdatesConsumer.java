@@ -12,32 +12,32 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ConfigCacheUpdatesConsumer {
 
-    private final ConfigCacheService configCacheService;
+  private final ConfigCacheService configCacheService;
 
-    @KafkaListener(
-            topics = "${kafka.topic.nodo-dei-pagamenti-cache}",
-            groupId = "${kafka.consumer.group-id}")
-    public void consume(CacheUpdateEvent event) {
-        if (event == null) {
-            log.warn("[MBD GPS Service] Received null cache update event - skipping");
-            return;
-        }
-
-        log.info(
-                "[MBD GPS Service] Received update event with cacheVersion {} and version {}",
-                event.getCacheVersion(),
-                event.getVersion());
-
-        try {
-            configCacheService.checkAndUpdateCache(event);
-        } catch (Exception e) {
-            log.error(
-                    "[MBD GPS Service] Cache update failed (cacheVersion={}, version={}). Keeping previous"
-                            + " snapshot. Cause: {}",
-                    event.getCacheVersion(),
-                    event.getVersion(),
-                    e.getMessage(),
-                    e);
-        }
+  @KafkaListener(
+      topics = "${kafka.topic.nodo-dei-pagamenti-cache}",
+      groupId = "${kafka.consumer.group-id}")
+  public void consume(CacheUpdateEvent event) {
+    if (event == null) {
+      log.warn("[MBD GPS Service] Received null cache update event - skipping");
+      return;
     }
+
+    log.info(
+        "[MBD GPS Service] Received update event with cacheVersion {} and version {}",
+        event.getCacheVersion(),
+        event.getVersion());
+
+    try {
+      configCacheService.checkAndUpdateCache(event);
+    } catch (Exception e) {
+      log.error(
+          "[MBD GPS Service] Cache update failed (cacheVersion={}, version={}). Keeping previous"
+              + " snapshot. Cause: {}",
+          event.getCacheVersion(),
+          event.getVersion(),
+          e.getMessage(),
+          e);
+    }
+  }
 }
