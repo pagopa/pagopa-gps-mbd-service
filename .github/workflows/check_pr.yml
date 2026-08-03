@@ -9,6 +9,8 @@ on:
       - next
     types: [ opened, synchronize, labeled, unlabeled, reopened, edited ]
 
+env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: 'true'
 
 permissions:
   contents: read
@@ -91,4 +93,3 @@ jobs:
           script: |
             const script = require('./.github/workflows/github_scripts/check_size.js')
             await script({github, context, core})
-
