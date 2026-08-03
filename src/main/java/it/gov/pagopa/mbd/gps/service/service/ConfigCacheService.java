@@ -137,16 +137,16 @@ public class ConfigCacheService {
   }
 
   private boolean needsRefresh(CacheSnapshot current, CacheUpdateEvent evt) {
-    if (current.data == null || current.cacheVersion == null){
+    if (current.data == null || current.cacheVersion == null) {
       return true;
     }
 
-    if (evt == null){
+    if (evt == null) {
       return false;
     }
 
     return !Objects.equals(evt.getCacheVersion(), current.cacheVersion)
-            || isNewer(evt.getVersion(), current.eventVersion);
+        || isNewer(evt.getVersion(), current.eventVersion);
   }
 
   private boolean isNewer(String a, String b) {
