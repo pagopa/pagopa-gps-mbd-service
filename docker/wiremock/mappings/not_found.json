@@ -1,0 +1,14 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "ANY",
+    "urlPattern": ".*/00000000321.*"
+  },
+  "response": {
+    "status": 404,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"error\": \"Not Found\"}"
+  }
+}
