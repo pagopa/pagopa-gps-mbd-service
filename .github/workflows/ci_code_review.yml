@@ -19,6 +19,7 @@ on:
 
 env:
   PROJECT_KEY: pagopa_pagopa-gps-mbd-service
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
 permissions:
   id-token: write
@@ -36,7 +37,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Test and Coverage
-        uses: pagopa/github-actions-template/maven-code-review@v3 #v3
+        uses: pagopa/github-actions-template/maven-code-review@b134fb7af9a4d8b9b933eafb5cf5e12d88ee8ff1 # v2.2.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           sonar_token: ${{ secrets.SONAR_TOKEN }}
