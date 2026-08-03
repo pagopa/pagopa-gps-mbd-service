@@ -1,5 +1,5 @@
 {
-  "priority": 1,
+  "priority": 2,
   "request": {
     "method": "ANY",
     "urlPathPattern": ".*/00000000321.*"

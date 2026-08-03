@@ -2,7 +2,7 @@
   "priority": 10,
   "request": {
     "method": "ANY",
-    "urlPattern": "/.*"
+    "urlPathPattern": ".*"
   },
   "response": {
     "status": 201,

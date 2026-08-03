@@ -1,7 +1,10 @@
-const { After, When, Then } = require('@cucumber/cucumber');
+const { After, When, Then, setDefaultTimeout } = require('@cucumber/cucumber');
 const assert = require('assert');
 const { post } = require('./support/common');
 const { buildRequestBody } = require('./support/util');
+
+// Aumenta il timeout predefinito per le chiamate HTTP a 15 secondi
+setDefaultTimeout(15 * 1000);
 
 const gpsMbdServiceHost = process.env.GPS_MBD_HOST;
 
@@ -29,47 +32,48 @@ When('an http POST request is sent to gps-mbd-service for physical person with f
 });
 
 Then('the statusCode is {int}', function (statusCode) {
+    assert.ok(responseToCheck, "Nessuna risposta ricevuta dal servizio.");
     assert.strictEqual(responseToCheck.status, statusCode);
 });
 
 When('an http POST request is sent to gps-mbd-service for legal entity with VAT {string} and missing surname', async function (vat) {
-   const body = buildRequestBody(100, vat, "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", null, null);
+    body = buildRequestBody(100, vat, "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", null, null);
     responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
 });
 
 When('an http POST request is sent to gps-mbd-service with debtor fiscal code {string}', async function (invalidFiscalCode) {
-    const body = buildRequestBody(100, invalidFiscalCode, "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario", "Rossi");
+    body = buildRequestBody(100, invalidFiscalCode, "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario", "Rossi");
     responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
 });
 
 When('an http POST request is sent to gps-mbd-service with empty email', async function () {
-    const body = buildRequestBody(100, "RSSMRA85T10H501Z", "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario", "Rossi");
+    body = buildRequestBody(100, "RSSMRA85T10H501Z", "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario", "Rossi");
     body.properties.debtorEmail = "";
     responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
 });
 
 When('an http POST request is sent to gps-mbd-service with invalid documentHash {string}', async function (invalidHash) {
-    const body = buildRequestBody(100, "RSSMRA85T10H501Z", "MI", invalidHash, "Mario", "Rossi");
+    body = buildRequestBody(100, "RSSMRA85T10H501Z", "MI", invalidHash, "Mario", "Rossi");
     responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
 });
 
 When('an http POST request is sent to gps-mbd-service with non base64 documentHash {string}', async function (nonBase64Hash) {
-    const body = buildRequestBody(100, "RSSMRA85T10H501Z", "MI", nonBase64Hash, "Mario", "Rossi");
+    body = buildRequestBody(100, "RSSMRA85T10H501Z", "MI", nonBase64Hash, "Mario", "Rossi");
     responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
 });
 
 When('an http POST request is sent to gps-mbd-service with null amount', async function () {
-    const body = buildRequestBody(null, "RSSMRA85T10H501Z", "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario", "Rossi");
+    body = buildRequestBody(null, "RSSMRA85T10H501Z", "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario", "Rossi");
     responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
 });
 
 When('an http POST request is sent to gps-mbd-service with empty province', async function () {
-    const body = buildRequestBody(100, "RSSMRA85T10H501Z", "", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario", "Rossi");
+    body = buildRequestBody(100, "RSSMRA85T10H501Z", "", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario", "Rossi");
     responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
 });
 
 When('an http POST request is sent to gps-mbd-service for unknown creditor institution {string}', async function (unknownCiFiscalCode) {
-    const body = buildRequestBody(100, "RSSMRA85T10H501Z", "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario", "Rossi", unknownCiFiscalCode);
+    body = buildRequestBody(100, "RSSMRA85T10H501Z", "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario", "Rossi", unknownCiFiscalCode);
     body.properties.ciFiscalCode = unknownCiFiscalCode;
     responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
 });
