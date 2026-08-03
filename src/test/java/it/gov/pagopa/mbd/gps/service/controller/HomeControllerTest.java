@@ -1,8 +1,5 @@
 package it.gov.pagopa.mbd.gps.service.controller;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -11,26 +8,30 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("local")
 @TestPropertySource(
-    properties = {
-      "apiConfigCacheClient.url=localhost:8080",
-      "service.gpd.host=http://localhost:8080"
-    })
+        properties = {
+                "apiConfigCacheClient.url=localhost:8080",
+                "service.gpd.host=http://localhost:8080"
+        })
 class HomeControllerTest {
 
-  @Autowired private MockMvc mvc;
+    @Autowired
+    private MockMvc mvc;
 
-  @Test
-  void healthCheckTestSuccess() throws Exception {
-    mvc.perform(get("/info")).andExpect(status().isOk());
-  }
+    @Test
+    void healthCheckTestSuccess() throws Exception {
+        mvc.perform(get("/info")).andExpect(status().isOk());
+    }
 
-  @Test
-  void homeTestSuccess() throws Exception {
-    mvc.perform(get("/"))
-        .andExpect(status().is3xxRedirection()); // Usato "/" al posto di stringa vuota
-  }
+    @Test
+    void homeTestSuccess() throws Exception {
+        mvc.perform(get("/"))
+                .andExpect(status().is3xxRedirection()); // Usato "/" al posto di stringa vuota
+    }
 }

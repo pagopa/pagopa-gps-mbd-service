@@ -2,11 +2,8 @@ package it.gov.pagopa.mbd.gps.service.annotation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+
+import java.lang.annotation.*;
 
 @Documented
 @Constraint(validatedBy = MbdDebtorValidator.class)
@@ -14,10 +11,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidMbdDebtor {
 
-  String message() default
-      "Debtor name is required for Physical Persons (16-character fiscal code)";
+    String message() default
+            "Debtor name is required for Physical Persons (16-character fiscal code)";
 
-  Class<?>[] groups() default {};
+    Class<?>[] groups() default {};
 
-  Class<? extends Payload>[] payload() default {};
+    Class<? extends Payload>[] payload() default {};
 }
