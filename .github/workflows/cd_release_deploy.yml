@@ -128,7 +128,10 @@ jobs:
         with:
           github_token: ${{ secrets.READ_PACKAGES_TOKEN }}
           tag: ${{ needs.release.outputs.version }}
+          build_args: |
+            GITHUB_TOKEN_READ_PACKAGES=${{ secrets.READ_PACKAGES_TOKEN }}
           secrets: |
+            GITHUB_TOKEN_READ_PACKAGES=${{ secrets.READ_PACKAGES_TOKEN }}
             READ_PACKAGES_TOKEN=${{ secrets.READ_PACKAGES_TOKEN }}
 
   deploy_aks:
