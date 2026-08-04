@@ -6,6 +6,7 @@ import it.gov.pagopa.mbd.gps.service.exception.AppException;
 import it.gov.pagopa.mbd.gps.service.model.MbdPaymentOptionRequest;
 import it.gov.pagopa.mbd.gps.service.model.MbdPaymentOptionRequestProperties;
 import it.gov.pagopa.mbd.gps.service.model.client.*;
+import it.gov.pagopa.noticenumber.model.NoticeNumberGenerationResponse;
 import it.gov.pagopa.noticenumber.service.NoticeNumberGeneratorService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,6 +30,9 @@ public class MbdGpsService {
   private static final String TRANSFER_ID = "1";
   private static final String REMITTANCE_INFORMATION_PATTERN = "/RFB/%s/CNR/%s/TXT/%s";
   private static final ZoneId ROME_ZONE_ID = ZoneId.of("Europe/Rome");
+  private final ConfigCacheService configCacheService;
+  private final GpdClient gpdClient;
+  private final NoticeNumberGeneratorService noticeNumberGeneratorService;
 
   @Value("${mbd.payment-position.duedate-days}")
   private int dueDateDays;
@@ -42,10 +46,6 @@ public class MbdGpsService {
   @Value("${mbd.payment-position.remittance-information}")
   private String remittanceInformation;
 
-  private final ConfigCacheService configCacheService;
-  private final GpdClient gpdClient;
-  private final NoticeNumberGeneratorService noticeNumberGeneratorService;
-
   /**
    * Creates a debt position in the GPD system.
    *
@@ -57,20 +57,22 @@ public class MbdGpsService {
     MbdPaymentOptionRequestProperties requestProperties = request.getProperties();
     String ciFiscalCode = requestProperties.getCiFiscalCode();
 
-    var creditor = configCacheService.getCreditorInstitutions().get(ciFiscalCode);
+    CreditorInstitution creditor = configCacheService.getCreditorInstitutions().get(ciFiscalCode);
     if (creditor == null) {
       throw new AppException(
           AppError.CREDITOR_INSTITUTION_NOT_FOUND,
           "Creditor Institution not registered in api-config");
     }
 
-    var response = noticeNumberGeneratorService.generateNoticeNumber(ciFiscalCode);
-    var mappingRequest =
+    NoticeNumberGenerationResponse response =
+        noticeNumberGeneratorService.generateNoticeNumber(ciFiscalCode);
+    PaymentPositionModelV3 mappingRequest =
         buildPaymentPositionRequest(
             requestProperties, creditor.getBusinessName(), response.getNoticeNumber());
 
-    var gpdResponse =
-        gpdClient.createDebtPosition(requestProperties.getCiFiscalCode(), mappingRequest, true, SERVICE_TYPE_EBOLLO);
+    PaymentPositionModelV3 gpdResponse =
+        gpdClient.createDebtPosition(
+            requestProperties.getCiFiscalCode(), mappingRequest, true, SERVICE_TYPE_EBOLLO);
     return gpdResponse.getIupd();
   }
 

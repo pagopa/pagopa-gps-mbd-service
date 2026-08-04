@@ -24,11 +24,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 @ExtendWith(MockitoExtension.class)
 class ConfigCacheServiceTest {
 
-  @Mock private ApiConfigCacheClient apiConfigCacheClient;
-
-  @InjectMocks private ConfigCacheService configCacheService;
-
   private static final String SUB_KEY = "dummy-sub-key";
+  @Mock private ApiConfigCacheClient apiConfigCacheClient;
+  @InjectMocks private ConfigCacheService configCacheService;
 
   @BeforeEach
   void setUp() {

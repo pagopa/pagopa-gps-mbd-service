@@ -58,7 +58,8 @@ class MbdGpsServiceTest {
     PaymentPositionModelV3 gpdResponse = new PaymentPositionModelV3();
     gpdResponse.setIupd("MBD_77777777777_178463133495622");
 
-    when(gpdClient.createDebtPosition(eq(fiscalCode), any(PaymentPositionModelV3.class), eq(true), anyString()))
+    when(gpdClient.createDebtPosition(
+            eq(fiscalCode), any(PaymentPositionModelV3.class), eq(true), anyString()))
         .thenReturn(gpdResponse);
 
     // Act
@@ -70,7 +71,8 @@ class MbdGpsServiceTest {
     verify(configCacheService).getCreditorInstitutions();
     verify(noticeNumberGeneratorService).generateNoticeNumber(fiscalCode);
     verify(gpdClient)
-        .createDebtPosition(eq(fiscalCode), any(PaymentPositionModelV3.class), eq(true), anyString());
+        .createDebtPosition(
+            eq(fiscalCode), any(PaymentPositionModelV3.class), eq(true), anyString());
   }
 
   private MbdPaymentOptionRequest createDummyRequest() {

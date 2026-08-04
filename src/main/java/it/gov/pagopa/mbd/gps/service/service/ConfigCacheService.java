@@ -28,24 +28,11 @@ import org.springframework.stereotype.Service;
 public class ConfigCacheService {
 
   private final ApiConfigCacheClient apiConfigCacheClient;
+  private final AtomicReference<CacheSnapshot> cacheRef = new AtomicReference<>();
+  private final ReentrantLock refreshLock = new ReentrantLock();
 
   @Value("${apiConfigCacheClient.ocpSubKey}")
   private String ocpSubKey;
-
-  private static class CacheSnapshot {
-    String cacheVersion;
-    String eventVersion;
-    Map<String, CreditorInstitution> data;
-
-    CacheSnapshot(String cacheVersion, String eventVersion, Map<String, CreditorInstitution> data) {
-      this.cacheVersion = cacheVersion;
-      this.eventVersion = eventVersion;
-      this.data = data;
-    }
-  }
-
-  private final AtomicReference<CacheSnapshot> cacheRef = new AtomicReference<>();
-  private final ReentrantLock refreshLock = new ReentrantLock();
 
   /**
    * This method is called when the application is ready. It attempts to retrieve the cache for the
@@ -157,6 +144,18 @@ public class ConfigCacheService {
       return new java.math.BigInteger(a).compareTo(new java.math.BigInteger(b)) > 0;
     } catch (NumberFormatException e) {
       return a.compareTo(b) > 0;
+    }
+  }
+
+  private static class CacheSnapshot {
+    String cacheVersion;
+    String eventVersion;
+    Map<String, CreditorInstitution> data;
+
+    CacheSnapshot(String cacheVersion, String eventVersion, Map<String, CreditorInstitution> data) {
+      this.cacheVersion = cacheVersion;
+      this.eventVersion = eventVersion;
+      this.data = data;
     }
   }
 }

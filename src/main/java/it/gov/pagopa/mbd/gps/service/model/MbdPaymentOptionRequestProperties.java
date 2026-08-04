@@ -35,7 +35,9 @@ public class MbdPaymentOptionRequestProperties {
 
   @NotBlank(message = "Debtor email must be not empty")
   @Schema(description = "Debtor's email", requiredMode = Schema.RequiredMode.REQUIRED)
-  @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "Invalid email format")
+  @Pattern(
+      regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
+      message = "Invalid email format")
   private String debtorEmail;
 
   @NotBlank(message = "Debtor fiscal code must be not empty")
