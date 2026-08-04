@@ -32,7 +32,7 @@
     <repositories>
         <repository>
             <id>github</id>
-            <url>https://public:${env.GITHUB_TOKEN_READ_PACKAGES}@maven.pkg.github.com/pagopa/pagopa-noticenumber-generator</url>
+            <url>https://maven.pkg.github.com/pagopa/pagopa-noticenumber-generator</url>
         </repository>
     </repositories>
 
@@ -139,6 +139,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <finalName>application</finalName>
+                </configuration>
             </plugin>
 
             <plugin>

@@ -8,6 +8,9 @@ COPY . .
 ARG GITHUB_TOKEN_READ_PACKAGES
 ENV GITHUB_TOKEN_READ_PACKAGES=$GITHUB_TOKEN_READ_PACKAGES
 
+RUN mkdir -p /root/.m2 && \
+    echo '<settings><servers><server><id>github</id><username>x-access-token</username><password>'${GITHUB_TOKEN_READ_PACKAGES}'</password></server></servers></settings>' > /root/.m2/settings.xml
+
 RUN mvn clean package -Dmaven.test.skip=true
 
 #
