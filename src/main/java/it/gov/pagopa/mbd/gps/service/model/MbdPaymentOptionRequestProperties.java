@@ -35,6 +35,7 @@ public class MbdPaymentOptionRequestProperties {
 
   @NotBlank(message = "Debtor email must be not empty")
   @Schema(description = "Debtor's email", requiredMode = Schema.RequiredMode.REQUIRED)
+  @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "Invalid email format")
   private String debtorEmail;
 
   @NotBlank(message = "Debtor fiscal code must be not empty")
@@ -53,6 +54,7 @@ public class MbdPaymentOptionRequestProperties {
   private String ciFiscalCode;
 
   @NotBlank(message = "Residence province must be not empty")
+  @Size(min = 2, max = 2, message = "Residence province must be exactly 2 characters long")
   @Schema(description = "Debtor's residence province", requiredMode = Schema.RequiredMode.REQUIRED)
   private String debtorProvince;
 

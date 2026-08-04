@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class MbdGpsService {
 
+  public static final String SERVICE_TYPE_EBOLLO = "EBOLLO";
   private static final String MBD_PREFIX = "MBD";
   private static final String TRANSFER_STAMP_TYPE = "01";
   private static final String TRANSFER_ID = "1";
@@ -69,7 +70,7 @@ public class MbdGpsService {
             requestProperties, creditor.getBusinessName(), response.getNoticeNumber());
 
     var gpdResponse =
-        gpdClient.createDebtPosition(requestProperties.getCiFiscalCode(), mappingRequest, true);
+        gpdClient.createDebtPosition(requestProperties.getCiFiscalCode(), mappingRequest, true, SERVICE_TYPE_EBOLLO);
     return gpdResponse.getIupd();
   }
 

@@ -2,8 +2,7 @@ package it.gov.pagopa.mbd.gps.service.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -59,7 +58,7 @@ class MbdGpsServiceTest {
     PaymentPositionModelV3 gpdResponse = new PaymentPositionModelV3();
     gpdResponse.setIupd("MBD_77777777777_178463133495622");
 
-    when(gpdClient.createDebtPosition(eq(fiscalCode), any(PaymentPositionModelV3.class), eq(true)))
+    when(gpdClient.createDebtPosition(eq(fiscalCode), any(PaymentPositionModelV3.class), eq(true), anyString()))
         .thenReturn(gpdResponse);
 
     // Act
@@ -71,7 +70,7 @@ class MbdGpsServiceTest {
     verify(configCacheService).getCreditorInstitutions();
     verify(noticeNumberGeneratorService).generateNoticeNumber(fiscalCode);
     verify(gpdClient)
-        .createDebtPosition(eq(fiscalCode), any(PaymentPositionModelV3.class), eq(true));
+        .createDebtPosition(eq(fiscalCode), any(PaymentPositionModelV3.class), eq(true), anyString());
   }
 
   private MbdPaymentOptionRequest createDummyRequest() {

@@ -225,6 +225,7 @@
             "description" : "Creditor Institution's Italian Fiscal Code"
           },
           "debtorEmail" : {
+            "pattern" : "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
             "type" : "string",
             "description" : "Debtor's email"
           },
@@ -238,6 +239,8 @@
             "description" : "Debtor first name. Required for Physical Persons, optional/null for Legal Entities"
           },
           "debtorProvince" : {
+            "maxLength" : 2,
+            "minLength" : 2,
             "type" : "string",
             "description" : "Debtor's residence province"
           },

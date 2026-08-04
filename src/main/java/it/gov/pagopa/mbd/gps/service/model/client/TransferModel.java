@@ -16,9 +16,9 @@ public class TransferModel implements Serializable {
   private String organizationFiscalCode;
   private String remittanceInformation;
   private String category;
-  private String iban; // null per e.Bollo 2.0
-  private String postalIban; // null per e.Bollo 2.0
-  private Stamp stamp; // Oggetto specifico Marca da Bollo Digitale
+  private String iban;
+  private String postalIban;
+  private Stamp stamp;
   private String companyName;
   private List<TransferMetadataModel> transferMetadata = new ArrayList<>();
 }

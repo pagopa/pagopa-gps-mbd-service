@@ -21,5 +21,6 @@ public interface GpdClient {
   PaymentPositionModelV3 createDebtPosition(
       @PathVariable("organizationfiscalcode") String organizationFiscalCode,
       @RequestBody PaymentPositionModelV3 paymentPositionModel,
-      @RequestParam Boolean toPublish);
+      @RequestParam Boolean toPublish,
+      @RequestParam String serviceType);
 }
