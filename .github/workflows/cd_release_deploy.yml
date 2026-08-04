@@ -116,7 +116,6 @@ jobs:
           skip_ci: true
           prerelease: ${{  github.ref_name != 'main' }}
           only_tag: false
-
   image:
     needs: [ setup, release ]
     name: Build and Push Docker Image
@@ -127,8 +126,10 @@ jobs:
         id: semver
         uses: pagopa/github-actions-template/ghcr-build-push@d91a1fd0b913c9830589be5d86cdb71c90813fae # v1.5.4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.READ_PACKAGES_TOKEN }}
           tag: ${{ needs.release.outputs.version }}
+          secrets: |
+            READ_PACKAGES_TOKEN=${{ secrets.READ_PACKAGES_TOKEN }}
 
   deploy_aks:
     name: Deploy on AKS
