@@ -7,9 +7,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import it.gov.pagopa.mbd.gps.service.client.GpdClient;
+import it.gov.pagopa.mbd.gps.service.model.DebtPositionResponse;
 import it.gov.pagopa.mbd.gps.service.model.MbdPaymentOptionRequest;
 import it.gov.pagopa.mbd.gps.service.model.MbdPaymentOptionRequestProperties;
-import it.gov.pagopa.mbd.gps.service.model.client.CreditorInstitution;
+import it.gov.pagopa.mbd.gps.service.model.cache.CreditorInstitution;
 import it.gov.pagopa.mbd.gps.service.model.client.PaymentPositionModelV3;
 import it.gov.pagopa.noticenumber.model.NoticeNumberGenerationResponse;
 import it.gov.pagopa.noticenumber.service.NoticeNumberGeneratorService;
@@ -46,14 +47,17 @@ class MbdGpsServiceTest {
       "createDebtPosition - Success: generating NAV and creating debtor position in GPD V3")
   void createDebtPosition_Success() {
     String fiscalCode = "77777777777";
+    String noticeNumber = "352178463133495622";
+    String businessName = "Comune di Test";
 
     CreditorInstitution ci = new CreditorInstitution();
+    ci.setBusinessName(businessName);
     Map<String, CreditorInstitution> mockCreditorInstitutions = new HashMap<>();
     mockCreditorInstitutions.put(fiscalCode, ci);
     when(configCacheService.getCreditorInstitutions()).thenReturn(mockCreditorInstitutions);
 
     when(noticeNumberGeneratorService.generateNoticeNumber(fiscalCode))
-        .thenReturn(new NoticeNumberGenerationResponse("352178463133495622"));
+        .thenReturn(new NoticeNumberGenerationResponse(noticeNumber));
 
     PaymentPositionModelV3 gpdResponse = new PaymentPositionModelV3();
     gpdResponse.setIupd("MBD_77777777777_178463133495622");
@@ -63,11 +67,19 @@ class MbdGpsServiceTest {
         .thenReturn(gpdResponse);
 
     // Act
-    String iupd = mbdGpsService.createDebtPosition(request);
+    DebtPositionResponse response = mbdGpsService.createDebtPosition(request);
 
     // Assert
-    assertNotNull(iupd);
-    assertEquals("MBD_77777777777_178463133495622", iupd);
+    assertNotNull(response);
+    assertEquals(noticeNumber, response.getNoticeNumber());
+    assertEquals(businessName, response.getCompanyName());
+
+    String expectedDescriptionPattern =
+        String.format(
+            "/RFB/%s/CNR/%s/TXT/", noticeNumber, request.getProperties().getDebtorFiscalCode());
+    assertNotNull(response.getDescription());
+    assertEquals(true, response.getDescription().startsWith(expectedDescriptionPattern));
+
     verify(configCacheService).getCreditorInstitutions();
     verify(noticeNumberGeneratorService).generateNoticeNumber(fiscalCode);
     verify(gpdClient)

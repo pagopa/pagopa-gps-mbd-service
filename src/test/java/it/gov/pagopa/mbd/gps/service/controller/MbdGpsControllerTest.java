@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.mbd.gps.service.exception.AppError;
 import it.gov.pagopa.mbd.gps.service.exception.AppException;
+import it.gov.pagopa.mbd.gps.service.model.DebtPositionResponse;
 import it.gov.pagopa.mbd.gps.service.model.MbdPaymentOptionRequest;
 import it.gov.pagopa.mbd.gps.service.model.MbdPaymentOptionRequestProperties;
 import it.gov.pagopa.mbd.gps.service.service.MbdGpsService;
@@ -36,8 +37,20 @@ class MbdGpsControllerTest {
   void createPaymentOption_Success() throws Exception {
     MbdPaymentOptionRequest request = createDummyRequest();
 
+    String noticeNumber = "311111111111111111";
+    String fiscalCode = request.getProperties().getDebtorFiscalCode();
+    String remittanceInformation =
+        String.format("/RFB/%s/CNR/%s/TXT/Marca da bollo digitale", noticeNumber, fiscalCode);
+
+    DebtPositionResponse mockResponse =
+        DebtPositionResponse.builder()
+            .noticeNumber(noticeNumber)
+            .companyName("Comune di Test")
+            .description(remittanceInformation)
+            .build();
+
     when(mbdGpsService.createDebtPosition(any(MbdPaymentOptionRequest.class)))
-        .thenReturn("MBD_77777777777_178463133495622");
+        .thenReturn(mockResponse);
 
     mockMvc
         .perform(

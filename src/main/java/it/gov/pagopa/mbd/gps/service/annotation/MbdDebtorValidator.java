@@ -11,6 +11,10 @@ public class MbdDebtorValidator
   @Override
   public boolean isValid(
       MbdPaymentOptionRequestProperties properties, ConstraintValidatorContext context) {
+    if (properties == null || properties.getDebtorFiscalCode() == null) {
+      return true;
+    }
+
     if (properties.getDebtorFiscalCode().length() == 16) {
       boolean isNameValid = StringUtils.isNotBlank(properties.getDebtorName());
 

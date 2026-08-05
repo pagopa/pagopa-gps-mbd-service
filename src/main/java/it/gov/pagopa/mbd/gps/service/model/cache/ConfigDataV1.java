@@ -1,4 +1,4 @@
-package it.gov.pagopa.mbd.gps.service.model.client;
+package it.gov.pagopa.mbd.gps.service.model.cache;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

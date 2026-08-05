@@ -23,7 +23,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @ActiveProfiles("local")
 @TestPropertySource(
     properties = {
-      "apiConfigCacheClient.url=localhost:8080",
+      "apiConfigCacheClient.url=http://localhost:8080",
       "service.gpd.host=http://localhost:8080"
     })
 class OpenApiGenerationTest {

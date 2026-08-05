@@ -1,6 +1,6 @@
 package it.gov.pagopa.mbd.gps.service.client;
 
-import it.gov.pagopa.mbd.gps.service.model.client.ConfigDataV1;
+import it.gov.pagopa.mbd.gps.service.model.cache.ConfigDataV1;
 import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;

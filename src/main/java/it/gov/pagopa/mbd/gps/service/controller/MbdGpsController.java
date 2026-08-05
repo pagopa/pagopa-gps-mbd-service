@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.gov.pagopa.mbd.gps.service.model.DebtPositionResponse;
 import it.gov.pagopa.mbd.gps.service.model.MbdPaymentOptionRequest;
 import it.gov.pagopa.mbd.gps.service.model.ProblemJson;
 import it.gov.pagopa.mbd.gps.service.service.MbdGpsService;
@@ -36,12 +37,12 @@ public class MbdGpsController {
    * @return ResponseEntity with status 201 CREATED if the debt position is successfully created
    */
   @PostMapping("/mbd/paymentOption")
-  @ResponseStatus(HttpStatus.OK)
+  @ResponseStatus(HttpStatus.CREATED)
   @ApiResponses(
       value = {
         @ApiResponse(
-            responseCode = "200",
-            description = "OK",
+            responseCode = "201",
+            description = "Created",
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
@@ -77,7 +78,7 @@ public class MbdGpsController {
       summary = "Create MBD debt position and payment option",
       description = "Generates NAV and creates the corresponding debt position on GPD Core V3.",
       security = {@SecurityRequirement(name = "ApiKey")})
-  public ResponseEntity<String> createPaymentOption(
+  public ResponseEntity<DebtPositionResponse> createPaymentOption(
       @RequestBody @NotNull @Valid MbdPaymentOptionRequest mbdPaymentOptionRequest) {
     var response = mbdGpsService.createDebtPosition(mbdPaymentOptionRequest);
     return ResponseEntity.status(HttpStatus.CREATED).body(response);

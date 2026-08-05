@@ -14,7 +14,7 @@ class MbdDebtorValidatorTest {
   private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
   @Test
-  @DisplayName("checkPhysicalPerson - Success: Physical person with surname and name is empty")
+  @DisplayName("checkPhysicalPerson - Success: Physical person with name is empty")
   void shouldFailWhenPhysicalPersonHasNoName() {
     MbdPaymentOptionRequestProperties request =
         MbdPaymentOptionRequestProperties.builder()

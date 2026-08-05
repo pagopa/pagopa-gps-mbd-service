@@ -45,7 +45,7 @@ public class MbdPaymentOptionRequestProperties {
   @Pattern(
       regexp = "^(?:[A-Za-z]{6}[0-9]{2}[A-Za-z][0-9]{2}[A-Za-z][0-9]{3}[A-Za-z]|[0-9]{11})$",
       message =
-          "Invalid ciFiscalCode format. Must be a valid Italian Fiscal Code (16 characters) or VAT"
+          "Invalid ciFiscalCode format. Must be a valid Italian Fiscal Code (16 characters) or VAT (11 digits)"
               + " number (11 digits)")
   private String debtorFiscalCode;
 

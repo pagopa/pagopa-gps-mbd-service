@@ -1,321 +1,292 @@
 {
-  "openapi": "3.0.1",
-  "info": {
-    "description": "MBD GPS Service",
-    "termsOfService": "https://www.pagopa.gov.it/",
-    "title": "pagopa-gps-mbd-service",
-    "version": "1.2.6-4-feature/PAGOPA-3720-mbd-payment-option"
+  "openapi" : "3.0.1",
+  "info" : {
+    "description" : "MBD GPS Service",
+    "termsOfService" : "https://www.pagopa.gov.it/",
+    "title" : "pagopa-gps-mbd-service",
+    "version" : "1.2.6-2-feature/PAGOPA-3720-mbd-payment-option"
   },
-  "servers": [
-    {
-      "url": "http://localhost:8080"
-    },
-    {
-      "url": "https://{host}{basePath}",
-      "variables": {
-        "basePath": {
-          "default": "/pagopa-gps-mbd-service/v1"
-        },
-        "host": {
-          "enum": [
-            "api.dev.platform.pagopa.it",
-            "api.uat.platform.pagopa.it",
-            "api.platform.pagopa.it"
-          ],
-          "default": "api.dev.platform.pagopa.it"
-        }
+  "servers" : [ {
+    "url" : "http://localhost:8080"
+  }, {
+    "url" : "https://{host}{basePath}",
+    "variables" : {
+      "basePath" : {
+        "default" : "/pagopa-gps-mbd-service/v1"
+      },
+      "host" : {
+        "enum" : [ "api.dev.platform.pagopa.it", "api.uat.platform.pagopa.it", "api.platform.pagopa.it" ],
+        "default" : "api.dev.platform.pagopa.it"
       }
     }
-  ],
-  "paths": {
-    "/info": {
-      "get": {
-        "description": "Return OK if application is started",
-        "operationId": "healthCheck",
-        "responses": {
-          "200": {
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/AppInfo"
+  } ],
+  "paths" : {
+    "/info" : {
+      "get" : {
+        "description" : "Return OK if application is started",
+        "operationId" : "healthCheck",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AppInfo"
                 }
               }
             },
-            "description": "OK",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+            "description" : "OK",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           }
         },
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ],
-        "summary": "health check",
-        "tags": [
-          "Home"
-        ]
+        "security" : [ {
+          "ApiKey" : [ ]
+        } ],
+        "summary" : "health check",
+        "tags" : [ "Home" ]
       },
-      "parameters": [
-        {
-          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-          "in": "header",
-          "name": "X-Request-Id",
-          "schema": {
-            "type": "string"
-          }
+      "parameters" : [ {
+        "description" : "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+        "in" : "header",
+        "name" : "X-Request-Id",
+        "schema" : {
+          "type" : "string"
         }
-      ]
+      } ]
     },
-    "/mbd/paymentOption": {
-      "parameters": [
-        {
-          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-          "in": "header",
-          "name": "X-Request-Id",
-          "schema": {
-            "type": "string"
-          }
+    "/mbd/paymentOption" : {
+      "parameters" : [ {
+        "description" : "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+        "in" : "header",
+        "name" : "X-Request-Id",
+        "schema" : {
+          "type" : "string"
         }
-      ],
-      "post": {
-        "description": "Generates NAV and creates the corresponding debt position on GPD Core V3.",
-        "operationId": "createPaymentOption",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MbdPaymentOptionRequest"
+      } ],
+      "post" : {
+        "description" : "Generates NAV and creates the corresponding debt position on GPD Core V3.",
+        "operationId" : "createPaymentOption",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/MbdPaymentOptionRequest"
               }
             }
           },
-          "required": true
+          "required" : true
         },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "string"
                 }
               }
             },
-            "description": "OK",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+            "description" : "Created",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemJson"
                 }
               }
             },
-            "description": "Bad Request",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+            "description" : "Bad Request",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           },
-          "401": {
-            "description": "Unauthorized",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+          "401" : {
+            "description" : "Unauthorized",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemJson"
                 }
               }
             },
-            "description": "Not found",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+            "description" : "Not found",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           },
-          "429": {
-            "description": "Too many requests",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+          "429" : {
+            "description" : "Too many requests",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemJson"
                 }
               }
             },
-            "description": "Service unavailable",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+            "description" : "Service unavailable",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           }
         },
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ],
-        "summary": "Create MBD debt position and payment option",
-        "tags": [
-          "MBD GPS"
-        ]
+        "security" : [ {
+          "ApiKey" : [ ]
+        } ],
+        "summary" : "Create MBD debt position and payment option",
+        "tags" : [ "MBD GPS" ]
       }
     }
   },
-  "components": {
-    "schemas": {
-      "AppInfo": {
-        "type": "object",
-        "properties": {
-          "environment": {
-            "type": "string"
+  "components" : {
+    "schemas" : {
+      "AppInfo" : {
+        "type" : "object",
+        "properties" : {
+          "environment" : {
+            "type" : "string"
           },
-          "name": {
-            "type": "string"
+          "name" : {
+            "type" : "string"
           },
-          "version": {
-            "type": "string"
+          "version" : {
+            "type" : "string"
           }
         }
       },
-      "MbdPaymentOptionRequest": {
-        "required": [
-          "properties"
-        ],
-        "type": "object",
-        "properties": {
-          "properties": {
-            "$ref": "#/components/schemas/MbdPaymentOptionRequestProperties"
+      "MbdPaymentOptionRequest" : {
+        "required" : [ "properties" ],
+        "type" : "object",
+        "properties" : {
+          "properties" : {
+            "$ref" : "#/components/schemas/MbdPaymentOptionRequestProperties"
           }
         }
       },
-      "MbdPaymentOptionRequestProperties": {
-        "required": [
-          "amount",
-          "ciFiscalCode",
-          "debtorEmail",
-          "debtorFiscalCode",
-          "debtorProvince",
-          "debtorSurname",
-          "documentHash"
-        ],
-        "type": "object",
-        "properties": {
-          "amount": {
-            "type": "integer",
-            "description": "MBD amount",
-            "format": "int64"
+      "MbdPaymentOptionRequestProperties" : {
+        "required" : [ "amount", "ciFiscalCode", "debtorEmail", "debtorFiscalCode", "debtorProvince", "debtorSurname", "documentHash" ],
+        "type" : "object",
+        "properties" : {
+          "amount" : {
+            "type" : "integer",
+            "description" : "MBD amount",
+            "format" : "int64"
           },
-          "ciFiscalCode": {
-            "type": "string",
-            "description": "Creditor Institution's Italian Fiscal Code"
+          "ciFiscalCode" : {
+            "type" : "string",
+            "description" : "Creditor Institution's Italian Fiscal Code"
           },
-          "debtorEmail": {
-            "pattern": "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
-            "type": "string",
-            "description": "Debtor's email"
+          "debtorEmail" : {
+            "pattern" : "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
+            "type" : "string",
+            "description" : "Debtor's email"
           },
-          "debtorFiscalCode": {
-            "pattern": "^(?:[A-Za-z]{6}[0-9]{2}[A-Za-z][0-9]{2}[A-Za-z][0-9]{3}[A-Za-z]|[0-9]{11})$",
-            "type": "string",
-            "description": "Debtor's fiscal code"
+          "debtorFiscalCode" : {
+            "pattern" : "^(?:[A-Za-z]{6}[0-9]{2}[A-Za-z][0-9]{2}[A-Za-z][0-9]{3}[A-Za-z]|[0-9]{11})$",
+            "type" : "string",
+            "description" : "Debtor's fiscal code"
           },
-          "debtorName": {
-            "type": "string",
-            "description": "Debtor first name. Required for Physical Persons, optional/null for Legal Entities"
+          "debtorName" : {
+            "type" : "string",
+            "description" : "Debtor first name. Required for Physical Persons, optional/null for Legal Entities"
           },
-          "debtorProvince": {
-            "maxLength": 2,
-            "minLength": 2,
-            "type": "string",
-            "description": "Debtor's residence province"
+          "debtorProvince" : {
+            "maxLength" : 2,
+            "minLength" : 2,
+            "type" : "string",
+            "description" : "Debtor's residence province"
           },
-          "debtorSurname": {
-            "type": "string",
-            "description": "Debtor's last name"
+          "debtorSurname" : {
+            "type" : "string",
+            "description" : "Debtor's last name"
           },
-          "documentHash": {
-            "maxLength": 44,
-            "minLength": 44,
-            "pattern": "^[A-Za-z0-9+/]{43}=$|^[A-Za-z0-9+/]{42}==$",
-            "type": "string",
-            "description": "MBD document's hash"
+          "documentHash" : {
+            "maxLength" : 44,
+            "minLength" : 44,
+            "pattern" : "^[A-Za-z0-9+/]{43}=$|^[A-Za-z0-9+/]{42}==$",
+            "type" : "string",
+            "description" : "MBD document's hash"
           }
         },
-        "description": "MBD payment option's properties"
+        "description" : "MBD payment option's properties"
       },
-      "ProblemJson": {
-        "type": "object",
-        "properties": {
-          "detail": {
-            "type": "string",
-            "description": "A human readable explanation specific to this occurrence of the problem.",
-            "example": "There was an error processing the request"
+      "ProblemJson" : {
+        "type" : "object",
+        "properties" : {
+          "detail" : {
+            "type" : "string",
+            "description" : "A human readable explanation specific to this occurrence of the problem.",
+            "example" : "There was an error processing the request"
           },
-          "status": {
-            "maximum": 600,
-            "minimum": 100,
-            "type": "integer",
-            "description": "The HTTP status code generated by the origin server for this occurrence of the problem.",
-            "format": "int32",
-            "example": 200
+          "status" : {
+            "maximum" : 600,
+            "minimum" : 100,
+            "type" : "integer",
+            "description" : "The HTTP status code generated by the origin server for this occurrence of the problem.",
+            "format" : "int32",
+            "example" : 200
           },
-          "title": {
-            "type": "string",
-            "description": "A short, summary of the problem type. Written in english and readable for engineers (usually not suited for non technical stakeholders and not localized); example: Service Unavailable"
+          "title" : {
+            "type" : "string",
+            "description" : "A short, summary of the problem type. Written in english and readable for engineers (usually not suited for non technical stakeholders and not localized); example: Service Unavailable"
           }
         }
       }
     },
-    "securitySchemes": {
-      "ApiKey": {
-        "description": "The API key to access this function app.",
-        "in": "header",
-        "name": "Ocp-Apim-Subscription-Key",
-        "type": "apiKey"
+    "securitySchemes" : {
+      "ApiKey" : {
+        "description" : "The API key to access this function app.",
+        "in" : "header",
+        "name" : "Ocp-Apim-Subscription-Key",
+        "type" : "apiKey"
       }
     }
   }

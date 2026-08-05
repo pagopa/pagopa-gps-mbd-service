@@ -3,8 +3,10 @@ package it.gov.pagopa.mbd.gps.service.service;
 import it.gov.pagopa.mbd.gps.service.client.GpdClient;
 import it.gov.pagopa.mbd.gps.service.exception.AppError;
 import it.gov.pagopa.mbd.gps.service.exception.AppException;
+import it.gov.pagopa.mbd.gps.service.model.DebtPositionResponse;
 import it.gov.pagopa.mbd.gps.service.model.MbdPaymentOptionRequest;
 import it.gov.pagopa.mbd.gps.service.model.MbdPaymentOptionRequestProperties;
+import it.gov.pagopa.mbd.gps.service.model.cache.CreditorInstitution;
 import it.gov.pagopa.mbd.gps.service.model.client.*;
 import it.gov.pagopa.noticenumber.model.NoticeNumberGenerationResponse;
 import it.gov.pagopa.noticenumber.service.NoticeNumberGeneratorService;
@@ -53,7 +55,7 @@ public class MbdGpsService {
    *     the debt position.
    * @throws AppException if the creditor institution is not registered in the configuration cache.
    */
-  public String createDebtPosition(MbdPaymentOptionRequest request) {
+  public DebtPositionResponse createDebtPosition(MbdPaymentOptionRequest request) {
     MbdPaymentOptionRequestProperties requestProperties = request.getProperties();
     String ciFiscalCode = requestProperties.getCiFiscalCode();
 
@@ -66,14 +68,27 @@ public class MbdGpsService {
 
     NoticeNumberGenerationResponse response =
         noticeNumberGeneratorService.generateNoticeNumber(ciFiscalCode);
+    String remittanceInformation =
+        String.format(
+            REMITTANCE_INFORMATION_PATTERN,
+            response.getNoticeNumber(),
+            requestProperties.getDebtorFiscalCode(),
+            this.remittanceInformation);
     PaymentPositionModelV3 mappingRequest =
         buildPaymentPositionRequest(
-            requestProperties, creditor.getBusinessName(), response.getNoticeNumber());
+            requestProperties,
+            creditor.getBusinessName(),
+            response.getNoticeNumber(),
+            remittanceInformation);
 
     PaymentPositionModelV3 gpdResponse =
         gpdClient.createDebtPosition(
             requestProperties.getCiFiscalCode(), mappingRequest, true, SERVICE_TYPE_EBOLLO);
-    return gpdResponse.getIupd();
+    return DebtPositionResponse.builder()
+        .noticeNumber(response.getNoticeNumber())
+        .companyName(creditor.getBusinessName())
+        .description(remittanceInformation)
+        .build();
   }
 
   /**
@@ -86,7 +101,10 @@ public class MbdGpsService {
    *     system.
    */
   private PaymentPositionModelV3 buildPaymentPositionRequest(
-      MbdPaymentOptionRequestProperties requestProperties, String businessName, String nav) {
+      MbdPaymentOptionRequestProperties requestProperties,
+      String businessName,
+      String nav,
+      String remittanceInformation) {
     String debtorFiscalCode = requestProperties.getDebtorFiscalCode();
     long amountInCents = requestProperties.getAmount() * 100L;
 
@@ -123,9 +141,7 @@ public class MbdGpsService {
     transfer.setIdTransfer(TRANSFER_ID);
     transfer.setAmount(amountInCents);
     transfer.setOrganizationFiscalCode(requestProperties.getCiFiscalCode());
-    transfer.setRemittanceInformation(
-        String.format(
-            REMITTANCE_INFORMATION_PATTERN, nav, debtorFiscalCode, remittanceInformation));
+    transfer.setRemittanceInformation(remittanceInformation);
     transfer.setCategory(category);
     transfer.setStamp(
         Stamp.builder()

@@ -7,8 +7,8 @@ import static org.mockito.Mockito.*;
 
 import it.gov.pagopa.mbd.gps.service.client.ApiConfigCacheClient;
 import it.gov.pagopa.mbd.gps.service.exception.AppException;
-import it.gov.pagopa.mbd.gps.service.model.client.ConfigDataV1;
-import it.gov.pagopa.mbd.gps.service.model.client.CreditorInstitution;
+import it.gov.pagopa.mbd.gps.service.model.cache.ConfigDataV1;
+import it.gov.pagopa.mbd.gps.service.model.cache.CreditorInstitution;
 import it.gov.pagopa.mbd.gps.service.model.event.CacheUpdateEvent;
 import java.util.HashMap;
 import java.util.Map;
