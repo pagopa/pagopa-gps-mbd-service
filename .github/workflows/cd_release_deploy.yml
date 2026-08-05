@@ -131,7 +131,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.BOT_TOKEN_GITHUB }}
 
       - name: Docker meta
         id: meta
@@ -153,6 +153,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           secrets: |
             GH_TOKEN=${{ secrets.READ_PACKAGES_TOKEN }}
+            GITHUB_TOKEN_READ_PACKAGES=${{ secrets.READ_PACKAGES_TOKEN }}
 
   deploy_aks:
     name: Deploy on AKS
