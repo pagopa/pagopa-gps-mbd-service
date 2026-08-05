@@ -68,7 +68,7 @@ public class MbdGpsService {
 
     NoticeNumberGenerationResponse response =
         noticeNumberGeneratorService.generateNoticeNumber(ciFiscalCode);
-    String remittanceInformation =
+    String formattedRemittanceInformation =
         String.format(
             REMITTANCE_INFORMATION_PATTERN,
             response.getNoticeNumber(),
@@ -79,7 +79,7 @@ public class MbdGpsService {
             requestProperties,
             creditor.getBusinessName(),
             response.getNoticeNumber(),
-            remittanceInformation);
+            formattedRemittanceInformation);
 
     PaymentPositionModelV3 gpdResponse =
         gpdClient.createDebtPosition(
@@ -87,7 +87,7 @@ public class MbdGpsService {
     return DebtPositionResponse.builder()
         .noticeNumber(response.getNoticeNumber())
         .companyName(creditor.getBusinessName())
-        .description(remittanceInformation)
+        .description(formattedRemittanceInformation)
         .build();
   }
 
@@ -122,7 +122,7 @@ public class MbdGpsService {
     debtorModel.setType(debtorFiscalCode.length() == 11 ? Type.G : Type.F);
     debtorModel.setFiscalCode(debtorFiscalCode);
     debtorModel.setFullName(
-        StringUtils.isEmpty(requestProperties.getDebtorName())
+        StringUtils.isBlank(requestProperties.getDebtorName())
             ? requestProperties.getDebtorSurname()
             : String.format(
                 "%s %s", requestProperties.getDebtorName(), requestProperties.getDebtorSurname()));
