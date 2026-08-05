@@ -15,8 +15,8 @@
         "default" : "/pagopa-gps-mbd-service/v1"
       },
       "host" : {
-        "enum" : [ "api.dev.platform.pagopa.it", "api.uat.platform.pagopa.it", "api.platform.pagopa.it" ],
-        "default" : "api.dev.platform.pagopa.it"
+        "default" : "api.dev.platform.pagopa.it",
+        "enum" : [ "api.dev.platform.pagopa.it", "api.uat.platform.pagopa.it", "api.platform.pagopa.it" ]
       }
     }
   } ],
