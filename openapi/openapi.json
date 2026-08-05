@@ -1,10 +1,10 @@
 {
-  "openapi": "3.0.1",
-  "info": {
-    "description": "MBD GPS Service",
-    "termsOfService": "https://www.pagopa.gov.it/",
-    "title": "pagopa-gps-mbd-service",
-    "version": "1.2.6-9-feature/PAGOPA-3720-mbd-payment-option"
+  "openapi" : "3.0.1",
+  "info" : {
+    "description" : "MBD GPS Service",
+    "termsOfService" : "https://www.pagopa.gov.it/",
+    "title" : "pagopa-gps-mbd-service",
+    "version" : "1.2.6-9-feature/PAGOPA-3720-mbd-payment-option"
   },
   "servers" : [ {
     "url" : "http://localhost:8080"
