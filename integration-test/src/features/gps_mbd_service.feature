@@ -12,7 +12,7 @@ Feature: GPS MBD Service Integration Tests
     When an http POST request is sent to gps-mbd-service for physical person with fiscal code "RSSMRA85T10H501Z" and missing name
     Then the statusCode is 400
 
-  Scenario: Fail creating debt position for Legal Entity when debtorName is missing
+  Scenario: Fail creating debt position for Legal Entity when surname is missing
     When an http POST request is sent to gps-mbd-service for legal entity with VAT "12345678901" and missing surname
     Then the statusCode is 400
 
