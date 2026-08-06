@@ -152,7 +152,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           secrets: |
-            GH_TOKEN=${{ secrets.READ_PACKAGES_TOKEN }}
             GITHUB_TOKEN_READ_PACKAGES=${{ secrets.READ_PACKAGES_TOKEN }}
 
   deploy_aks:
