@@ -5,12 +5,10 @@ FROM maven:3.9.5-amazoncorretto-17-al2023@sha256:eeaa7ab572d931f7273fc5cf3142992
 WORKDIR /build
 COPY . .
 
-ARG GITHUB_TOKEN_READ_PACKAGES
-ENV GITHUB_TOKEN_READ_PACKAGES=$GITHUB_TOKEN_READ_PACKAGES
-
-# Generazione del file settings.xml con virgolette doppie
-RUN mkdir -p /root/.m2 && \
-    echo "<settings><servers><server><id>github</id><username>x-access-token</username><password>${GITHUB_TOKEN_READ_PACKAGES}</password></server></servers></settings>" > /root/.m2/settings.xml
+# Use BuildKit secret to avoid leaking the token into image layers
+RUN --mount=type=secret,id=GITHUB_TOKEN_READ_PACKAGES \
+    mkdir -p /root/.m2 && \
+    echo "<settings><servers><server><id>github</id><username>x-access-token</username><password>$(cat /run/secrets/GITHUB_TOKEN_READ_PACKAGES)</password></server></servers></settings>" > /root/.m2/settings.xml
 
 RUN mvn clean package -Dmaven.test.skip=true
 
