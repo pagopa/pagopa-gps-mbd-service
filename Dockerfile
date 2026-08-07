@@ -16,7 +16,7 @@ RUN mvn clean package -Dmaven.test.skip=true
 # Package stage
 #
 FROM amazoncorretto:17.0.9-alpine3.18@sha256:df48bf2e183230040890460ddb4359a10aa6c7aad24bd88899482c52053c7e17 AS builder
-COPY --from=buildtime /build/target/*.jar application.jar
+COPY --from=buildtime /build/target/application.jar application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
 
