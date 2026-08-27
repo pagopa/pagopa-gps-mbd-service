@@ -98,10 +98,10 @@ microservice-chart:
   envSecret:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: "app-insight-connection-string"
-    APICONFIG_SUBKEY: "gpd-payments-apiconfig-subkey"
+    APICONFIG_SUBKEY: "apiconfig-cache-subkey"
     KAFKA_EH_CACHE_JAAS_CONFIG: "evh-cache-jaas-config"
   keyvault:
-    name: "pagopa-d-kv"
+    name: "pagopa-d-itn-ebollo-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
   nodeSelector: {}
   tolerations: []
