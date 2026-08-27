@@ -1,0 +1,4 @@
+{
+  "gps_mbd_service_host": "http://host.docker.internal:8080",
+  "subkey": "local_key"
+}

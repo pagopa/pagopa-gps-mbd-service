@@ -81,16 +81,18 @@ To run the **Junit** tests:
 
 #### Integration testing
 
-From `./integration-test/src`
+From `./integration-test` directory:
 
-1. `yarn install`
-2. `yarn test:<env>`
+1. `./run_integration_test.sh local`
 
 #### Performance testing
 
-install [k6](https://k6.io/) and then from `./performance-test/src`
+From `./performance-test` directory:
 
-1. `k6 run --env VARS=local.environment.json --env TEST_TYPE=./test-types/load.json main_scenario.js`
+1. Make sure Docker is running.
+2. Run the desired test type (`smoke`, `load`, etc.):
+
+`./run_performance_test.sh local smoke gps-mbd-service_test`
 
 ---
 

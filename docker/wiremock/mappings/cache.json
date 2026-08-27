@@ -1,0 +1,14 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPathPattern": ".*/cache.*"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"creditorInstitutions\": {\"77777777777\": {\"creditorInstitutionCode\": \"77777777777\", \"enabled\": true}, \"12345678901\": {\"creditorInstitutionCode\": \"12345678901\", \"enabled\": true}}}"
+  }
+}

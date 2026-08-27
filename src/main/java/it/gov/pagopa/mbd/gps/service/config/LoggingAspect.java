@@ -39,12 +39,11 @@ public class LoggingAspect {
   public static final String REQUEST_ID = "requestId";
   public static final String OPERATION_ID = "operationId";
   public static final String ARGS = "args";
-
-  HttpServletRequest httRequest;
-  HttpServletResponse httpResponse;
   private final String name;
   private final String version;
   private final String environment;
+  HttpServletRequest httRequest;
+  HttpServletResponse httpResponse;
 
   @Autowired
   public LoggingAspect(
@@ -58,6 +57,38 @@ public class LoggingAspect {
     this.name = name;
     this.version = version;
     this.environment = environment;
+  }
+
+  private static String getDetail(ResponseEntity<ProblemJson> result) {
+    if (result != null && result.getBody() != null && result.getBody().getDetail() != null) {
+      return result.getBody().getDetail();
+    } else return AppError.UNKNOWN.getDetails();
+  }
+
+  private static String getTitle(ResponseEntity<ProblemJson> result) {
+    if (result != null && result.getBody() != null && result.getBody().getTitle() != null) {
+      return result.getBody().getTitle();
+    } else return AppError.UNKNOWN.getTitle();
+  }
+
+  public static String getExecutionTime() {
+    String startTime = MDC.get(START_TIME);
+    if (startTime != null) {
+      long endTime = System.currentTimeMillis();
+      long executionTime = endTime - Long.parseLong(startTime);
+      return String.valueOf(executionTime);
+    }
+    return "-";
+  }
+
+  private static Map<String, String> getParams(ProceedingJoinPoint joinPoint) {
+    CodeSignature codeSignature = (CodeSignature) joinPoint.getSignature();
+    Map<String, String> params = new HashMap<>();
+    int i = 0;
+    for (var paramName : codeSignature.getParameterNames()) {
+      params.put(paramName, deNull(joinPoint.getArgs()[i++]));
+    }
+    return params;
   }
 
   @Pointcut("@within(org.springframework.web.bind.annotation.RestController)")
@@ -127,37 +158,5 @@ public class LoggingAspect {
     Object result = joinPoint.proceed();
     log.debug("Return method {} - result: {}", joinPoint.getSignature().toShortString(), result);
     return result;
-  }
-
-  private static String getDetail(ResponseEntity<ProblemJson> result) {
-    if (result != null && result.getBody() != null && result.getBody().getDetail() != null) {
-      return result.getBody().getDetail();
-    } else return AppError.UNKNOWN.getDetails();
-  }
-
-  private static String getTitle(ResponseEntity<ProblemJson> result) {
-    if (result != null && result.getBody() != null && result.getBody().getTitle() != null) {
-      return result.getBody().getTitle();
-    } else return AppError.UNKNOWN.getTitle();
-  }
-
-  public static String getExecutionTime() {
-    String startTime = MDC.get(START_TIME);
-    if (startTime != null) {
-      long endTime = System.currentTimeMillis();
-      long executionTime = endTime - Long.parseLong(startTime);
-      return String.valueOf(executionTime);
-    }
-    return "-";
-  }
-
-  private static Map<String, String> getParams(ProceedingJoinPoint joinPoint) {
-    CodeSignature codeSignature = (CodeSignature) joinPoint.getSignature();
-    Map<String, String> params = new HashMap<>();
-    int i = 0;
-    for (var paramName : codeSignature.getParameterNames()) {
-      params.put(paramName, deNull(joinPoint.getArgs()[i++]));
-    }
-    return params;
   }
 }
