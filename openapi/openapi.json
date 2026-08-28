@@ -4,7 +4,11 @@
     "description": "MBD GPS Service",
     "termsOfService": "https://www.pagopa.gov.it/",
     "title": "pagopa-gps-mbd-service",
+<<<<<<< HEAD
     "version": "1.2.6-30-feature_PAGOPA-3720-mbd-payment-option"
+=======
+    "version": "1.2.6-28-feature_PAGOPA-3720-mbd-payment-option"
+>>>>>>> parent of 57b60cd (update config cache deserialization)
   },
   "servers": [
     {
@@ -17,12 +21,20 @@
           "default": "/pagopa-gps-mbd-service/v1"
         },
         "host": {
+<<<<<<< HEAD
+=======
+          "default": "api.dev.platform.pagopa.it",
+>>>>>>> parent of 57b60cd (update config cache deserialization)
           "enum": [
             "api.dev.platform.pagopa.it",
             "api.uat.platform.pagopa.it",
             "api.platform.pagopa.it"
+<<<<<<< HEAD
           ],
           "default": "api.dev.platform.pagopa.it"
+=======
+          ]
+>>>>>>> parent of 57b60cd (update config cache deserialization)
         }
       }
     }
