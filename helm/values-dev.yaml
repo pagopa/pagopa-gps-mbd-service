@@ -94,6 +94,8 @@ microservice-chart:
     KAFKA_CONFIG_SASL_MECHANISM: "PLAIN"
     GPD_HOST: "https://weudev.gps.internal.dev.platform.pagopa.it/pagopa-gpd-core"
     REDIS_HOST: "pagopa-d-redis.redis.cache.windows.net"
+    REDIS_PORT: "6380"
+    REDIS_SSL: "true"
   envSecret:
     APPLICATIONINSIGHTS_CONNECTION_STRING: "app-insight-connection-string"
     APICONFIG_SUBKEY: "apiconfig-cache-subkey"
