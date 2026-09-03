@@ -9,6 +9,17 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "body": "{\"creditorInstitutions\": {\"77777777777\": {\"creditorInstitutionCode\": \"77777777777\", \"enabled\": true}, \"12345678901\": {\"creditorInstitutionCode\": \"12345678901\", \"enabled\": true}}}"
+    "jsonBody": {
+      "creditorInstitutions": {
+        "77777777777": {
+          "creditorInstitutionCode": "77777777777",
+          "enabled": true
+        },
+        "12345678901": {
+          "creditorInstitutionCode": "12345678901",
+          "enabled": true
+        }
+      }
+    }
   }
 }

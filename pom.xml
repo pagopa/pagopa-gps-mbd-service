@@ -119,6 +119,22 @@
             <version>1.0.1</version>
         </dependency>
 
+        <!-- Jackson XML -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+        </dependency>
+
+        <!-- Jakarta XML -->
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+        </dependency>
+
     </dependencies>
 
     <!-- Gestione centralizzata delle versioni di Spring Cloud compatibile con Spring Boot 3.2.3 -->

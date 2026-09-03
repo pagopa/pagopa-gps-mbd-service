@@ -1,23 +1,20 @@
+// integration-test/src/step_definitions/support/common.js
 const axios = require("axios");
 
 if (process.env.CANARY) {
-    axios.defaults.headers.common['X-Canary'] = 'canary' // for all requests
+    axios.defaults.headers.common['X-Canary'] = 'canary';
 }
 
 function post(url, body) {
     return axios.post(url, body, {
         headers: {
-            'Content-Type': 'application/json',
-            'accept': 'application/json',
-            'Ocp-Apim-Subscription-Key': process.env.SUBKEY
+            'content-type': 'application/xml',
+            'accept': 'application/xml',
+            'Ocp-Apim-Subscription-Key': process.env.SUBKEY || 'test'
         }
     })
-        .then(res => {
-            return res;
-        })
-        .catch(error => {
-            return error.response;
-        });
+        .then(res => res)
+        .catch(error => error.response);
 }
 
-module.exports = {post}
+module.exports = { post };

@@ -47,8 +47,8 @@ When('an http POST request is sent to gps-mbd-service with debtor fiscal code {s
 });
 
 When('an http POST request is sent to gps-mbd-service with empty email', async function () {
-    body = buildRequestBody(100, "RSSMRA85T10H501Z", "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario", "Rossi");
-    body.properties.debtorEmail = "";
+    // Passa direttamente "" al parametro debtorEmail della funzione helper
+    body = buildRequestBody(100, "RSSMRA85T10H501Z", "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario", "Rossi", "77777777777", "");
     responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
 });
 
@@ -73,7 +73,7 @@ When('an http POST request is sent to gps-mbd-service with empty province', asyn
 });
 
 When('an http POST request is sent to gps-mbd-service for unknown creditor institution {string}', async function (unknownCiFiscalCode) {
+    // Passa unknownCiFiscalCode direttamente come settimo parametro
     body = buildRequestBody(100, "RSSMRA85T10H501Z", "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario", "Rossi", unknownCiFiscalCode);
-    body.properties.ciFiscalCode = unknownCiFiscalCode;
     responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
 });

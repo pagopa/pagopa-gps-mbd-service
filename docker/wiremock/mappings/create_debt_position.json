@@ -2,13 +2,59 @@
   "priority": 1,
   "request": {
     "method": "POST",
-    "urlPattern": ".*debtpositions.*"
+    "urlPattern": "/v3/organizations/.*/debtpositions.*"
   },
   "response": {
     "status": 201,
     "headers": {
       "Content-Type": "application/json"
     },
-    "body": "{\"iupd\": \"123456789\", \"organizationFiscalCode\": \"77777777777\", \"type\": \"F\", \"companyName\": \"Company\", \"status\": \"PUBLISHED\", \"paymentOption\": []}"
+    "jsonBody": {
+      "iupd": "123456789",
+      "organizationFiscalCode": "77777777777",
+      "status": "PUBLISHED",
+      "paymentOption": [
+        {
+          "iuv": "352178844374871856",
+          "amount": 100,
+          "isPartialPayment": false,
+          "installments": [
+            {
+              "iuv": "352178844374871856",
+              "amount": 100,
+              "dueDate": "2026-12-31T23:59:59",
+              "transfer": [
+                {
+                  "idTransfer": "1",
+                  "amount": 100,
+                  "remittanceInformation": "test"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "paymentOptions": [
+        {
+          "iuv": "352178844374871856",
+          "amount": 100,
+          "isPartialPayment": false,
+          "installments": [
+            {
+              "iuv": "352178844374871856",
+              "amount": 100,
+              "dueDate": "2026-12-31T23:59:59",
+              "transfer": [
+                {
+                  "idTransfer": "1",
+                  "amount": 100,
+                  "remittanceInformation": "test"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   }
 }
