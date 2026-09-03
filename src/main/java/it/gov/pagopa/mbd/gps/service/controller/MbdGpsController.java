@@ -7,9 +7,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import it.gov.pagopa.mbd.gps.service.model.PaDemandPaymentNoticeRequest;
-import it.gov.pagopa.mbd.gps.service.model.PaDemandPaymentNoticeResponse;
 import it.gov.pagopa.mbd.gps.service.model.ProblemJson;
+import it.gov.pagopa.mbd.gps.service.model.partner.PaDemandPaymentNoticeRequest;
+import it.gov.pagopa.mbd.gps.service.model.partner.PaDemandPaymentNoticeResponse;
 import it.gov.pagopa.mbd.gps.service.service.MbdGpsService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -39,35 +39,16 @@ public class MbdGpsController {
             value = "/mbd/paymentOption",
             consumes = MediaType.APPLICATION_XML_VALUE,
             produces = MediaType.APPLICATION_XML_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     @ApiResponses(
             value = {
                     @ApiResponse(
-                            responseCode = "201",
-                            description = "Created",
+                            responseCode = "200",
+                            description = "OK",
                             content =
                             @Content(
                                     mediaType = MediaType.APPLICATION_XML_VALUE,
                                     schema = @Schema(implementation = PaDemandPaymentNoticeResponse.class))),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad Request",
-                            content =
-                            @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ProblemJson.class))),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "Unauthorized",
-                            content = @Content(schema = @Schema())),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Not found",
-                            content = @Content(schema = @Schema(implementation = ProblemJson.class))),
-                    @ApiResponse(
-                            responseCode = "429",
-                            description = "Too many requests",
-                            content = @Content(schema = @Schema())),
                     @ApiResponse(
                             responseCode = "500",
                             description = "Service unavailable",
@@ -78,7 +59,7 @@ public class MbdGpsController {
             })
     @Operation(
             summary = "Create MBD debt position and payment option",
-            description = "Parses PaDemandPaymentNoticeRequest XML, generates NAV, creates debt position on GPD Core V3, and returns PaDemandPaymentNoticeResponse.",
+            description = "Parses PaDemandPaymentNoticeRequest XML, generates notice number, creates debt position on GPD Core V3, and returns PaDemandPaymentNoticeResponse.",
             security = {@SecurityRequirement(name = "ApiKey")})
     public ResponseEntity<PaDemandPaymentNoticeResponse> createPaymentOption(
             @RequestBody @NotNull @Valid PaDemandPaymentNoticeRequest request) {

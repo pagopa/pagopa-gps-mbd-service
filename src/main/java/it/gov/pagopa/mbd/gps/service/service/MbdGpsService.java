@@ -6,6 +6,7 @@ import it.gov.pagopa.mbd.gps.service.exception.AppException;
 import it.gov.pagopa.mbd.gps.service.model.*;
 import it.gov.pagopa.mbd.gps.service.model.cache.CreditorInstitution;
 import it.gov.pagopa.mbd.gps.service.model.client.*;
+import it.gov.pagopa.mbd.gps.service.model.partner.*;
 import it.gov.pagopa.noticenumber.model.NoticeNumberGenerationResponse;
 import it.gov.pagopa.noticenumber.service.NoticeNumberGeneratorService;
 import java.io.ByteArrayInputStream;
@@ -23,7 +24,6 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -73,6 +73,8 @@ public class MbdGpsService {
   public PaDemandPaymentNoticeResponse createDebtPosition(
           PaDemandPaymentNoticeRequest request) {
     try {
+      // crea QUI
+
       List<ServicePropertyModel> serviceProperties = mapDatiSpecificiServizio(request);
       MbdPaymentOptionRequestProperties requestProperties = extractProperties(serviceProperties);
       validateProperties(requestProperties);
@@ -137,7 +139,7 @@ public class MbdGpsService {
     var document =
             builder.parse(new ByteArrayInputStream(request.getDatiSpecificiServizioRequest()));
 
-    var nodes = document.getElementsByTagName("service").item(0).getChildNodes();
+    var nodes = document.getElementsByTagName("marcaDaBollo").item(0).getChildNodes();
     List<ServicePropertyModel> attributes = new ArrayList<>(nodes.getLength());
     for (int i = 0; i < nodes.getLength(); i++) {
       var node = nodes.item(i);
