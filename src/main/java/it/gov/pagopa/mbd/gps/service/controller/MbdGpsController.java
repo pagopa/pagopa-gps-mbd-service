@@ -65,6 +65,6 @@ public class MbdGpsController {
     public ResponseEntity<JAXBElement<PaDemandPaymentNoticeResponse>> createPaymentOption(
             @RequestBody @NotNull @Valid PaDemandPaymentNoticeRequest request) {
         var response = mbdGpsService.createDebtPosition(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
