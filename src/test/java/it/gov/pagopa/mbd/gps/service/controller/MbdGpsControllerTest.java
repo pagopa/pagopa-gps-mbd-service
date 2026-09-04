@@ -9,12 +9,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import it.gov.pagopa.mbd.gps.service.exception.AppError;
 import it.gov.pagopa.mbd.gps.service.exception.AppException;
-import it.gov.pagopa.mbd.gps.service.model.partner.ObjectFactory;
 import it.gov.pagopa.mbd.gps.service.model.partner.PaDemandPaymentNoticeRequest;
-import it.gov.pagopa.mbd.gps.service.model.partner.PaDemandPaymentNoticeResponse;
-import it.gov.pagopa.mbd.gps.service.model.partner.StOutcome;
 import it.gov.pagopa.mbd.gps.service.service.MbdGpsService;
-import jakarta.xml.bind.JAXBElement;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,21 +28,16 @@ class MbdGpsControllerTest {
 
   @MockBean private MbdGpsService mbdGpsService;
 
-  private static final ObjectFactory FACTORY = new ObjectFactory();
-
   @Test
   @DisplayName("POST /mbd/paymentOption - Success (200 OK)")
   void createPaymentOption_Success() throws Exception {
     String xmlRequest = createDummyXmlRequest();
 
-    PaDemandPaymentNoticeResponse mockResponse = FACTORY.createPaDemandPaymentNoticeResponse();
-    mockResponse.setOutcome(StOutcome.OK);
-    mockResponse.setFiscalCodePA("77777777777");
-    JAXBElement<PaDemandPaymentNoticeResponse> mockElement =
-            FACTORY.createPaDemandPaymentNoticeResponse(mockResponse);
+    String mockResponseXml =
+            "<paDemandPaymentNoticeResponse><outcome>OK</outcome><fiscalCodePA>77777777777</fiscalCodePA></paDemandPaymentNoticeResponse>";
 
     when(mbdGpsService.createDebtPosition(any(PaDemandPaymentNoticeRequest.class)))
-            .thenReturn(mockElement);
+            .thenReturn(mockResponseXml);
 
     mockMvc
             .perform(

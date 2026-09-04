@@ -11,6 +11,7 @@ import it.gov.pagopa.mbd.gps.service.model.partner.*;
 import it.gov.pagopa.noticenumber.model.NoticeNumberGenerationResponse;
 import it.gov.pagopa.noticenumber.service.NoticeNumberGeneratorService;
 import java.io.ByteArrayInputStream;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,6 +31,7 @@ import jakarta.validation.Validator;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBElement;
 import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,11 +65,34 @@ public class MbdGpsService {
 
   private static final JAXBContext MARCA_DA_BOLLO_CONTEXT = createMarcaDaBolloContext();
 
+  private static final JAXBContext PARTNER_CONTEXT = createPartnerContext();
+
   private static JAXBContext createMarcaDaBolloContext() {
     try {
       return JAXBContext.newInstance(TipoMarcaDaBollo.class);
     } catch (JAXBException e) {
       throw new IllegalStateException("Unable to initialize marcaDaBollo JAXB context", e);
+    }
+  }
+
+  private static JAXBContext createPartnerContext() {
+    try {
+      return JAXBContext.newInstance(PaDemandPaymentNoticeResponse.class.getPackageName(),
+              PaDemandPaymentNoticeResponse.class.getClassLoader());
+    } catch (JAXBException e) {
+      throw new IllegalStateException("Unable to initialize partner JAXB context", e);
+    }
+  }
+
+  private String marshalResponse(JAXBElement<PaDemandPaymentNoticeResponse> element) {
+    try {
+      Marshaller marshaller = PARTNER_CONTEXT.createMarshaller();
+      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
+      StringWriter writer = new StringWriter();
+      marshaller.marshal(element, writer);
+      return writer.toString();
+    } catch (JAXBException e) {
+      throw new IllegalStateException("Unable to marshal PaDemandPaymentNoticeResponse", e);
     }
   }
 
@@ -83,7 +108,7 @@ public class MbdGpsService {
   @Value("${mbd.payment-position.remittance-information}")
   private String remittanceInformation;
 
-  public JAXBElement<PaDemandPaymentNoticeResponse> createDebtPosition(
+  public String createDebtPosition(
           PaDemandPaymentNoticeRequest request) {
     try {
       TipoMarcaDaBollo marcaDaBollo = unmarshalMarcaDaBollo(request.getDatiSpecificiServizioRequest());
@@ -92,12 +117,12 @@ public class MbdGpsService {
         validateMarcaDaBollo(marcaDaBollo);
       } catch (AppException e) {
         log.error("Validation failed for marcaDaBollo: {}", e.getMessage());
-        return factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeKOResponse(request.getIdPA(), "PPT_SINTASSI_EXTRAXSD", e.getMessage()));
+        return marshalResponse(factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeKOResponse(request.getIdPA(), "PPT_SINTASSI_EXTRAXSD", e.getMessage())));
       }
       String ciFiscalCode = marcaDaBollo.getFiscalCode();
       CreditorInstitution creditor = configCacheService.getCreditorInstitutions().get(ciFiscalCode);
       if (creditor == null) {
-        return factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeKOResponse(request.getIdPA(), "PAA_ID_DOMINIO_ERRATO", "Creditor Institution not configured in pagoPA"));
+        return marshalResponse(factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeKOResponse(request.getIdPA(), "PAA_ID_DOMINIO_ERRATO", "Creditor Institution not configured in pagoPA")));
       }
 
       NoticeNumberGenerationResponse response = noticeNumberGeneratorService.generateNoticeNumber(ciFiscalCode);
@@ -119,14 +144,14 @@ public class MbdGpsService {
       PaymentPositionModelV3 gpdResponse =
               gpdClient.createDebtPosition(marcaDaBollo.getFiscalCode(), mappingRequest, true, SERVICE_TYPE);
 
-      return factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeResponse(gpdResponse));
+      return marshalResponse(factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeResponse(gpdResponse)));
 
     } catch (AppException e) {
       log.error("AppException: error processing PaDemandPaymentNoticeRequest", e);
-      return factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeKOResponse(request.getIdPA(), "PAA_SYSTEM_ERROR", "Error processing PaDemandPaymentNoticeRequest XML"));
+      return marshalResponse(factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeKOResponse(request.getIdPA(), "PAA_SYSTEM_ERROR", "Error processing PaDemandPaymentNoticeRequest XML")));
     } catch (Exception e) {
       log.error("Exception: error processing PaDemandPaymentNoticeRequest XML", e);
-      return factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeKOResponse(request.getIdPA(), "PAA_SYSTEM_ERROR", "Error processing PaDemandPaymentNoticeRequest XML"));
+      return marshalResponse(factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeKOResponse(request.getIdPA(), "PAA_SYSTEM_ERROR", "Error processing PaDemandPaymentNoticeRequest XML")));
     }
   }
 

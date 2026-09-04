@@ -21,9 +21,14 @@ import it.gov.pagopa.noticenumber.model.NoticeNumberGenerationResponse;
 import it.gov.pagopa.noticenumber.service.NoticeNumberGeneratorService;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import javax.xml.transform.stream.StreamSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -76,7 +81,7 @@ class MbdGpsServiceTest {
             eq(CI_FISCAL_CODE), any(PaymentPositionModelV3.class), eq(true), anyString()))
         .thenReturn(buildGpdResponse());
 
-    PaDemandPaymentNoticeResponse response = mbdGpsService.createDebtPosition(request).getValue();
+    PaDemandPaymentNoticeResponse response = unmarshalResponse(mbdGpsService.createDebtPosition(request));
 
     assertThat(response.getOutcome()).isEqualTo(StOutcome.OK);
     assertThat(response.getFiscalCodePA()).isEqualTo(CI_FISCAL_CODE);
@@ -93,7 +98,7 @@ class MbdGpsServiceTest {
   void createDebtPosition_InvalidPayload() {
     PaDemandPaymentNoticeRequest request = buildRequest(invalidMarcaDaBolloXml());
 
-    PaDemandPaymentNoticeResponse response = mbdGpsService.createDebtPosition(request).getValue();
+    PaDemandPaymentNoticeResponse response = unmarshalResponse(mbdGpsService.createDebtPosition(request));
 
     assertThat(response.getOutcome()).isEqualTo(StOutcome.KO);
     assertThat(response.getFault().getFaultCode()).isEqualTo("PPT_SINTASSI_EXTRAXSD");
@@ -108,7 +113,7 @@ class MbdGpsServiceTest {
 
     when(configCacheService.getCreditorInstitutions()).thenReturn(new HashMap<>());
 
-    PaDemandPaymentNoticeResponse response = mbdGpsService.createDebtPosition(request).getValue();
+    PaDemandPaymentNoticeResponse response = unmarshalResponse(mbdGpsService.createDebtPosition(request));
 
     assertThat(response.getOutcome()).isEqualTo(StOutcome.KO);
     assertThat(response.getFault().getFaultCode()).isEqualTo("PAA_ID_DOMINIO_ERRATO");
@@ -127,10 +132,25 @@ class MbdGpsServiceTest {
     when(noticeNumberGeneratorService.generateNoticeNumber(CI_FISCAL_CODE))
         .thenThrow(new RuntimeException("NAV generation failed"));
 
-    PaDemandPaymentNoticeResponse response = mbdGpsService.createDebtPosition(request).getValue();
+    PaDemandPaymentNoticeResponse response = unmarshalResponse(mbdGpsService.createDebtPosition(request));
 
     assertThat(response.getOutcome()).isEqualTo(StOutcome.KO);
     assertThat(response.getFault().getFaultCode()).isEqualTo("PAA_SYSTEM_ERROR");
+  }
+
+  private PaDemandPaymentNoticeResponse unmarshalResponse(String xml) {
+    try {
+      JAXBContext context =
+          JAXBContext.newInstance(
+              PaDemandPaymentNoticeResponse.class.getPackageName(),
+              PaDemandPaymentNoticeResponse.class.getClassLoader());
+      Unmarshaller unmarshaller = context.createUnmarshaller();
+      return unmarshaller
+          .unmarshal(new StreamSource(new StringReader(xml)), PaDemandPaymentNoticeResponse.class)
+          .getValue();
+    } catch (JAXBException e) {
+      throw new IllegalStateException("Unable to unmarshal PaDemandPaymentNoticeResponse", e);
+    }
   }
 
   private PaDemandPaymentNoticeRequest buildRequest(String marcaDaBolloXml) {
