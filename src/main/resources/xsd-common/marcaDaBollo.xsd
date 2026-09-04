@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema 
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:mbd="http://www.agenziaentrate.gov.it/2014/MarcaDaBollo"
+        xmlns:common="http://pagopa-api.pagopa.gov.it/xsd/common-types/v1.0.0/"
+        xmlns:tns="http://pagopa-api.pagopa.gov.it/pa/paForNode.xsd"
+        targetNamespace="http://www.agenziaentrate.gov.it/2014/MarcaDaBollo" elementFormDefault="qualified">
+
+    <xsd:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="xmldsig-core-schema.xsd"/>
+
+    <xs:import namespace="http://pagopa-api.pagopa.gov.it/xsd/common-types/v1.0.0/"
+               schemaLocation="sac-common-types-1.0.xsd"
+               xmlns:xs="http://www.w3.org/2001/XMLSchema" />
+
+    <xsd:element name="marcaDaBollo" type="mbd:tipoMarcaDaBollo"/>
+
+    <xsd:complexType name="tipoMarcaDaBollo">
+        <xsd:sequence>
+            <xsd:element name="amount" type="common:stAmount"/>
+            <xsd:element name="debtor" type="mbd:debtorInfo"/>
+            <xsd:element name="fiscalCode" type="common:stFiscalCodePA" />
+            <xsd:element name="documentHash" type="mbd:signature"/>
+
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:simpleType name="signature">
+        <xsd:restriction base="xsd:base64Binary">
+            <xsd:pattern value=".{44}" />
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:complexType name="debtorInfo">
+        <xsd:sequence>
+            <xsd:element name="uniqueIdentifier" type="tns:ctEntityUniqueIdentifier" />
+            <xsd:element name="fullName" type="common:stText70" />
+            <xsd:element name="province" type="common:stNazioneProvincia"/>
+            <xsd:element name="email" type="common:stEMail" minOccurs="0" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+
+
+</xsd:schema>
