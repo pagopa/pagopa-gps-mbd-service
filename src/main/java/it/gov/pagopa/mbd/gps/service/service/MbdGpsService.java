@@ -91,7 +91,7 @@ public class MbdGpsService {
   @Value("${mbd.payment-position.remittance-information}")
   private String remittanceInformation;
 
-  public PaDemandPaymentNoticeResponse createDebtPosition(
+  public JAXBElement<PaDemandPaymentNoticeResponse> createDebtPosition(
           PaDemandPaymentNoticeRequest request) {
     try {
       TipoMarcaDaBollo marcaDaBollo = unmarshalMarcaDaBollo(request.getDatiSpecificiServizioRequest());
@@ -104,7 +104,7 @@ public class MbdGpsService {
       String ciFiscalCode = marcaDaBollo.getFiscalCode();
       CreditorInstitution creditor = configCacheService.getCreditorInstitutions().get(ciFiscalCode);
       if (creditor == null) {
-        return createPaDemandPaymentNoticeKOResponse(request.getIdPA(), "PAA_ID_DOMINIO_ERRATO", "Creditor Institution not configured in pagoPA");
+        return factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeKOResponse(request.getIdPA(), "PAA_ID_DOMINIO_ERRATO", "Creditor Institution not configured in pagoPA"));
       }
 
       NoticeNumberGenerationResponse response = noticeNumberGeneratorService.generateNoticeNumber(ciFiscalCode);
@@ -126,14 +126,14 @@ public class MbdGpsService {
       PaymentPositionModelV3 gpdResponse =
               gpdClient.createDebtPosition(marcaDaBollo.getFiscalCode(), mappingRequest, true, SERVICE_TYPE);
 
-      return createPaDemandPaymentNoticeResponse(gpdResponse);
+      return factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeResponse(gpdResponse));
 
     } catch (AppException e) {
       log.error("AppException: error processing PaDemandPaymentNoticeRequest", e);
-      return createPaDemandPaymentNoticeKOResponse(request.getIdPA(), "PAA_SYSTEM_ERROR", "Error processing PaDemandPaymentNoticeRequest XML");
+      return factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeKOResponse(request.getIdPA(), "PAA_SYSTEM_ERROR", "Error processing PaDemandPaymentNoticeRequest XML"));
     } catch (Exception e) {
       log.error("Exception: error processing PaDemandPaymentNoticeRequest XML", e);
-      return createPaDemandPaymentNoticeKOResponse(request.getIdPA(), "PAA_SYSTEM_ERROR", "Error processing PaDemandPaymentNoticeRequest XML");
+      return factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeKOResponse(request.getIdPA(), "PAA_SYSTEM_ERROR", "Error processing PaDemandPaymentNoticeRequest XML"));
     }
   }
 

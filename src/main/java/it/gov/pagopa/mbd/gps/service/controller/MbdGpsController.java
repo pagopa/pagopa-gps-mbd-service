@@ -13,6 +13,7 @@ import it.gov.pagopa.mbd.gps.service.model.partner.PaDemandPaymentNoticeResponse
 import it.gov.pagopa.mbd.gps.service.service.MbdGpsService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.xml.bind.JAXBElement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -61,7 +62,7 @@ public class MbdGpsController {
             summary = "Create MBD debt position and payment option",
             description = "Parses PaDemandPaymentNoticeRequest XML, generates notice number, creates debt position on GPD Core V3, and returns PaDemandPaymentNoticeResponse.",
             security = {@SecurityRequirement(name = "ApiKey")})
-    public ResponseEntity<PaDemandPaymentNoticeResponse> createPaymentOption(
+    public ResponseEntity<JAXBElement<PaDemandPaymentNoticeResponse>> createPaymentOption(
             @RequestBody @NotNull @Valid PaDemandPaymentNoticeRequest request) {
         var response = mbdGpsService.createDebtPosition(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
