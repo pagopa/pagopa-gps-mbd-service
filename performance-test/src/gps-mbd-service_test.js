@@ -19,6 +19,7 @@ export default function () {
 
   check(response, {
     'status is 201': (r) => r.status === 201,
+    'body is not empty': (r) => r.body && r.body.length > 0,
   });
 
   sleep(1);
