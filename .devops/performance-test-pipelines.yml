@@ -19,7 +19,6 @@ parameters:
       - "spike"
       - "stress"
       - "constant"
-      - # TODO: add your values
     default: "constant"
   - name: "DB_NAME"
     displayName: "DB name"
