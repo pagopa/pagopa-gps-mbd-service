@@ -1,10 +1,10 @@
 {
   "openapi" : "3.0.1",
   "info" : {
-    "description" : "@project.description@",
+    "description" : "MBD GPS Service",
     "termsOfService" : "https://www.pagopa.gov.it/",
-    "title" : "@project.artifactId@",
-    "version" : "@project.version@"
+    "title" : "pagopa-gps-mbd-service",
+    "version" : "1.2.6-36-feature_PAGOPA-3720-mbd-payment-option"
   },
   "servers" : [ {
     "url" : "http://localhost:8080"
@@ -15,8 +15,8 @@
         "default" : "/pagopa-gps-mbd-service/v1"
       },
       "host" : {
-        "enum" : [ "api.dev.platform.pagopa.it", "api.uat.platform.pagopa.it", "api.platform.pagopa.it" ],
-        "default" : "api.dev.platform.pagopa.it"
+        "default" : "api.dev.platform.pagopa.it",
+        "enum" : [ "api.dev.platform.pagopa.it", "api.uat.platform.pagopa.it", "api.platform.pagopa.it" ]
       }
     }
   } ],

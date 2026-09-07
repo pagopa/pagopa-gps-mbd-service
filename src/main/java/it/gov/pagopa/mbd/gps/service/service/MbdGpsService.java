@@ -3,6 +3,7 @@ package it.gov.pagopa.mbd.gps.service.service;
 import it.gov.pagopa.mbd.gps.service.client.GpdClient;
 import it.gov.pagopa.mbd.gps.service.exception.AppError;
 import it.gov.pagopa.mbd.gps.service.exception.AppException;
+import it.gov.pagopa.mbd.gps.service.exception.MarcaDaBolloValidationException;
 import it.gov.pagopa.mbd.gps.service.model.*;
 import it.gov.pagopa.mbd.gps.service.model.cache.CreditorInstitution;
 import it.gov.pagopa.mbd.gps.service.model.client.*;
@@ -112,13 +113,7 @@ public class MbdGpsService {
           PaDemandPaymentNoticeRequest request) {
     try {
       TipoMarcaDaBollo marcaDaBollo = unmarshalMarcaDaBollo(request.getDatiSpecificiServizioRequest());
-      log.warn("Marca da bollo unmarshal result: {}", marcaDaBollo);
-      try {
-        validateMarcaDaBollo(marcaDaBollo);
-      } catch (AppException e) {
-        log.error("Validation failed for marcaDaBollo: {}", e.getMessage());
-        return marshalResponse(factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeKOResponse(request.getIdPA(), "PPT_SINTASSI_EXTRAXSD", e.getMessage())));
-      }
+      checkMarcaDaBollo(marcaDaBollo);
       String ciFiscalCode = marcaDaBollo.getFiscalCode();
       CreditorInstitution creditor = configCacheService.getCreditorInstitutions().get(ciFiscalCode);
       if (creditor == null) {
@@ -145,13 +140,23 @@ public class MbdGpsService {
               gpdClient.createDebtPosition(marcaDaBollo.getFiscalCode(), mappingRequest, true, SERVICE_TYPE);
 
       return marshalResponse(factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeResponse(gpdResponse)));
-
+    } catch (MarcaDaBolloValidationException e) {
+      log.error("Validation failed for marcaDaBollo: {}", e.getMessage());
+      return marshalResponse(factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeKOResponse(request.getIdPA(), "PPT_SINTASSI_EXTRAXSD", e.getMessage())));
     } catch (AppException e) {
       log.error("AppException: error processing PaDemandPaymentNoticeRequest", e);
       return marshalResponse(factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeKOResponse(request.getIdPA(), "PAA_SYSTEM_ERROR", "Error processing PaDemandPaymentNoticeRequest XML")));
     } catch (Exception e) {
       log.error("Exception: error processing PaDemandPaymentNoticeRequest XML", e);
       return marshalResponse(factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeKOResponse(request.getIdPA(), "PAA_SYSTEM_ERROR", "Error processing PaDemandPaymentNoticeRequest XML")));
+    }
+  }
+
+  private void checkMarcaDaBollo(TipoMarcaDaBollo marcaDaBollo) {
+    try {
+      validateMarcaDaBollo(marcaDaBollo);
+    } catch (AppException e) {
+      throw new MarcaDaBolloValidationException(e.getMessage());
     }
   }
 

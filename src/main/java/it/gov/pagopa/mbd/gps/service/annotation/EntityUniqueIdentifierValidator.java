@@ -11,8 +11,8 @@ public class EntityUniqueIdentifierValidator
     implements ConstraintValidator<ValidEntityUniqueIdentifier, DebtorInfo> {
 
   private static final String FISCAL_CODE_PATTERN =
-      "^[A-Za-z]{6}[0-9]{2}[A-Za-z][0-9]{2}[A-Za-z][0-9]{3}[A-Za-z]$";
-  private static final String VAT_NUMBER_PATTERN = "^[0-9]{11}$";
+          "^[A-Z]{6}\\d{2}[A-Z]\\d{2}[A-Z]\\d{3}[A-Z]$";
+  private static final String VAT_NUMBER_PATTERN = "^\\d{11}$";
 
   @Override
   public boolean isValid(DebtorInfo debtor, ConstraintValidatorContext context) {
