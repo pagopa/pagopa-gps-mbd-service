@@ -42,8 +42,9 @@ public class DebtorInfo implements Serializable {
   @Size(min = 2, max = 2, message = "Debtor residence province must be exactly 2 characters long")
   private String province;
 
-  /** {@code common:stEMail} - optional debtor e-mail. */
-  @XmlElement(name = "email")
+  /** {@code common:stEMail} - debtor e-mail. */
+  @XmlElement(name = "email", required = true)
+  @NotBlank(message = "Email must be not empty")
   @Pattern(
       regexp = "^$|^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
       message = "Invalid debtor email format")

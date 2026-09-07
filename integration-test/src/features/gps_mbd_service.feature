@@ -1,19 +1,19 @@
 Feature: GPS MBD Service Integration Tests
 
   Scenario: Create debt position successfully for Physical Person
-    When an http POST request is sent to gps-mbd-service for physical person with fiscal code "RSSMRA85T10H501Z", name "Mario" and surname "Rossi"
+    When an http POST request is sent to gps-mbd-service for physical person with fiscal code "RSSMRA85T10H501Z" and fullName "Mario Rossi"
     Then the statusCode is 201
 
-  Scenario: Create debt position successfully for Legal Entity with null name
-    When an http POST request is sent to gps-mbd-service for legal entity with VAT "12345678901" and surname "Acme S.r.l."
+  Scenario: Create debt position successfully for Legal Entity
+    When an http POST request is sent to gps-mbd-service for legal entity with VAT "12345678901" and fullName "Acme S.r.l."
     Then the statusCode is 201
 
-  Scenario: Fail creating debt position for Physical Person when debtorName is missing
-    When an http POST request is sent to gps-mbd-service for physical person with fiscal code "RSSMRA85T10H501Z" and missing name
+  Scenario: Fail creating debt position for Physical Person when fullName is missing
+    When an http POST request is sent to gps-mbd-service for physical person with fiscal code "RSSMRA85T10H501Z" and missing fullName
     Then the statusCode is 400
 
-  Scenario: Fail creating debt position for Legal Entity when surname is missing
-    When an http POST request is sent to gps-mbd-service for legal entity with VAT "12345678901" and missing surname
+  Scenario: Fail creating debt position for Legal Entity when fullName is missing
+    When an http POST request is sent to gps-mbd-service for legal entity with VAT "12345678901" and missing fullName
     Then the statusCode is 400
 
   Scenario: Fail creating debt position with invalid debtor fiscal code format

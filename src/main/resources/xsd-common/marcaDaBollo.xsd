@@ -35,7 +35,7 @@
             <xsd:element name="uniqueIdentifier" type="tns:ctEntityUniqueIdentifier" />
             <xsd:element name="fullName" type="common:stText70" />
             <xsd:element name="province" type="common:stNazioneProvincia"/>
-            <xsd:element name="email" type="common:stEMail" minOccurs="0" />
+            <xsd:element name="email" type="common:stEMail"/>
         </xsd:sequence>
     </xsd:complexType>
 

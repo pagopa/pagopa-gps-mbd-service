@@ -1,26 +1,47 @@
-// integration-test/src/step_definitions/support/util.js
-
-function buildRequestBody(amount, fiscalCode, province, documentHash, debtorName, debtorSurname, ciFiscalCode = "77777777777", debtorEmail = "mario.rossi@example.com") {
+function buildRequestBody(amount, fiscalCode, province, documentHash, debtorFullName, ciFiscalCode = "77777777777", debtorEmail = "mario.rossi@example.com") {
 
     const amountVal = (amount !== null && amount !== undefined) ? amount : '';
     const fcVal = fiscalCode || '';
     const provVal = province || '';
     const hashVal = documentHash !== undefined ? documentHash : "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=";
-    const nameVal = debtorName || '';
-    const surnameVal = debtorSurname || '';
-    const emailVal = debtorEmail || '';
-    const ciVal = ciFiscalCode || '';
+    const fullNameVal = debtorFullName !== undefined && debtorFullName !== null ? debtorFullName : '';
+    const emailVal = debtorEmail !== undefined && debtorEmail !== null ? debtorEmail : '';
+    const ciVal = ciFiscalCode || "77777777777";
+    const entityType = fcVal.length === 11 ? 'G' : 'F';
 
-    let innerXml = '<service>';
-    if (amountVal !== '') innerXml += `<amount>${amountVal}</amount>`;
-    if (nameVal !== '') innerXml += `<debtorName>${nameVal}</debtorName>`;
-    if (surnameVal !== '') innerXml += `<debtorSurname>${surnameVal}</debtorSurname>`;
-    if (emailVal !== '') innerXml += `<debtorEmail>${emailVal}</debtorEmail>`;
-    if (fcVal !== '') innerXml += `<debtorFiscalCode>${fcVal}</debtorFiscalCode>`;
-    innerXml += `<ciFiscalCode>${ciVal}</ciFiscalCode>`;
-    if (provVal !== '') innerXml += `<debtorProvince>${provVal}</debtorProvince>`;
-    innerXml += `<documentHash>${hashVal}</documentHash>`;
-    innerXml += '</service>';
+    let innerXml = '<marcaDaBollo xmlns="http://www.agenziaentrate.gov.it/2014/MarcaDaBollo">';
+
+    if (amountVal !== '') {
+        innerXml += `<amount>${amountVal}</amount>`;
+    }
+
+    innerXml += '<debtor>';
+    innerXml += '<uniqueIdentifier>';
+    innerXml += `<entityUniqueIdentifierType>${entityType}</entityUniqueIdentifierType>`;
+    if (fcVal !== '') {
+        innerXml += `<entityUniqueIdentifierValue>${fcVal}</entityUniqueIdentifierValue>`;
+    }
+    innerXml += '</uniqueIdentifier>';
+
+    if (fullNameVal !== '') {
+        innerXml += `<fullName>${fullNameVal}</fullName>`;
+    }
+    if (provVal !== '') {
+        innerXml += `<province>${provVal}</province>`;
+    }
+    if (emailVal !== '') {
+        innerXml += `<email>${emailVal}</email>`;
+    }
+    innerXml += '</debtor>';
+
+    if (ciVal !== '') {
+        innerXml += `<fiscalCode>${ciVal}</fiscalCode>`;
+    }
+    if (hashVal !== '') {
+        innerXml += `<documentHash>${hashVal}</documentHash>`;
+    }
+
+    innerXml += '</marcaDaBollo>';
 
     const base64InnerXml = Buffer.from(innerXml).toString('base64');
 
