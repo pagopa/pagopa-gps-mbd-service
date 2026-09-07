@@ -13,7 +13,7 @@ export const options = typeConfig;
 
 export default function () {
   const baseUrl = environment.baseUrl || environment.gps_mbd_service_host || 'http://localhost:8080';
-  const subkey = environment.subkey || 'local_key';
+  const subkey = __ENV.API_SUBSCRIPTION_KEY;
 
   const response = createPaymentOption(baseUrl, subkey);
 

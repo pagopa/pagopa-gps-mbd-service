@@ -1,4 +1,8 @@
 {
-  "gps_mbd_service_host": "http://localhost:8080",
-  "subkey": "local_key"
+  "environment": [
+    {
+      "env": "local",
+      "gpsMbdHost": "https://localhost:8080"
+    }
+  ]
 }
