@@ -6,11 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlSchemaType;
-import jakarta.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.*;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -26,6 +23,7 @@ import java.math.BigDecimal;
 @XmlType(
     name = "tipoMarcaDaBollo",
     propOrder = {"amount", "debtor", "fiscalCode", "documentHash"})
+@XmlRootElement(name = "marcaDaBollo", namespace = "http://www.agenziaentrate.gov.it/2014/MarcaDaBollo")
 public class TipoMarcaDaBollo implements Serializable {
 
   private static final long serialVersionUID = 1L;
@@ -53,7 +51,7 @@ public class TipoMarcaDaBollo implements Serializable {
   @XmlElement(name = "documentHash", required = true)
   @XmlSchemaType(name = "base64Binary")
   @NotNull(message = "Document hash is required")
-  @Size(min = 32, max = 32, message = "Document hash must be a valid 32-byte SHA-256 digest")
+  @Size(min = 44, max = 44, message = "Document hash must be a valid 32-byte SHA-256 digest")
   private byte[] documentHash;
 
 
