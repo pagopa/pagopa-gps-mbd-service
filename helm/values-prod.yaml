@@ -142,6 +142,6 @@ canaryDelivery:
     envSecret: {}
 microservice-chart:
   image:
-    tag: 1.2.6-46-feature_PAGOPA-3720-mbd-payment-option
+    tag: 1.2.6-47-feature_PAGOPA-3720-mbd-payment-option
   canaryDelivery:
     create: false
