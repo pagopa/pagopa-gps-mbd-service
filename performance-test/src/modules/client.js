@@ -13,10 +13,10 @@ export function createPaymentOption(baseUrl, subkey) {
     `<entityUniqueIdentifierValue>RSSMRA85T10H501Z</entityUniqueIdentifierValue>` +
     `</uniqueIdentifier>` +
     `<fullName>Mario Rossi</fullName>` +
-    `<province>MI</province>` +
     `<email>mario.rossi@example.com</email>` +
     `</debtor>` +
     `<fiscalCode>77777777777</fiscalCode>` +
+      `<province>MI</province>` +
     `<documentHash>af4WYySYOCa6Xgk+ByxIvxuaPsx1JerRgipP1xeM8bI=</documentHash>` +
     `</marcaDaBollo>`;
 

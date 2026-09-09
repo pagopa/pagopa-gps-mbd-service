@@ -99,16 +99,14 @@ class MbdGpsControllerTest {
 
   private String createDummyXmlRequest() {
     return """
-        <paDemandPaymentNoticeRequest>
-          <idPA>77777777777</idPA>
-          <idBrokerPA>77777777777</idBrokerPA>
-          <idStation>station1</idStation>
-          <idServizio>EBOLLO</idServizio>
-          <idSoggettoServizio>77777777777</idSoggettoServizio>
-          <datiSpecificiServizioRequest>
-            PHNlcnZpY2U+PGFtb3VudD4xNjwvYW1vdW50PjxkZWJ0b3JOYW1lPk1hcmlvPC9kZWJ0b3JOYW1lPjxkZWJ0b3JTdXJuYW1lPlJvc3NpPC9kZWJ0b3JTdXJuYW1lPjxkZWJ0b3JFbWFpbD5tYXJpby5yb3NzaUBleGFtcGxlLmNvbTwvZGVidG3yRW1haWw+PGRlYnRvckZpc2NhbENvZGU+UlNTTVJBODVUMTBINTAxWjwvZGVidG9yRmlzY2FsQ29kZT48Y2lGaXNjYWxDb2RlPjc3Nzc3Nzc3Nzc3PC9jaUZpc2NhbENvZGU+PGRlYnRvclByb3ZpbmNlPk1JPC9kZWJ0b3JQcm92aW5jZT48ZG9jdW1lbnRIYXNoPjQ3REVRcGo4SEJTYSsvVEltVys1SkNldVFlUmttNU5NcEpXWkczaFN1RlU9PC9kb2N1bWVudEhhc2g+PC9zZXJ2aWNlPg==
-          </datiSpecificiServizioRequest>
-        </paDemandPaymentNoticeRequest>
+            <PaDemandPaymentNoticeRequest xmlns="http://pagopa-api.pagopa.gov.it/pa/paForNode.xsd">
+                                             <idPA>77777777777</idPA>
+                                             <idBrokerPA>77777777777</idBrokerPA>
+                                             <idStation>77777777777_01</idStation>
+                                             <idServizio>00005</idServizio>
+                                             <idSoggettoServizio>50000</idSoggettoServizio>
+                                             <datiSpecificiServizioRequest>PG1hcmNhRGFCb2xsbyB4bWxucz0iaHR0cDovL3d3dy5hZ2VuemlhZW50cmF0ZS5nb3YuaXQvMjAxNC9NYXJjYURhQm9sbG8iIHhzaTpzY2hlbWFMb2NhdGlvbj0iaHR0cDovL3BhZ29wYS1hcGkucGFnb3BhLmdvdi5pdC9wYS9NYXJjYURhQm9sbG8ueHNkIiB4bWxuczp4c2k9Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvWE1MQWNjZXB0LWluc3RhbmNlIj4KICA8YW1vdW50PjE2LjAwPC9hbW91bnQ+CiAgPGZpc2NhbENvZGU+Nzc3Nzc3Nzc3Nzc8L2Zpc2NhbENvZGU+CiAgPHByb3ZpbmNlPk1JPC9wcm92aW5jZT4KICA8ZG9jdW1lbnRIYXNoPmFmNFdZeVNZT0NhNlhnaytCeXhJdnh1YVBzeDFKZXJSZ2lwUDF4ZU04Ykk9PC9kb2N1bWVudEhhc2g+CiAgPGRlYnRvcj4KICAJPHVuaXF1ZUlkZW50aWZpZXI+CiAgCQk8ZW50aXR5VW5pcXVlSWRlbnRpZmllclR5cGU+RjwvZW50aXR5VW5pcXVlSWRlbnRpZmllclR5cGU+CgkJPGVudGl0eVVuaXF1ZUlkZW50aWZpZXJWYWx1ZT5SU1NNUkE4NVQxMEg1MDFaPC9lbnRpdHlVbmlxdWVJZGVudGlmaWVyVmFsdWU+CiAgCTwvdW5pcXVlSWRlbnRpZmllcj4KICAJPGVtYWlsPm1hcmlvLnJvc3NpQGV4YW1wbGUuaXQ8L2VtYWlsPgogIDwvZGVidG9yPgo8L21hcmNhRGFCb2xsbz4=</datiSpecificiServizioRequest>
+                                           </PaDemandPaymentNoticeRequest>
         """;
   }
 }

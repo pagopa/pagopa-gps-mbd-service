@@ -299,7 +299,7 @@ public class MbdGpsService {
     debtorModel.setType("G".equals(marcaDaBollo.getDebtor().getUniqueIdentifier().getEntityUniqueIdentifierType().value()) ? Type.G : Type.F);
     debtorModel.setFiscalCode(debtorFiscalCode);
     debtorModel.setFullName(marcaDaBollo.getDebtor().getFullName());
-    debtorModel.setProvince(marcaDaBollo.getDebtor().getProvince());
+    debtorModel.setProvince(marcaDaBollo.getProvince());
     debtorModel.setEmail(marcaDaBollo.getDebtor().getEmail());
     paymentOption.setDebtor(debtorModel);
 
@@ -320,7 +320,7 @@ public class MbdGpsService {
             Stamp.builder()
                     .stampType(TRANSFER_STAMP_TYPE)
                     .hashDocument(new String(marcaDaBollo.getDocumentHash()))
-                    .provincialResidence(marcaDaBollo.getDebtor().getProvince())
+                    .provincialResidence(marcaDaBollo.getProvince())
                     .build());
     transfer.setCompanyName(businessName);
 

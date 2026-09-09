@@ -22,7 +22,7 @@ import java.math.BigDecimal;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(
     name = "tipoMarcaDaBollo",
-    propOrder = {"amount", "debtor", "fiscalCode", "documentHash"})
+    propOrder = {"amount", "debtor", "fiscalCode", "province", "documentHash"})
 @XmlRootElement(name = "marcaDaBollo", namespace = "http://www.agenziaentrate.gov.it/2014/MarcaDaBollo")
 public class TipoMarcaDaBollo implements Serializable {
 
@@ -46,6 +46,12 @@ public class TipoMarcaDaBollo implements Serializable {
       regexp = "^[0-9]{11}$",
       message = "Creditor Institution fiscal code must be an 11-digit number")
   private String fiscalCode;
+
+  /** {@code common:stNazioneProvincia} - two-letter province code. */
+  @XmlElement(name = "province", required = true)
+  @NotBlank(message = "Debtor residence province must be not empty")
+  @Size(min = 2, max = 2, message = "Debtor residence province must be exactly 2 characters long")
+  private String province;
 
   /** {@code mbd:signature} - base64-encoded document digest (44 characters). */
   @XmlElement(name = "documentHash", required = true)
@@ -79,6 +85,14 @@ public class TipoMarcaDaBollo implements Serializable {
     this.fiscalCode = fiscalCode;
   }
 
+  public String getProvince() {
+      return province;
+  }
+
+  public void setProvince(String province) {
+      this.province = province;
+  }
+
   public byte[] getDocumentHash() {
     return documentHash;
   }
@@ -86,4 +100,6 @@ public class TipoMarcaDaBollo implements Serializable {
   public void setDocumentHash(byte[] documentHash) {
     this.documentHash = documentHash;
   }
+
+
 }

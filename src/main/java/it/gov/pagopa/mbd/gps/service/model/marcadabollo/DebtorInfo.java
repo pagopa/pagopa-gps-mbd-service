@@ -20,7 +20,7 @@ import java.io.Serializable;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(
     name = "debtorInfo",
-    propOrder = {"uniqueIdentifier", "fullName", "province", "email"})
+    propOrder = {"uniqueIdentifier", "fullName", "email"})
 @ValidEntityUniqueIdentifier
 public class DebtorInfo implements Serializable {
 
@@ -35,12 +35,6 @@ public class DebtorInfo implements Serializable {
   @XmlElement(name = "fullName", required = true)
   @NotBlank(message = "Debtor full name must be not empty")
   private String fullName;
-
-  /** {@code common:stNazioneProvincia} - two-letter province code. */
-  @XmlElement(name = "province", required = true)
-  @NotBlank(message = "Debtor residence province must be not empty")
-  @Size(min = 2, max = 2, message = "Debtor residence province must be exactly 2 characters long")
-  private String province;
 
   /** {@code common:stEMail} - debtor e-mail. */
   @XmlElement(name = "email", required = true)
@@ -64,14 +58,6 @@ public class DebtorInfo implements Serializable {
 
   public void setFullName(String fullName) {
     this.fullName = fullName;
-  }
-
-  public String getProvince() {
-    return province;
-  }
-
-  public void setProvince(String province) {
-    this.province = province;
   }
 
   public String getEmail() {

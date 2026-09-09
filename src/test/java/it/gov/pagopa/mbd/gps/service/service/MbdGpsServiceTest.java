@@ -168,17 +168,18 @@ class MbdGpsServiceTest {
     return """
         <marcaDaBollo xmlns="http://www.agenziaentrate.gov.it/2014/MarcaDaBollo">
           <amount>16.00</amount>
+          <fiscalCode>%s</fiscalCode>
+          <province>MI</province>
+          <documentHash>47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=</documentHash>
           <debtor>
             <uniqueIdentifier>
               <entityUniqueIdentifierType>F</entityUniqueIdentifierType>
               <entityUniqueIdentifierValue>RSSMRA85T10H501Z</entityUniqueIdentifierValue>
             </uniqueIdentifier>
             <fullName>Mario Rossi</fullName>
-            <province>MI</province>
             <email>mario.rossi@example.com</email>
           </debtor>
-          <fiscalCode>%s</fiscalCode>
-          <documentHash>47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=</documentHash>
+
         </marcaDaBollo>
         """
         .formatted(CI_FISCAL_CODE);
@@ -189,16 +190,17 @@ class MbdGpsServiceTest {
     return """
         <marcaDaBollo xmlns="http://www.agenziaentrate.gov.it/2014/MarcaDaBollo">
           <amount>0</amount>
+          <province>MI</province>
+          <fiscalCode>%s</fiscalCode>
+          <documentHash>47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=</documentHash>
           <debtor>
             <uniqueIdentifier>
               <entityUniqueIdentifierType>F</entityUniqueIdentifierType>
               <entityUniqueIdentifierValue>RSSMRA85T10H501Z</entityUniqueIdentifierValue>
             </uniqueIdentifier>
             <fullName></fullName>
-            <province>MI</province>
+            <email>mario.rossi@example.com</email>
           </debtor>
-          <fiscalCode>%s</fiscalCode>
-          <documentHash>47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=</documentHash>
         </marcaDaBollo>
         """
         .formatted(CI_FISCAL_CODE);

@@ -19,8 +19,8 @@
             <xsd:element name="amount" type="common:stAmount"/>
             <xsd:element name="debtor" type="mbd:debtorInfo"/>
             <xsd:element name="fiscalCode" type="common:stFiscalCodePA" />
+            <xsd:element name="province" type="common:stNazioneProvincia"/>
             <xsd:element name="documentHash" type="mbd:signature"/>
-
         </xsd:sequence>
     </xsd:complexType>
 
@@ -34,7 +34,6 @@
         <xsd:sequence>
             <xsd:element name="uniqueIdentifier" type="tns:ctEntityUniqueIdentifier" />
             <xsd:element name="fullName" type="common:stText70" />
-            <xsd:element name="province" type="common:stNazioneProvincia"/>
             <xsd:element name="email" type="common:stEMail"/>
         </xsd:sequence>
     </xsd:complexType>
