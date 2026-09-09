@@ -11,22 +11,6 @@ import it.gov.pagopa.mbd.gps.service.model.marcadabollo.TipoMarcaDaBollo;
 import it.gov.pagopa.mbd.gps.service.model.partner.*;
 import it.gov.pagopa.noticenumber.model.NoticeNumberGenerationResponse;
 import it.gov.pagopa.noticenumber.service.NoticeNumberGeneratorService;
-import java.io.ByteArrayInputStream;
-import java.io.StringWriter;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.util.StreamReaderDelegate;
-
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import jakarta.xml.bind.JAXBContext;
@@ -34,6 +18,26 @@ import jakarta.xml.bind.JAXBElement;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
+import java.io.ByteArrayInputStream;
+import java.io.StringWriter;
+import java.math.BigDecimal;
+import java.net.URL;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.xml.XMLConstants;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.util.StreamReaderDelegate;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,7 +59,7 @@ public class MbdGpsService {
   private static final String REMITTANCE_INFORMATION_PATTERN = "/RFB/%s/CNR/%s/TXT/%s";
   private static final String ENTITY_UID_TYPE_ELEMENT = "entityUniqueIdentifierType";
   private static final String ENTITY_UID_VALUE_ELEMENT = "entityUniqueIdentifierValue";
-  private static final ZoneId ROME_ZONE_ID = ZoneId.of("Europe/Rome");
+  private static final Schema MARCA_DA_BOLLO_SCHEMA = loadMarcaDaBolloSchema();
 
   private final ConfigCacheService configCacheService;
   private final GpdClient gpdClient;
@@ -78,10 +82,34 @@ public class MbdGpsService {
 
   private static JAXBContext createPartnerContext() {
     try {
-      return JAXBContext.newInstance(PaDemandPaymentNoticeResponse.class.getPackageName(),
-              PaDemandPaymentNoticeResponse.class.getClassLoader());
+      return JAXBContext.newInstance(
+          PaDemandPaymentNoticeResponse.class.getPackageName(),
+          PaDemandPaymentNoticeResponse.class.getClassLoader());
     } catch (JAXBException e) {
       throw new IllegalStateException("Unable to initialize partner JAXB context", e);
+    }
+  }
+
+  private static Schema loadMarcaDaBolloSchema() {
+    try {
+      ClassLoader classLoader = MbdGpsService.class.getClassLoader();
+      URL paForNodeUrl = classLoader.getResource("wsdl/xsd/paForNode.xsd");
+      URL marcaDaBolloUrl = classLoader.getResource("xsd-common/marcaDaBollo.xsd");
+
+      if (paForNodeUrl == null || marcaDaBolloUrl == null) {
+        throw new IllegalArgumentException("XSD files not found in classpath");
+      }
+
+      Source[] schemaSources =
+          new Source[] {
+            new StreamSource(paForNodeUrl.openStream(), paForNodeUrl.toExternalForm()),
+            new StreamSource(marcaDaBolloUrl.openStream(), marcaDaBolloUrl.toExternalForm())
+          };
+
+      SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+      return schemaFactory.newSchema(schemaSources);
+    } catch (Exception e) {
+      throw new IllegalStateException("Failed to load marcaDaBollo.xsd schema", e);
     }
   }
 
@@ -109,46 +137,68 @@ public class MbdGpsService {
   @Value("${mbd.payment-position.remittance-information}")
   private String remittanceInformation;
 
-  public String createDebtPosition(
-          PaDemandPaymentNoticeRequest request) {
+  public String createDebtPosition(PaDemandPaymentNoticeRequest request) {
     try {
-      TipoMarcaDaBollo marcaDaBollo = unmarshalMarcaDaBollo(request.getDatiSpecificiServizioRequest());
+      TipoMarcaDaBollo marcaDaBollo =
+          unmarshalMarcaDaBollo(request.getDatiSpecificiServizioRequest());
       checkMarcaDaBollo(marcaDaBollo);
       String ciFiscalCode = marcaDaBollo.getFiscalCode();
       CreditorInstitution creditor = configCacheService.getCreditorInstitutions().get(ciFiscalCode);
       if (creditor == null) {
-        return marshalResponse(factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeKOResponse(request.getIdPA(), "PAA_ID_DOMINIO_ERRATO", "Creditor Institution not configured in pagoPA")));
+        return marshalResponse(
+            factory.createPaDemandPaymentNoticeResponse(
+                createPaDemandPaymentNoticeKOResponse(
+                    request.getIdPA(),
+                    "PAA_ID_DOMINIO_ERRATO",
+                    "Creditor Institution not configured in pagoPA")));
       }
 
-      NoticeNumberGenerationResponse response = noticeNumberGeneratorService.generateNoticeNumber(ciFiscalCode);
+      NoticeNumberGenerationResponse response =
+          noticeNumberGeneratorService.generateNoticeNumber(ciFiscalCode);
 
       String formattedRemittanceInformation =
-              String.format(
-                      REMITTANCE_INFORMATION_PATTERN,
-                      response.getNoticeNumber(),
-                      marcaDaBollo.getDebtor().getUniqueIdentifier().getEntityUniqueIdentifierValue(),
-                      this.remittanceInformation);
+          String.format(
+              REMITTANCE_INFORMATION_PATTERN,
+              response.getNoticeNumber(),
+              marcaDaBollo.getDebtor().getUniqueIdentifier().getEntityUniqueIdentifierValue(),
+              this.remittanceInformation);
 
       PaymentPositionModelV3 mappingRequest =
-                buildPaymentPositionRequest(
-                      marcaDaBollo,
-                      creditor.getBusinessName(),
-                      response.getNoticeNumber(),
-                      formattedRemittanceInformation);
+          buildPaymentPositionRequest(
+              marcaDaBollo,
+              creditor.getBusinessName(),
+              response.getNoticeNumber(),
+              formattedRemittanceInformation);
 
       PaymentPositionModelV3 gpdResponse =
-              gpdClient.createDebtPosition(marcaDaBollo.getFiscalCode(), mappingRequest, true, SERVICE_TYPE);
+          gpdClient.createDebtPosition(
+              marcaDaBollo.getFiscalCode(), mappingRequest, true, SERVICE_TYPE);
 
-      return marshalResponse(factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeResponse(gpdResponse)));
+      return marshalResponse(
+          factory.createPaDemandPaymentNoticeResponse(
+              createPaDemandPaymentNoticeResponse(gpdResponse)));
     } catch (MarcaDaBolloValidationException e) {
       log.error("Validation failed for marcaDaBollo: {}", e.getMessage());
-      return marshalResponse(factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeKOResponse(request.getIdPA(), "PPT_SINTASSI_EXTRAXSD", e.getMessage())));
+      return marshalResponse(
+          factory.createPaDemandPaymentNoticeResponse(
+              createPaDemandPaymentNoticeKOResponse(
+                  request.getIdPA(), "PPT_SINTASSI_EXTRAXSD", e.getMessage())));
     } catch (AppException e) {
       log.error("AppException: error processing PaDemandPaymentNoticeRequest", e);
-      return marshalResponse(factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeKOResponse(request.getIdPA(), "PAA_SYSTEM_ERROR", "Error processing PaDemandPaymentNoticeRequest XML")));
+      return marshalResponse(
+          factory.createPaDemandPaymentNoticeResponse(
+              createPaDemandPaymentNoticeKOResponse(
+                  request.getIdPA(),
+                  "PAA_SYSTEM_ERROR",
+                  "Error processing PaDemandPaymentNoticeRequest XML")));
     } catch (Exception e) {
       log.error("Exception: error processing PaDemandPaymentNoticeRequest XML", e);
-      return marshalResponse(factory.createPaDemandPaymentNoticeResponse(createPaDemandPaymentNoticeKOResponse(request.getIdPA(), "PAA_SYSTEM_ERROR", "Error processing PaDemandPaymentNoticeRequest XML")));
+      return marshalResponse(
+          factory.createPaDemandPaymentNoticeResponse(
+              createPaDemandPaymentNoticeKOResponse(
+                  request.getIdPA(),
+                  "PAA_SYSTEM_ERROR",
+                  "Error processing PaDemandPaymentNoticeRequest XML")));
     }
   }
 
@@ -163,7 +213,8 @@ public class MbdGpsService {
   private void validateMarcaDaBollo(TipoMarcaDaBollo marcaDaBollo) {
     Set<ConstraintViolation<TipoMarcaDaBollo>> violations = validator.validate(marcaDaBollo);
     if (!violations.isEmpty()) {
-      String errorMessage = violations.stream()
+      String errorMessage =
+          violations.stream()
               .map(v -> v.getPropertyPath() + ": " + v.getMessage())
               .collect(Collectors.joining("; "));
 
@@ -173,12 +224,13 @@ public class MbdGpsService {
   }
 
   private TipoMarcaDaBollo unmarshalMarcaDaBollo(byte[] datiSpecificiServizio)
-          throws JAXBException, XMLStreamException {
+      throws JAXBException, XMLStreamException {
     Unmarshaller unmarshaller = MARCA_DA_BOLLO_CONTEXT.createUnmarshaller();
+    unmarshaller.setSchema(MARCA_DA_BOLLO_SCHEMA);
     XMLStreamReader reader = createMarcaDaBolloReader(datiSpecificiServizio);
     try {
       JAXBElement<TipoMarcaDaBollo> element =
-              unmarshaller.unmarshal(reader, TipoMarcaDaBollo.class);
+          unmarshaller.unmarshal(reader, TipoMarcaDaBollo.class);
       return element.getValue();
     } finally {
       reader.close();
@@ -193,18 +245,18 @@ public class MbdGpsService {
    * unmarshals correctly even when the document exposes a single default namespace.
    */
   private XMLStreamReader createMarcaDaBolloReader(byte[] datiSpecificiServizio)
-          throws XMLStreamException {
+      throws XMLStreamException {
     XMLInputFactory inputFactory = XMLInputFactory.newInstance();
     inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
     inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
     XMLStreamReader baseReader =
-            inputFactory.createXMLStreamReader(new ByteArrayInputStream(datiSpecificiServizio));
+        inputFactory.createXMLStreamReader(new ByteArrayInputStream(datiSpecificiServizio));
     return new StreamReaderDelegate(baseReader) {
       @Override
       public String getNamespaceURI() {
         String localName = getLocalName();
         if (ENTITY_UID_TYPE_ELEMENT.equals(localName)
-                || ENTITY_UID_VALUE_ELEMENT.equals(localName)) {
+            || ENTITY_UID_VALUE_ELEMENT.equals(localName)) {
           return "";
         }
         return super.getNamespaceURI();
@@ -213,7 +265,7 @@ public class MbdGpsService {
   }
 
   private PaDemandPaymentNoticeResponse createPaDemandPaymentNoticeResponse(
-          PaymentPositionModelV3 gpsResponse) throws DatatypeConfigurationException {
+      PaymentPositionModelV3 gpsResponse) throws DatatypeConfigurationException {
 
     var result = factory.createPaDemandPaymentNoticeResponse();
     result.setOutcome(StOutcome.OK);
@@ -234,26 +286,25 @@ public class MbdGpsService {
     result.setPaymentDescription(paymentOption.getDescription());
 
     CtPaymentOptionsDescriptionListPA ctPaymentOptionsDescriptionListPA =
-            factory.createCtPaymentOptionsDescriptionListPA();
+        factory.createCtPaymentOptionsDescriptionListPA();
 
     CtPaymentOptionDescriptionPA ctPaymentOptionDescriptionPA =
-            factory.createCtPaymentOptionDescriptionPA();
+        factory.createCtPaymentOptionDescriptionPA();
 
     boolean ccp =
-            installment
-                    .getTransfer()
-                    .stream()
-                    .noneMatch(elem -> elem.getPostalIban() == null || elem.getPostalIban().isBlank());
+        installment.getTransfer().stream()
+            .noneMatch(elem -> elem.getPostalIban() == null || elem.getPostalIban().isBlank());
     ctPaymentOptionDescriptionPA.setAllCCP(ccp);
 
     // Converte l'importo da centesimi in Euro per la risposta Nodo
-    BigDecimal amountInEuro = BigDecimal.valueOf(installment.getAmount()).divide(BigDecimal.valueOf(100));
+    BigDecimal amountInEuro =
+        BigDecimal.valueOf(installment.getAmount()).divide(BigDecimal.valueOf(100));
     ctPaymentOptionDescriptionPA.setAmount(amountInEuro);
 
     var date = installment.getDueDate();
     if (date != null) {
       ctPaymentOptionDescriptionPA.setDueDate(
-              DatatypeFactory.newInstance().newXMLGregorianCalendar(String.valueOf(date)));
+          DatatypeFactory.newInstance().newXMLGregorianCalendar(String.valueOf(date)));
     }
 
     ctPaymentOptionDescriptionPA.setOptions(StAmountOption.EQ);
@@ -265,7 +316,8 @@ public class MbdGpsService {
     return result;
   }
 
-  private PaDemandPaymentNoticeResponse createPaDemandPaymentNoticeKOResponse(String idPA, String faultCode, String faultDescription) {
+  private PaDemandPaymentNoticeResponse createPaDemandPaymentNoticeKOResponse(
+      String idPA, String faultCode, String faultDescription) {
 
     var result = factory.createPaDemandPaymentNoticeResponse();
     result.setOutcome(StOutcome.KO);
@@ -273,21 +325,22 @@ public class MbdGpsService {
     fault.setId(idPA);
     fault.setFaultCode(faultCode);
     fault.setFaultString(faultDescription);
-    result.setFault(fault); 
+    result.setFault(fault);
     return result;
   }
 
   private PaymentPositionModelV3 buildPaymentPositionRequest(
-          TipoMarcaDaBollo marcaDaBollo,
-          String businessName,
-          String nav,
-          String remittanceInformation) {
-    String debtorFiscalCode = marcaDaBollo.getDebtor().getUniqueIdentifier().getEntityUniqueIdentifierValue();
+      TipoMarcaDaBollo marcaDaBollo,
+      String businessName,
+      String nav,
+      String remittanceInformation) {
+    String debtorFiscalCode =
+        marcaDaBollo.getDebtor().getUniqueIdentifier().getEntityUniqueIdentifierValue();
     long amountInCents = marcaDaBollo.getAmount().longValue() * 100L;
 
     PaymentPositionModelV3 paymentPosition = new PaymentPositionModelV3();
     paymentPosition.setIupd(
-            String.format("%s%d_%s", MBD_PREFIX, LocalDate.now(ROME_ZONE_ID).getYear(), nav));
+        String.format("%s%d_%s", MBD_PREFIX, LocalDate.now(ZoneOffset.UTC).getYear(), nav));
     paymentPosition.setPayStandIn(false);
     paymentPosition.setCompanyName(businessName);
 
@@ -296,7 +349,16 @@ public class MbdGpsService {
     paymentOption.setSwitchToExpired(true);
 
     DebtorModel debtorModel = new DebtorModel();
-    debtorModel.setType("G".equals(marcaDaBollo.getDebtor().getUniqueIdentifier().getEntityUniqueIdentifierType().value()) ? Type.G : Type.F);
+    debtorModel.setType(
+        "G"
+                .equals(
+                    marcaDaBollo
+                        .getDebtor()
+                        .getUniqueIdentifier()
+                        .getEntityUniqueIdentifierType()
+                        .value())
+            ? Type.G
+            : Type.F);
     debtorModel.setFiscalCode(debtorFiscalCode);
     debtorModel.setFullName(marcaDaBollo.getDebtor().getFullName());
     debtorModel.setProvince(marcaDaBollo.getProvince());
@@ -317,11 +379,11 @@ public class MbdGpsService {
     transfer.setRemittanceInformation(remittanceInformation);
     transfer.setCategory(category);
     transfer.setStamp(
-            Stamp.builder()
-                    .stampType(TRANSFER_STAMP_TYPE)
-                    .hashDocument(new String(marcaDaBollo.getDocumentHash()))
-                    .provincialResidence(marcaDaBollo.getProvince())
-                    .build());
+        Stamp.builder()
+            .stampType(TRANSFER_STAMP_TYPE)
+            .hashDocument(new String(marcaDaBollo.getDocumentHash()))
+            .provincialResidence(marcaDaBollo.getProvince())
+            .build());
     transfer.setCompanyName(businessName);
 
     installment.getTransfer().add(transfer);

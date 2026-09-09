@@ -34,19 +34,19 @@ class MbdGpsControllerTest {
     String xmlRequest = createDummyXmlRequest();
 
     String mockResponseXml =
-            "<paDemandPaymentNoticeResponse><outcome>OK</outcome><fiscalCodePA>77777777777</fiscalCodePA></paDemandPaymentNoticeResponse>";
+        "<paDemandPaymentNoticeResponse><outcome>OK</outcome><fiscalCodePA>77777777777</fiscalCodePA></paDemandPaymentNoticeResponse>";
 
     when(mbdGpsService.createDebtPosition(any(PaDemandPaymentNoticeRequest.class)))
-            .thenReturn(mockResponseXml);
+        .thenReturn(mockResponseXml);
 
     mockMvc
-            .perform(
-                    post("/mbd/paymentOption")
-                            .contentType(MediaType.APPLICATION_XML)
-                            .accept(MediaType.APPLICATION_XML)
-                            .content(xmlRequest))
-            .andExpect(status().isOk())
-            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_XML));
+        .perform(
+            post("/mbd/paymentOption")
+                .contentType(MediaType.APPLICATION_XML)
+                .accept(MediaType.APPLICATION_XML)
+                .content(xmlRequest))
+        .andExpect(status().isOk())
+        .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_XML));
 
     verify(mbdGpsService).createDebtPosition(any(PaDemandPaymentNoticeRequest.class));
   }
@@ -55,12 +55,12 @@ class MbdGpsControllerTest {
   @DisplayName("POST /mbd/paymentOption - KO: malformed XML (400 Bad Request)")
   void createPaymentOption_BadRequest() throws Exception {
     mockMvc
-            .perform(
-                    post("/mbd/paymentOption")
-                            .contentType(MediaType.APPLICATION_XML)
-                            .accept(MediaType.APPLICATION_XML)
-                            .content("<paDemandPaymentNoticeRequest><idPA>"))
-            .andExpect(status().isBadRequest());
+        .perform(
+            post("/mbd/paymentOption")
+                .contentType(MediaType.APPLICATION_XML)
+                .accept(MediaType.APPLICATION_XML)
+                .content("<paDemandPaymentNoticeRequest><idPA>"))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -69,15 +69,15 @@ class MbdGpsControllerTest {
     String xmlRequest = createDummyXmlRequest();
 
     when(mbdGpsService.createDebtPosition(any(PaDemandPaymentNoticeRequest.class)))
-            .thenThrow(new AppException(AppError.CREDITOR_INSTITUTION_NOT_FOUND));
+        .thenThrow(new AppException(AppError.CREDITOR_INSTITUTION_NOT_FOUND));
 
     mockMvc
-            .perform(
-                    post("/mbd/paymentOption")
-                            .contentType(MediaType.APPLICATION_XML)
-                            .accept(MediaType.APPLICATION_XML)
-                            .content(xmlRequest))
-            .andExpect(status().isNotFound());
+        .perform(
+            post("/mbd/paymentOption")
+                .contentType(MediaType.APPLICATION_XML)
+                .accept(MediaType.APPLICATION_XML)
+                .content(xmlRequest))
+        .andExpect(status().isNotFound());
   }
 
   @Test
@@ -86,15 +86,15 @@ class MbdGpsControllerTest {
     String xmlRequest = createDummyXmlRequest();
 
     when(mbdGpsService.createDebtPosition(any(PaDemandPaymentNoticeRequest.class)))
-            .thenThrow(new RuntimeException("Generic Error"));
+        .thenThrow(new RuntimeException("Generic Error"));
 
     mockMvc
-            .perform(
-                    post("/mbd/paymentOption")
-                            .contentType(MediaType.APPLICATION_XML)
-                            .accept(MediaType.APPLICATION_XML)
-                            .content(xmlRequest))
-            .andExpect(status().isInternalServerError());
+        .perform(
+            post("/mbd/paymentOption")
+                .contentType(MediaType.APPLICATION_XML)
+                .accept(MediaType.APPLICATION_XML)
+                .content(xmlRequest))
+        .andExpect(status().isInternalServerError());
   }
 
   private String createDummyXmlRequest() {

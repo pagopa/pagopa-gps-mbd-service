@@ -10,8 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 public class EntityUniqueIdentifierValidator
     implements ConstraintValidator<ValidEntityUniqueIdentifier, DebtorInfo> {
 
-  private static final String FISCAL_CODE_PATTERN =
-          "^[A-Z]{6}\\d{2}[A-Z]\\d{2}[A-Z]\\d{3}[A-Z]$";
+  private static final String FISCAL_CODE_PATTERN = "^[A-Z]{6}\\d{2}[A-Z]\\d{2}[A-Z]\\d{3}[A-Z]$";
   private static final String VAT_NUMBER_PATTERN = "^\\d{11}$";
 
   @Override

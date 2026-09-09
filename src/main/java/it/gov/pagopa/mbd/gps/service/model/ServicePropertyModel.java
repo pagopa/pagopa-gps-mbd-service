@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ServicePropertyModel {
-    private String name;
-    private String value;
+  private String name;
+  private String value;
 }

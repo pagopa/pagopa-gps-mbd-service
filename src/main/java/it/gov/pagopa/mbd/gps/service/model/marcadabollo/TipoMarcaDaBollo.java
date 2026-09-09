@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.*;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -23,7 +22,9 @@ import java.math.BigDecimal;
 @XmlType(
     name = "tipoMarcaDaBollo",
     propOrder = {"amount", "debtor", "fiscalCode", "province", "documentHash"})
-@XmlRootElement(name = "marcaDaBollo", namespace = "http://www.agenziaentrate.gov.it/2014/MarcaDaBollo")
+@XmlRootElement(
+    name = "marcaDaBollo",
+    namespace = "http://www.agenziaentrate.gov.it/2014/MarcaDaBollo")
 public class TipoMarcaDaBollo implements Serializable {
 
   private static final long serialVersionUID = 1L;
@@ -60,7 +61,6 @@ public class TipoMarcaDaBollo implements Serializable {
   @Size(min = 32, max = 32, message = "Document hash must be a valid 32-byte SHA-256 digest")
   private byte[] documentHash;
 
-
   public BigDecimal getAmount() {
     return amount;
   }
@@ -86,11 +86,11 @@ public class TipoMarcaDaBollo implements Serializable {
   }
 
   public String getProvince() {
-      return province;
+    return province;
   }
 
   public void setProvince(String province) {
-      this.province = province;
+    this.province = province;
   }
 
   public byte[] getDocumentHash() {
@@ -100,6 +100,4 @@ public class TipoMarcaDaBollo implements Serializable {
   public void setDocumentHash(byte[] documentHash) {
     this.documentHash = documentHash;
   }
-
-
 }

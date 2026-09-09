@@ -59,7 +59,8 @@ class MbdGpsServiceTest {
     ReflectionTestUtils.setField(mbdGpsService, "dueDateDays", 30);
     ReflectionTestUtils.setField(mbdGpsService, "category", "9/0101108TS/");
     ReflectionTestUtils.setField(mbdGpsService, "description", "Marca da bollo digitale");
-    ReflectionTestUtils.setField(mbdGpsService, "remittanceInformation", "Pagamento marca da bollo");
+    ReflectionTestUtils.setField(
+        mbdGpsService, "remittanceInformation", "Pagamento marca da bollo");
   }
 
   @Test
@@ -81,7 +82,8 @@ class MbdGpsServiceTest {
             eq(CI_FISCAL_CODE), any(PaymentPositionModelV3.class), eq(true), anyString()))
         .thenReturn(buildGpdResponse());
 
-    PaDemandPaymentNoticeResponse response = unmarshalResponse(mbdGpsService.createDebtPosition(request));
+    PaDemandPaymentNoticeResponse response =
+        unmarshalResponse(mbdGpsService.createDebtPosition(request));
 
     assertThat(response.getOutcome()).isEqualTo(StOutcome.OK);
     assertThat(response.getFiscalCodePA()).isEqualTo(CI_FISCAL_CODE);
@@ -90,7 +92,8 @@ class MbdGpsServiceTest {
     verify(configCacheService).getCreditorInstitutions();
     verify(noticeNumberGeneratorService).generateNoticeNumber(CI_FISCAL_CODE);
     verify(gpdClient)
-        .createDebtPosition(eq(CI_FISCAL_CODE), any(PaymentPositionModelV3.class), eq(true), anyString());
+        .createDebtPosition(
+            eq(CI_FISCAL_CODE), any(PaymentPositionModelV3.class), eq(true), anyString());
   }
 
   @Test
@@ -98,7 +101,8 @@ class MbdGpsServiceTest {
   void createDebtPosition_InvalidPayload() {
     PaDemandPaymentNoticeRequest request = buildRequest(invalidMarcaDaBolloXml());
 
-    PaDemandPaymentNoticeResponse response = unmarshalResponse(mbdGpsService.createDebtPosition(request));
+    PaDemandPaymentNoticeResponse response =
+        unmarshalResponse(mbdGpsService.createDebtPosition(request));
 
     assertThat(response.getOutcome()).isEqualTo(StOutcome.KO);
     assertThat(response.getFault().getFaultCode()).isEqualTo("PPT_SINTASSI_EXTRAXSD");
@@ -107,13 +111,15 @@ class MbdGpsServiceTest {
   }
 
   @Test
-  @DisplayName("createDebtPosition - KO: Creditor Institution not configured (PAA_ID_DOMINIO_ERRATO)")
+  @DisplayName(
+      "createDebtPosition - KO: Creditor Institution not configured (PAA_ID_DOMINIO_ERRATO)")
   void createDebtPosition_CreditorInstitutionNotFound() {
     PaDemandPaymentNoticeRequest request = buildRequest(validMarcaDaBolloXml());
 
     when(configCacheService.getCreditorInstitutions()).thenReturn(new HashMap<>());
 
-    PaDemandPaymentNoticeResponse response = unmarshalResponse(mbdGpsService.createDebtPosition(request));
+    PaDemandPaymentNoticeResponse response =
+        unmarshalResponse(mbdGpsService.createDebtPosition(request));
 
     assertThat(response.getOutcome()).isEqualTo(StOutcome.KO);
     assertThat(response.getFault().getFaultCode()).isEqualTo("PAA_ID_DOMINIO_ERRATO");
@@ -132,7 +138,8 @@ class MbdGpsServiceTest {
     when(noticeNumberGeneratorService.generateNoticeNumber(CI_FISCAL_CODE))
         .thenThrow(new RuntimeException("NAV generation failed"));
 
-    PaDemandPaymentNoticeResponse response = unmarshalResponse(mbdGpsService.createDebtPosition(request));
+    PaDemandPaymentNoticeResponse response =
+        unmarshalResponse(mbdGpsService.createDebtPosition(request));
 
     assertThat(response.getOutcome()).isEqualTo(StOutcome.KO);
     assertThat(response.getFault().getFaultCode()).isEqualTo("PAA_SYSTEM_ERROR");
@@ -185,7 +192,9 @@ class MbdGpsServiceTest {
         .formatted(CI_FISCAL_CODE);
   }
 
-  /** Amount is zero (must be positive) and debtor's fullName is missing: violates two constraints. */
+  /**
+   * Amount is zero (must be positive) and debtor's fullName is missing: violates two constraints.
+   */
   private String invalidMarcaDaBolloXml() {
     return """
         <marcaDaBollo xmlns="http://www.agenziaentrate.gov.it/2014/MarcaDaBollo">

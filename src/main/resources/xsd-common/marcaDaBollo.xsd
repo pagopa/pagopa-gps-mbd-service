@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xsd:schema 
+<xsd:schema
         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
         xmlns:mbd="http://www.agenziaentrate.gov.it/2014/MarcaDaBollo"
         xmlns:common="http://pagopa-api.pagopa.gov.it/xsd/common-types/v1.0.0/"
         xmlns:tns="http://pagopa-api.pagopa.gov.it/pa/paForNode.xsd"
         targetNamespace="http://www.agenziaentrate.gov.it/2014/MarcaDaBollo" elementFormDefault="qualified">
+
+    <xsd:import namespace="http://pagopa-api.pagopa.gov.it/pa/paForNode.xsd"
+               schemaLocation="../wsdl/xsd/paForNode.xsd" />
 
     <xsd:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="xmldsig-core-schema.xsd"/>
 

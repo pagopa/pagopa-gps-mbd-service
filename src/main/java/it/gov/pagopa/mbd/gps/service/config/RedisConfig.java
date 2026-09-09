@@ -27,7 +27,7 @@ public class RedisConfig {
   @Bean
   public LettuceConnectionFactory redisConnectionFactory() {
     RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration(host, port);
-    
+
     redisConfig.setUsername("default");
 
     if (password != null && !password.isBlank()) {
@@ -35,7 +35,7 @@ public class RedisConfig {
     }
 
     LettuceClientConfiguration.LettuceClientConfigurationBuilder builder =
-            LettuceClientConfiguration.builder();
+        LettuceClientConfiguration.builder();
 
     if (sslEnabled) {
       builder.useSsl();
