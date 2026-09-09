@@ -1,6 +1,8 @@
 package it.gov.pagopa.mbd.gps.service.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -14,6 +16,7 @@ import it.gov.pagopa.mbd.gps.service.model.client.InstallmentModel;
 import it.gov.pagopa.mbd.gps.service.model.client.PaymentOptionModelV3;
 import it.gov.pagopa.mbd.gps.service.model.client.PaymentPositionModelV3;
 import it.gov.pagopa.mbd.gps.service.model.client.TransferModel;
+import it.gov.pagopa.mbd.gps.service.model.marcadabollo.TipoMarcaDaBollo;
 import it.gov.pagopa.mbd.gps.service.model.partner.PaDemandPaymentNoticeRequest;
 import it.gov.pagopa.mbd.gps.service.model.partner.PaDemandPaymentNoticeResponse;
 import it.gov.pagopa.mbd.gps.service.model.partner.StOutcome;
@@ -25,7 +28,9 @@ import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 import java.io.StringReader;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import javax.xml.transform.stream.StreamSource;
@@ -143,6 +148,17 @@ class MbdGpsServiceTest {
 
     assertThat(response.getOutcome()).isEqualTo(StOutcome.KO);
     assertThat(response.getFault().getFaultCode()).isEqualTo("PAA_SYSTEM_ERROR");
+  }
+
+  @Test
+  void testUnmarshalMarcaDaBollo() throws Exception {
+    String base64Xml = "PG1hcmNhRGFCb2xsbyB4bWxucz0iaHR0cDovL3d3dy5hZ2VuemlhZW50cmF0ZS5nb3YuaXQvMjAxNC9NYXJjYURhQm9sbG8iIHhzaTpzY2hlbWFMb2NhdGlvbj0iaHR0cDovL3BhZ29wYS1hcGkucGFnb3BhLmdvdi5pdC9wYS9NYXJjYURhQm9sbG8ueHNkIiB4bWxuczp4c2k9Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvWE1MQWNjZXB0LWluc3RhbmNlIj4KICA8YW1vdW50PjE2LjAwPC9hbW91bnQ+CiAgPGRlYnRvcj4KICAJPHVuaXF1ZUlkZW50aWZpZXI+CiAgCQk8ZW50aXR5VW5pcXVlSWRlbnRpZmllclR5cGU+RjwvZW50aXR5VW5pcXVlSWRlbnRpZmllclR5cGU+CgkJPGVudGl0eVVuaXF1ZUlkZW50aWZpZXJWYWx1ZT5QTFRQUFAwMFIxMEg1MDFPPC9lbnRpdHlVbmlxdWVJZGVudGlmaWVyVmFsdWU+CiAgCTwvdW5pcXVlSWRlbnRpZmllcj4KICAJPGZ1bGxOYW1lPlBpcHBvIFBsdXRvPC9mdWxsTmFtZT4KICAJPGVtYWlsPnBpcHBvLnBsdXRvQHBhcGVyaW5vLml0PC9lbWFpbD4KICA8L2RlYnRvcj4KICA8ZmlzY2FsQ29kZT43Nzc3Nzc3Nzc3NzwvZmlzY2FsQ29kZT4KICA8cHJvdmluY2U+TUk8L3Byb3ZpbmNlPgogIDxkb2N1bWVudEhhc2g+YWY0V1l5U1lPQ2E2WGdrK0J5eEl2eHVhUHN4MUplclJnaXBQMXxeTThiST08L2RvY3VtZW50SGFzaD4KPC9tYXJjYURhQm9sbG8+";
+
+    byte[] xmlBytes = Base64.getDecoder().decode(base64Xml);
+    TipoMarcaDaBollo result = mbdGpsService.unmarshalMarcaDaBollo(xmlBytes);
+
+    assertNotNull(result);
+    assertEquals(new BigDecimal("16.00"), result.getAmount());
   }
 
   private PaDemandPaymentNoticeResponse unmarshalResponse(String xml) {

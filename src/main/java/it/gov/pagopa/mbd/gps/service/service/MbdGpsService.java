@@ -223,10 +223,10 @@ public class MbdGpsService {
     }
   }
 
-  private TipoMarcaDaBollo unmarshalMarcaDaBollo(byte[] datiSpecificiServizio)
+  TipoMarcaDaBollo unmarshalMarcaDaBollo(byte[] datiSpecificiServizio)
       throws JAXBException, XMLStreamException {
     Unmarshaller unmarshaller = MARCA_DA_BOLLO_CONTEXT.createUnmarshaller();
-    unmarshaller.setSchema(MARCA_DA_BOLLO_SCHEMA);
+    //unmarshaller.setSchema(MARCA_DA_BOLLO_SCHEMA);
     XMLStreamReader reader = createMarcaDaBolloReader(datiSpecificiServizio);
     try {
       JAXBElement<TipoMarcaDaBollo> element =
