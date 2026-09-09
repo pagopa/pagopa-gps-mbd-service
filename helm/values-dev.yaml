@@ -1,4 +1,6 @@
 microservice-chart:
+  namespace: "ebollo"
+  nameOverride: ""
   fullnameOverride: "pagopa-gps-mbd-service"
   image:
     repository: ghcr.io/pagopa/pagopa-gps-mbd-service
