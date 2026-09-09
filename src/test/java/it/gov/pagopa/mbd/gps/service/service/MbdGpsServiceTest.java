@@ -150,15 +150,49 @@ class MbdGpsServiceTest {
     assertThat(response.getFault().getFaultCode()).isEqualTo("PAA_SYSTEM_ERROR");
   }
 
+    @Test
+    void testUnmarshalMarcaDaBollo() throws Exception {
+        String base64Xml = "PG1hcmNhRGFCb2xsbyB4bWxucz0iaHR0cDovL3d3dy5hZ2VuemlhZW50cmF0ZS5nb3YuaXQvMjAxNC9NYXJjYURhQm9sbG8iPgogIDxhbW91bnQ+MTYuMDA8L2Ftb3VudD4KICA8ZGVidG9yPgogICAgPHVuaXF1ZUlkZW50aWZpZXI+CiAgICAgIDxlbnRpdHlVbmlxdWVJZGVudGlmaWVyVHlwZT5GPC9lbnRpdHlVbmlxdWVJZGVudGlmaWVyVHlwZT4KICAgICAgPGVudGl0eVVuaXF1ZUlkZW50aWZpZXJWYWx1ZT5QTFRQUFAwMFIxMEg1MDFPPC9lbnRpdHlVbmlxdWVJZGVudGlmaWVyVmFsdWU+CiAgICA8L3VuaXF1ZUlkZW50aWZpZXI+CiAgICA8ZnVsbE5hbWU+UGlwcG8gUGx1dG88L2Z1bGxOYW1lPgogICAgPGVtYWlsPnBpcHBvLnBsdXRvQHBhcGVyaW5vLml0PC9lbWFpbD4KICA8L2RlYnRvcj4KICA8ZmlzY2FsQ29kZT43Nzc3Nzc3Nzc3NzwvZmlzY2FsQ29kZT4KICA8cHJvdmluY2U+TUk8L3Byb3ZpbmNlPgogIDxkb2N1bWVudEhhc2g+YWY0V1l5U1lPQ2E2WGdrK0J5eEl2eHVhUHN4MUplclJnaXBQMXhlTThiST08L2RvY3VtZW50SGFzaD4KPC9tYXJjYURhQm9sbG8+";
+
+        byte[] xmlBytes = Base64.getDecoder().decode(base64Xml);
+        TipoMarcaDaBollo result = mbdGpsService.unmarshalMarcaDaBollo(xmlBytes);
+
+        assertNotNull(result);
+        assertEquals(new BigDecimal("16.00"), result.getAmount());
+    }
+
   @Test
-  void testUnmarshalMarcaDaBollo() throws Exception {
-    String base64Xml = "PG1hcmNhRGFCb2xsbyB4bWxucz0iaHR0cDovL3d3dy5hZ2VuemlhZW50cmF0ZS5nb3YuaXQvMjAxNC9NYXJjYURhQm9sbG8iIHhzaTpzY2hlbWFMb2NhdGlvbj0iaHR0cDovL3BhZ29wYS1hcGkucGFnb3BhLmdvdi5pdC9wYS9NYXJjYURhQm9sbG8ueHNkIiB4bWxuczp4c2k9Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvWE1MQWNjZXB0LWluc3RhbmNlIj4KICA8YW1vdW50PjE2LjAwPC9hbW91bnQ+CiAgPGRlYnRvcj4KICAJPHVuaXF1ZUlkZW50aWZpZXI+CiAgCQk8ZW50aXR5VW5pcXVlSWRlbnRpZmllclR5cGU+RjwvZW50aXR5VW5pcXVlSWRlbnRpZmllclR5cGU+CgkJPGVudGl0eVVuaXF1ZUlkZW50aWZpZXJWYWx1ZT5QTFRQUFAwMFIxMEg1MDFPPC9lbnRpdHlVbmlxdWVJZGVudGlmaWVyVmFsdWU+CiAgCTwvdW5pcXVlSWRlbnRpZmllcj4KICAJPGZ1bGxOYW1lPlBpcHBvIFBsdXRvPC9mdWxsTmFtZT4KICAJPGVtYWlsPnBpcHBvLnBsdXRvQHBhcGVyaW5vLml0PC9lbWFpbD4KICA8L2RlYnRvcj4KICA8ZmlzY2FsQ29kZT43Nzc3Nzc3Nzc3NzwvZmlzY2FsQ29kZT4KICA8cHJvdmluY2U+TUk8L3Byb3ZpbmNlPgogIDxkb2N1bWVudEhhc2g+YWY0V1l5U1lPQ2E2WGdrK0J5eEl2eHVhUHN4MUplclJnaXBQMXxeTThiST08L2RvY3VtZW50SGFzaD4KPC9tYXJjYURhQm9sbG8+";
+  @DisplayName("createDebtPosition - KO: XML con elemento sconosciuto (PPT_SINTASSI_EXTRAXSD)")
+  void createDebtPosition_UnknownXsdElement() {
+    String xmlWithUnknownElement = """
+        <marcaDaBollo xmlns="http://www.agenziaentrate.gov.it/2014/MarcaDaBollo">
+          <amount>16.00</amount>
+          <unsupportedTag>VALORE_NON_VALIDO</unsupportedTag>
+          <debtor>
+            <uniqueIdentifier>
+              <entityUniqueIdentifierType>F</entityUniqueIdentifierType>
+              <entityUniqueIdentifierValue>RSSMRA85T10H501Z</entityUniqueIdentifierValue>
+            </uniqueIdentifier>
+            <fullName>Mario Rossi</fullName>
+            <email>mario.rossi@example.com</email>
+          </debtor>
+          <fiscalCode>%s</fiscalCode>
+          <province>MI</province>
+          <documentHash>47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=</documentHash>
+        </marcaDaBollo>
+        """.formatted(CI_FISCAL_CODE);
 
-    byte[] xmlBytes = Base64.getDecoder().decode(base64Xml);
-    TipoMarcaDaBollo result = mbdGpsService.unmarshalMarcaDaBollo(xmlBytes);
+    PaDemandPaymentNoticeRequest request = buildRequest(xmlWithUnknownElement);
+    PaDemandPaymentNoticeResponse response =
+            unmarshalResponse(mbdGpsService.createDebtPosition(request));
 
-    assertNotNull(result);
-    assertEquals(new BigDecimal("16.00"), result.getAmount());
+    assertThat(response.getOutcome()).isEqualTo(StOutcome.KO);
+    assertThat(response.getFault().getFaultCode()).isEqualTo("PPT_SINTASSI_EXTRAXSD");
+    assertThat(response.getFault().getFaultString()).contains("unsupportedTag");
+
+    verify(configCacheService, never()).getCreditorInstitutions();
+    verify(gpdClient, never())
+            .createDebtPosition(anyString(), any(PaymentPositionModelV3.class), eq(true), anyString());
   }
 
   private PaDemandPaymentNoticeResponse unmarshalResponse(String xml) {
@@ -187,13 +221,11 @@ class MbdGpsServiceTest {
     return request;
   }
 
-  private String validMarcaDaBolloXml() {
-    return """
+    private String validMarcaDaBolloXml() {
+        // FIX: Rispettato l'ordine XSD ufficiale (amount -> debtor -> fiscalCode -> province -> documentHash)
+        return """
         <marcaDaBollo xmlns="http://www.agenziaentrate.gov.it/2014/MarcaDaBollo">
           <amount>16.00</amount>
-          <fiscalCode>%s</fiscalCode>
-          <province>MI</province>
-          <documentHash>47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=</documentHash>
           <debtor>
             <uniqueIdentifier>
               <entityUniqueIdentifierType>F</entityUniqueIdentifierType>
@@ -202,11 +234,13 @@ class MbdGpsServiceTest {
             <fullName>Mario Rossi</fullName>
             <email>mario.rossi@example.com</email>
           </debtor>
-
+          <fiscalCode>%s</fiscalCode>
+          <province>MI</province>
+          <documentHash>47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=</documentHash>
         </marcaDaBollo>
         """
-        .formatted(CI_FISCAL_CODE);
-  }
+                .formatted(CI_FISCAL_CODE);
+    }
 
   /**
    * Amount is zero (must be positive) and debtor's fullName is missing: violates two constraints.

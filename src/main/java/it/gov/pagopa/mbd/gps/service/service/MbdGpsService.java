@@ -183,6 +183,14 @@ public class MbdGpsService {
           factory.createPaDemandPaymentNoticeResponse(
               createPaDemandPaymentNoticeKOResponse(
                   request.getIdPA(), "PPT_SINTASSI_EXTRAXSD", e.getMessage())));
+    } catch (JAXBException | XMLStreamException e) {
+      log.error("XSD/XML Validation failed for marcaDaBollo: {}", e.getMessage());
+      String details = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
+      return marshalResponse(
+              factory.createPaDemandPaymentNoticeResponse(
+                      createPaDemandPaymentNoticeKOResponse(
+                              request.getIdPA(), "PPT_SINTASSI_EXTRAXSD", details)));
+
     } catch (AppException e) {
       log.error("AppException: error processing PaDemandPaymentNoticeRequest", e);
       return marshalResponse(
@@ -226,7 +234,7 @@ public class MbdGpsService {
   TipoMarcaDaBollo unmarshalMarcaDaBollo(byte[] datiSpecificiServizio)
       throws JAXBException, XMLStreamException {
     Unmarshaller unmarshaller = MARCA_DA_BOLLO_CONTEXT.createUnmarshaller();
-    //unmarshaller.setSchema(MARCA_DA_BOLLO_SCHEMA);
+    unmarshaller.setSchema(MARCA_DA_BOLLO_SCHEMA);
     XMLStreamReader reader = createMarcaDaBolloReader(datiSpecificiServizio);
     try {
       JAXBElement<TipoMarcaDaBollo> element =

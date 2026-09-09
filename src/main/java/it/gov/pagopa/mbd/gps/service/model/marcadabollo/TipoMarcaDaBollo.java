@@ -58,7 +58,6 @@ public class TipoMarcaDaBollo implements Serializable {
   @XmlElement(name = "documentHash", required = true)
   @XmlSchemaType(name = "base64Binary")
   @NotNull(message = "Document hash is required")
-  @Size(min = 32, max = 32, message = "Document hash must be a valid 32-byte SHA-256 digest")
   private byte[] documentHash;
 
   public BigDecimal getAmount() {
