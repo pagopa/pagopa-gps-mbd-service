@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "description": "@project.description@",
+    "description": "MBD GPS Service",
     "termsOfService": "https://www.pagopa.gov.it/",
     "title": "@project.artifactId@",
     "version": "1.2.6-41-feature_PAGOPA-3720-mbd-payment-option"
@@ -17,12 +17,12 @@
           "default": "/pagopa-gps-mbd-service/v1"
         },
         "host": {
+          "default": "api.dev.platform.pagopa.it",
           "enum": [
             "api.dev.platform.pagopa.it",
             "api.uat.platform.pagopa.it",
             "api.platform.pagopa.it"
-          ],
-          "default": "api.dev.platform.pagopa.it"
+          ]
         }
       }
     }
@@ -85,13 +85,12 @@
         }
       ],
       "post": {
-        "description": "Parses PaDemandPaymentNoticeRequest XML, generates notice number, creates debt position on GPD Core V3, and returns PaDemandPaymentNoticeResponse.",
-        "operationId": "createPaymentOption",
+        "operationId": "buildMbdPaymentOption",
         "requestBody": {
           "content": {
-            "application/xml": {
+            "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PaDemandPaymentNoticeRequest"
+                "$ref": "#/components/schemas/MbdPaymentOptionRequest"
               }
             }
           },
@@ -100,13 +99,71 @@
         "responses": {
           "200": {
             "content": {
-              "application/xml": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaDemandPaymentNoticeResponse"
+                  "$ref": "#/components/schemas/MbdPaymentOptionResponse"
                 }
               }
             },
             "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Not found",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -140,7 +197,7 @@
             "ApiKey": []
           }
         ],
-        "summary": "Create MBD debt position and payment option",
+        "summary": "Build MBD payment option model",
         "tags": [
           "MBD GPS"
         ]
@@ -163,168 +220,143 @@
           }
         }
       },
-      "CtFaultBean": {
+      "MbdPaymentOptionRequest": {
         "required": [
-          "faultCode",
-          "faultString",
-          "id"
+          "properties"
         ],
         "type": "object",
         "properties": {
-          "description": {
-            "type": "string"
-          },
-          "faultCode": {
-            "type": "string"
-          },
-          "faultString": {
-            "type": "string"
-          },
-          "id": {
-            "type": "string"
-          },
-          "originalDescription": {
-            "type": "string"
-          },
-          "originalFaultCode": {
-            "type": "string"
-          },
-          "originalFaultString": {
-            "type": "string"
-          },
-          "serial": {
-            "type": "integer",
-            "format": "int32"
+          "properties": {
+            "$ref": "#/components/schemas/MbdPaymentOptionRequestProperties"
           }
         }
       },
-      "CtPaymentOptionDescriptionPA": {
+      "MbdPaymentOptionRequestProperties": {
         "required": [
           "amount",
-          "options"
+          "ciFiscalCode",
+          "debtorEmail",
+          "debtorFiscalCode",
+          "debtorName",
+          "debtorProvince",
+          "debtorSurname",
+          "documentHash"
         ],
         "type": "object",
         "properties": {
-          "allCCP": {
-            "type": "boolean"
-          },
           "amount": {
-            "type": "number"
+            "type": "integer",
+            "description": "MBD amount",
+            "format": "int64"
           },
-          "detailDescription": {
-            "type": "string"
+          "ciFiscalCode": {
+            "type": "string",
+            "description": "Creditor Institution's fiscal code"
+          },
+          "debtorEmail": {
+            "type": "string",
+            "description": "Debtor's email"
+          },
+          "debtorFiscalCode": {
+            "type": "string",
+            "description": "Debtor's fiscal code"
+          },
+          "debtorName": {
+            "type": "string",
+            "description": "Debtor's name"
+          },
+          "debtorProvince": {
+            "type": "string",
+            "description": "Debtor's residence province"
+          },
+          "debtorSurname": {
+            "type": "string",
+            "description": "Debtor's last name"
+          },
+          "documentHash": {
+            "maxLength": 44,
+            "minLength": 44,
+            "type": "string",
+            "description": "MBD document's hash"
+          }
+        },
+        "description": "MBD payment option's properties"
+      },
+      "MbdPaymentOptionResponse": {
+        "required": [
+          "paymentOption"
+        ],
+        "type": "object",
+        "properties": {
+          "paymentOption": {
+            "type": "array",
+            "description": "MBD payment option",
+            "items": {
+              "$ref": "#/components/schemas/PaymentOption"
+            }
+          }
+        }
+      },
+      "PaymentOption": {
+        "required": [
+          "amount",
+          "description",
+          "dueDate",
+          "firstName",
+          "isPartialPayment",
+          "lastName",
+          "retentionDate",
+          "transfer"
+        ],
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "description": "Payment option's amount",
+            "format": "int64"
+          },
+          "description": {
+            "maxLength": 140,
+            "minLength": 0,
+            "type": "string",
+            "description": "Payment option's description"
           },
           "dueDate": {
             "type": "string",
+            "description": "Payment option's due date",
             "format": "date-time"
           },
-          "options": {
+          "firstName": {
             "type": "string",
-            "enum": [
-              "EQ",
-              "LS",
-              "GT",
-              "ANY"
-            ]
-          }
-        }
-      },
-      "CtPaymentOptionsDescriptionListPA": {
-        "required": [
-          "paymentOptionDescription"
-        ],
-        "type": "object",
-        "properties": {
-          "paymentOptionDescription": {
-            "$ref": "#/components/schemas/CtPaymentOptionDescriptionPA"
-          }
-        }
-      },
-      "CtQrCode": {
-        "required": [
-          "fiscalCode",
-          "noticeNumber"
-        ],
-        "type": "object",
-        "properties": {
-          "fiscalCode": {
-            "type": "string"
+            "description": "Debtor's name"
           },
-          "noticeNumber": {
-            "type": "string"
-          }
-        }
-      },
-      "PaDemandPaymentNoticeRequest": {
-        "required": [
-          "datiSpecificiServizioRequest",
-          "idBrokerPA",
-          "idPA",
-          "idServizio",
-          "idSoggettoServizio",
-          "idStation"
-        ],
-        "type": "object",
-        "properties": {
-          "datiSpecificiServizioRequest": {
+          "isPartialPayment": {
+            "type": "boolean",
+            "description": "Payment option's is partial payment flag"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Debtor's last name"
+          },
+          "organizationFiscalCode": {
+            "type": "string",
+            "description": "Fiscal code related to the organization targeted by this transfer.",
+            "example": "00000000000"
+          },
+          "retentionDate": {
+            "type": "string",
+            "description": "Payment option's retention date",
+            "format": "date-time"
+          },
+          "transfer": {
             "type": "array",
+            "description": "Payment option's transfer list",
             "items": {
-              "type": "string",
-              "format": "byte"
+              "$ref": "#/components/schemas/Transfer"
             }
-          },
-          "idBrokerPA": {
-            "type": "string"
-          },
-          "idPA": {
-            "type": "string"
-          },
-          "idServizio": {
-            "type": "string"
-          },
-          "idSoggettoServizio": {
-            "type": "string"
-          },
-          "idStation": {
-            "type": "string"
           }
-        }
-      },
-      "PaDemandPaymentNoticeResponse": {
-        "required": [
-          "outcome"
-        ],
-        "type": "object",
-        "properties": {
-          "companyName": {
-            "type": "string"
-          },
-          "fault": {
-            "$ref": "#/components/schemas/CtFaultBean"
-          },
-          "fiscalCodePA": {
-            "type": "string"
-          },
-          "officeName": {
-            "type": "string"
-          },
-          "outcome": {
-            "type": "string",
-            "enum": [
-              "OK",
-              "KO"
-            ]
-          },
-          "paymentDescription": {
-            "type": "string"
-          },
-          "paymentList": {
-            "$ref": "#/components/schemas/CtPaymentOptionsDescriptionListPA"
-          },
-          "qrCode": {
-            "$ref": "#/components/schemas/CtQrCode"
-          }
-        }
+        },
+        "description": "MBD payment option"
       },
       "ProblemJson": {
         "type": "object",
@@ -347,6 +379,77 @@
             "description": "A short, summary of the problem type. Written in english and readable for engineers (usually not suited for non technical stakeholders and not localized); example: Service Unavailable"
           }
         }
+      },
+      "Stamp": {
+        "required": [
+          "hashDocument",
+          "provincialResidence",
+          "stampType"
+        ],
+        "type": "object",
+        "properties": {
+          "hashDocument": {
+            "maxLength": 72,
+            "minLength": 0,
+            "type": "string",
+            "description": "Document hash type is stBase64Binary72 as described in https://github.com/pagopa/pagopa-api."
+          },
+          "provincialResidence": {
+            "pattern": "[A-Z]{2}",
+            "type": "string",
+            "description": "The province of residence",
+            "example": "RM"
+          },
+          "stampType": {
+            "maxLength": 2,
+            "minLength": 2,
+            "type": "string",
+            "description": "The type of the stamp"
+          }
+        },
+        "description": "Transfer's stamp"
+      },
+      "Transfer": {
+        "required": [
+          "amount",
+          "idTransfer",
+          "remittanceInformation",
+          "stamp"
+        ],
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "description": "Transfer's amount",
+            "format": "int64"
+          },
+          "idTransfer": {
+            "type": "string",
+            "description": "Transfer's id",
+            "enum": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5"
+            ]
+          },
+          "organizationFiscalCode": {
+            "type": "string",
+            "description": "Fiscal code related to the organization targeted by this transfer.",
+            "example": "00000000000"
+          },
+          "remittanceInformation": {
+            "maxLength": 140,
+            "minLength": 0,
+            "type": "string",
+            "description": "Transfer's remittance information"
+          },
+          "stamp": {
+            "$ref": "#/components/schemas/Stamp"
+          }
+        },
+        "description": "Payment option's transfer list"
       }
     },
     "securitySchemes": {
