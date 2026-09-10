@@ -61,83 +61,14 @@ public class MbdGpsService {
   private static final String ENTITY_UID_TYPE_ELEMENT = "entityUniqueIdentifierType";
   private static final String ENTITY_UID_VALUE_ELEMENT = "entityUniqueIdentifierValue";
   private static final Schema MARCA_DA_BOLLO_SCHEMA = loadMarcaDaBolloSchema();
+  private static final JAXBContext MARCA_DA_BOLLO_CONTEXT = createMarcaDaBolloContext();
+  private static final JAXBContext PARTNER_CONTEXT = createPartnerContext();
 
   private final ConfigCacheService configCacheService;
   private final GpdClient gpdClient;
   private final NoticeNumberGeneratorService noticeNumberGeneratorService;
   private final Validator validator;
-
   private final ObjectFactory factory = new ObjectFactory();
-
-  private static final JAXBContext MARCA_DA_BOLLO_CONTEXT = createMarcaDaBolloContext();
-
-  private static final JAXBContext PARTNER_CONTEXT = createPartnerContext();
-
-  private static JAXBContext createMarcaDaBolloContext() {
-    try {
-      return JAXBContext.newInstance(TipoMarcaDaBollo.class);
-    } catch (JAXBException e) {
-      throw new IllegalStateException("Unable to initialize marcaDaBollo JAXB context", e);
-    }
-  }
-
-  private static JAXBContext createPartnerContext() {
-    try {
-      return JAXBContext.newInstance(
-          PaDemandPaymentNoticeResponse.class.getPackageName(),
-          PaDemandPaymentNoticeResponse.class.getClassLoader());
-    } catch (JAXBException e) {
-      throw new IllegalStateException("Unable to initialize partner JAXB context", e);
-    }
-  }
-
-  private static Schema loadMarcaDaBolloSchema() {
-    try {
-      ClassLoader classLoader = MbdGpsService.class.getClassLoader();
-      URL paForNodeUrl = classLoader.getResource("wsdl/xsd/paForNode.xsd");
-      URL marcaDaBolloUrl = classLoader.getResource("xsd-common/marcaDaBollo.xsd");
-
-      if (paForNodeUrl == null || marcaDaBolloUrl == null) {
-        throw new IllegalArgumentException("XSD files not found in classpath");
-      }
-
-      Source[] schemaSources =
-          new Source[] {
-            new StreamSource(paForNodeUrl.openStream(), paForNodeUrl.toExternalForm()),
-            new StreamSource(marcaDaBolloUrl.openStream(), marcaDaBolloUrl.toExternalForm())
-          };
-
-      SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-      return schemaFactory.newSchema(schemaSources);
-    } catch (Exception e) {
-      throw new IllegalStateException("Failed to load marcaDaBollo.xsd schema", e);
-    }
-  }
-
-  private String marshalResponse(JAXBElement<PaDemandPaymentNoticeResponse> element) {
-    try {
-      Marshaller marshaller = PARTNER_CONTEXT.createMarshaller();
-      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
-      StringWriter writer = new StringWriter();
-      marshaller.marshal(element, writer);
-      return writer.toString();
-    } catch (JAXBException e) {
-      throw new IllegalStateException("Unable to marshal PaDemandPaymentNoticeResponse", e);
-    }
-  }
-
-  private String marshalRequest(PaDemandPaymentNoticeRequest request) {
-    try {
-      Marshaller marshaller = PARTNER_CONTEXT.createMarshaller();
-      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
-      StringWriter writer = new StringWriter();
-      marshaller.marshal(factory.createPaDemandPaymentNoticeRequest(request), writer);
-      return writer.toString();
-    } catch (JAXBException e) {
-      log.warn("Unable to marshal PaDemandPaymentNoticeRequest for logging", e);
-      return String.valueOf(request);
-    }
-  }
 
   @Value("${mbd.payment-position.duedate-days}")
   private int dueDateDays;
@@ -204,18 +135,16 @@ public class MbdGpsService {
       log.error("XSD/XML Validation failed for marcaDaBollo: {}", e.getMessage());
       String details = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
       return marshalResponse(
-              factory.createPaDemandPaymentNoticeResponse(
-                      createPaDemandPaymentNoticeKOResponse(
-                              request.getIdPA(), "PPT_SINTASSI_EXTRAXSD", details)));
+          factory.createPaDemandPaymentNoticeResponse(
+              createPaDemandPaymentNoticeKOResponse(
+                  request.getIdPA(), "PPT_SINTASSI_EXTRAXSD", details)));
 
     } catch (AppException e) {
       log.error("AppException: error processing PaDemandPaymentNoticeRequest", e);
       return marshalResponse(
           factory.createPaDemandPaymentNoticeResponse(
               createPaDemandPaymentNoticeKOResponse(
-                  request.getIdPA(),
-                  "PAA_SYSTEM_ERROR",
-                  "Error processing PaDemandPaymentNoticeRequest XML")));
+                  request.getIdPA(), "PAA_SYSTEM_ERROR", e.getMessage())));
     } catch (Exception e) {
       log.error("Exception: error processing PaDemandPaymentNoticeRequest XML", e);
       return marshalResponse(
@@ -223,7 +152,46 @@ public class MbdGpsService {
               createPaDemandPaymentNoticeKOResponse(
                   request.getIdPA(),
                   "PAA_SYSTEM_ERROR",
-                  "Error processing PaDemandPaymentNoticeRequest XML")));
+                  e.getMessage() != null ? e.getMessage() : "Unexpected system error")));
+    }
+  }
+
+  TipoMarcaDaBollo unmarshalMarcaDaBollo(byte[] datiSpecificiServizio)
+      throws JAXBException, XMLStreamException {
+    Unmarshaller unmarshaller = MARCA_DA_BOLLO_CONTEXT.createUnmarshaller();
+    unmarshaller.setSchema(MARCA_DA_BOLLO_SCHEMA);
+    XMLStreamReader reader = createMarcaDaBolloReader(datiSpecificiServizio);
+    try {
+      JAXBElement<TipoMarcaDaBollo> element =
+          unmarshaller.unmarshal(reader, TipoMarcaDaBollo.class);
+      return element.getValue();
+    } finally {
+      reader.close();
+    }
+  }
+
+  private String marshalResponse(JAXBElement<PaDemandPaymentNoticeResponse> element) {
+    try {
+      Marshaller marshaller = PARTNER_CONTEXT.createMarshaller();
+      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
+      StringWriter writer = new StringWriter();
+      marshaller.marshal(element, writer);
+      return writer.toString();
+    } catch (JAXBException e) {
+      throw new IllegalStateException("Unable to marshal PaDemandPaymentNoticeResponse", e);
+    }
+  }
+
+  private String marshalRequest(PaDemandPaymentNoticeRequest request) {
+    try {
+      Marshaller marshaller = PARTNER_CONTEXT.createMarshaller();
+      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
+      StringWriter writer = new StringWriter();
+      marshaller.marshal(factory.createPaDemandPaymentNoticeRequest(request), writer);
+      return writer.toString();
+    } catch (JAXBException e) {
+      log.warn("Unable to marshal PaDemandPaymentNoticeRequest for logging", e);
+      return String.valueOf(request);
     }
   }
 
@@ -245,20 +213,6 @@ public class MbdGpsService {
 
       log.error("Validation failed for marcaDaBollo: {}", errorMessage);
       throw new AppException(AppError.BAD_REQUEST, errorMessage);
-    }
-  }
-
-  TipoMarcaDaBollo unmarshalMarcaDaBollo(byte[] datiSpecificiServizio)
-      throws JAXBException, XMLStreamException {
-    Unmarshaller unmarshaller = MARCA_DA_BOLLO_CONTEXT.createUnmarshaller();
-    unmarshaller.setSchema(MARCA_DA_BOLLO_SCHEMA);
-    XMLStreamReader reader = createMarcaDaBolloReader(datiSpecificiServizio);
-    try {
-      JAXBElement<TipoMarcaDaBollo> element =
-          unmarshaller.unmarshal(reader, TipoMarcaDaBollo.class);
-      return element.getValue();
-    } finally {
-      reader.close();
     }
   }
 
@@ -323,7 +277,9 @@ public class MbdGpsService {
 
     // Converte l'importo da centesimi in Euro per la risposta Nodo
     BigDecimal amountInEuro =
-        BigDecimal.valueOf(installment.getAmount()).divide(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal.valueOf(installment.getAmount())
+            .divide(BigDecimal.valueOf(100))
+            .setScale(2, RoundingMode.HALF_UP);
     ctPaymentOptionDescriptionPA.setAmount(amountInEuro);
 
     var date = installment.getDueDate();
@@ -416,5 +372,46 @@ public class MbdGpsService {
     paymentPosition.addPaymentOption(paymentOption);
 
     return paymentPosition;
+  }
+
+  private static JAXBContext createMarcaDaBolloContext() {
+    try {
+      return JAXBContext.newInstance(TipoMarcaDaBollo.class);
+    } catch (JAXBException e) {
+      throw new IllegalStateException("Unable to initialize marcaDaBollo JAXB context", e);
+    }
+  }
+
+  private static JAXBContext createPartnerContext() {
+    try {
+      return JAXBContext.newInstance(
+          PaDemandPaymentNoticeResponse.class.getPackageName(),
+          PaDemandPaymentNoticeResponse.class.getClassLoader());
+    } catch (JAXBException e) {
+      throw new IllegalStateException("Unable to initialize partner JAXB context", e);
+    }
+  }
+
+  private static Schema loadMarcaDaBolloSchema() {
+    try {
+      ClassLoader classLoader = MbdGpsService.class.getClassLoader();
+      URL paForNodeUrl = classLoader.getResource("wsdl/xsd/paForNode.xsd");
+      URL marcaDaBolloUrl = classLoader.getResource("xsd-common/marcaDaBollo.xsd");
+
+      if (paForNodeUrl == null || marcaDaBolloUrl == null) {
+        throw new IllegalArgumentException("XSD files not found in classpath");
+      }
+
+      Source[] schemaSources =
+          new Source[] {
+            new StreamSource(paForNodeUrl.openStream(), paForNodeUrl.toExternalForm()),
+            new StreamSource(marcaDaBolloUrl.openStream(), marcaDaBolloUrl.toExternalForm())
+          };
+
+      SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+      return schemaFactory.newSchema(schemaSources);
+    } catch (Exception e) {
+      throw new IllegalStateException("Failed to load marcaDaBollo.xsd schema", e);
+    }
   }
 }
