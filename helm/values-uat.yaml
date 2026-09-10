@@ -1,8 +1,24 @@
 fullnameOverride: "pagopa-gps-mbd-service"
-image:
-  repository: ghcr.io/pagopa/pagopa-gps-mbd-service
-  tag: "1.2.6-42-feature_PAGOPA-3720-mbd-payment-option"
-  pullPolicy: Always
+microservice-chart:
+  namespace: "ebollo"
+  nameOverride: ""
+  image:
+    repository: ghcr.io/pagopa/pagopa-gps-mbd-service
+    tag: "1.2.6-48-feature_PAGOPA-3720-mbd-payment-option"
+    pullPolicy: Always
+  canaryDelivery:
+    create: false
+    ingress:
+      create: true
+      canary:
+        type: header
+        headerName: X-Canary
+        headerValue: canary
+        weightPercent: 0
+    service:
+      create: true
+    deployment:
+      create: true
 livenessProbe:
   handlerType: httpGet
   httpGet:
@@ -61,12 +77,10 @@ autoscaling:
   triggers:
     - type: cpu
       metadata:
-        # Required
         type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
         value: "75"
     - type: memory
       metadata:
-        # Required
         type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
         value: "70"
 envConfig:
@@ -93,7 +107,6 @@ envConfig:
   KAFKA_CONFIG_SASL_MECHANISM: "PLAIN"
   GPD_HOST: "https://weuuat.gps.internal.uat.platform.pagopa.it/pagopa-gpd-core"
 envSecret:
-  # required
   APPLICATIONINSIGHTS_CONNECTION_STRING: "app-insight-connection-string"
   APICONFIG_SUBKEY: "apiconfig-cache-subkey"
   KAFKA_EH_CACHE_JAAS_CONFIG: "evh-cache-jaas-config"
@@ -112,21 +125,3 @@ affinity:
               operator: In
               values:
                 - user
-canaryDelivery:
-  create: false
-  ingress:
-    create: true
-    canary:
-      type: header
-      headerName: X-Canary
-      headerValue: canary
-      weightPercent: 0
-  service:
-    create: true
-  deployment:
-    create: true
-microservice-chart:
-  image:
-    tag: 1.2.6-48-feature_PAGOPA-3720-mbd-payment-option
-  canaryDelivery:
-    create: false
