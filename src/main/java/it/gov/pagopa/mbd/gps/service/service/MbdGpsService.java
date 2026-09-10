@@ -21,6 +21,7 @@ import jakarta.xml.bind.Unmarshaller;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -125,6 +126,19 @@ public class MbdGpsService {
     }
   }
 
+  private String marshalRequest(PaDemandPaymentNoticeRequest request) {
+    try {
+      Marshaller marshaller = PARTNER_CONTEXT.createMarshaller();
+      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
+      StringWriter writer = new StringWriter();
+      marshaller.marshal(factory.createPaDemandPaymentNoticeRequest(request), writer);
+      return writer.toString();
+    } catch (JAXBException e) {
+      log.warn("Unable to marshal PaDemandPaymentNoticeRequest for logging", e);
+      return String.valueOf(request);
+    }
+  }
+
   @Value("${mbd.payment-position.duedate-days}")
   private int dueDateDays;
 
@@ -139,6 +153,7 @@ public class MbdGpsService {
 
   public String createDebtPosition(PaDemandPaymentNoticeRequest request) {
     try {
+      log.debug("Processing paDemandPaymentNoticeRequest XML: {}", marshalRequest(request));
       TipoMarcaDaBollo marcaDaBollo =
           unmarshalMarcaDaBollo(request.getDatiSpecificiServizioRequest());
       checkMarcaDaBollo(marcaDaBollo);
@@ -169,6 +184,8 @@ public class MbdGpsService {
               creditor.getBusinessName(),
               response.getNoticeNumber(),
               formattedRemittanceInformation);
+
+      log.debug("Debt Position body {}", mappingRequest);
 
       PaymentPositionModelV3 gpdResponse =
           gpdClient.createDebtPosition(
@@ -306,7 +323,7 @@ public class MbdGpsService {
 
     // Converte l'importo da centesimi in Euro per la risposta Nodo
     BigDecimal amountInEuro =
-        BigDecimal.valueOf(installment.getAmount()).divide(BigDecimal.valueOf(100));
+        BigDecimal.valueOf(installment.getAmount()).divide(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP);
     ctPaymentOptionDescriptionPA.setAmount(amountInEuro);
 
     var date = installment.getDueDate();
