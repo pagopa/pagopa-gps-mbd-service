@@ -4,7 +4,7 @@ locals {
   apim = {
     name       = "${local.product}-apim"
     rg         = "${local.product}-api-rg"
-    product_id = "gps-spontaneous-payments-services"
+    product_id = "spontaneouspayments"
   }
 }
 
