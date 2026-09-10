@@ -111,7 +111,7 @@ envConfig:
   KAFKA_CONSUMER_GROUP_ID: "pagopa-gps-mbd-service-cache-group"
   KAFKA_CONFIG_SECURITY_PROTOCOL: "SASL_SSL"
   KAFKA_CONFIG_SASL_MECHANISM: "PLAIN"
-  GPD_HOST: "https://weuprod.gps.internal.platform.pagopa.it/pagopa-gpd-core"
+  GPD_HOST: "https://api.platform.pagopa.it/gpd/api"
 envSecret:
   APPLICATIONINSIGHTS_CONNECTION_STRING: "app-insight-connection-string"
   APICONFIG_SUBKEY: "apiconfig-cache-subkey"
