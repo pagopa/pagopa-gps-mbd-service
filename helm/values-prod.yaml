@@ -1,7 +1,7 @@
-fullnameOverride: "pagopa-gps-mbd-service"
 microservice-chart:
   namespace: "ebollo"
   nameOverride: ""
+  fullnameOverride: "pagopa-gps-mbd-service"
   image:
     repository: ghcr.io/pagopa/pagopa-gps-mbd-service
     tag: "1.2.6-49-feature_PAGOPA-3720-mbd-payment-option"
