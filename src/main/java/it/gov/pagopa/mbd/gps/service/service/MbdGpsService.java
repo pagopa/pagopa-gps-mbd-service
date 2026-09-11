@@ -124,7 +124,7 @@ public class MbdGpsService {
 
       return marshalResponse(
           factory.createPaDemandPaymentNoticeResponse(
-              createPaDemandPaymentNoticeResponse(gpdResponse)));
+              createPaDemandPaymentNoticeResponse(gpdResponse, formattedRemittanceInformation)));
     } catch (MarcaDaBolloValidationException e) {
       log.error("Validation failed for marcaDaBollo: {}", e.getMessage());
       return marshalResponse(
@@ -244,7 +244,7 @@ public class MbdGpsService {
   }
 
   private PaDemandPaymentNoticeResponse createPaDemandPaymentNoticeResponse(
-      PaymentPositionModelV3 gpsResponse) throws DatatypeConfigurationException {
+      PaymentPositionModelV3 gpsResponse, String formattedRemittanceInformation) throws DatatypeConfigurationException {
 
     var result = factory.createPaDemandPaymentNoticeResponse();
     result.setOutcome(StOutcome.OK);
@@ -260,9 +260,8 @@ public class MbdGpsService {
     ctQrCode.setNoticeNumber(installment.getNav());
     result.setQrCode(ctQrCode);
 
+    result.setPaymentDescription(formattedRemittanceInformation);
     result.setCompanyName(gpsResponse.getCompanyName());
-    result.setOfficeName(gpsResponse.getCompanyName());
-    result.setPaymentDescription(paymentOption.getDescription());
 
     CtPaymentOptionsDescriptionListPA ctPaymentOptionsDescriptionListPA =
         factory.createCtPaymentOptionsDescriptionListPA();
@@ -282,14 +281,8 @@ public class MbdGpsService {
             .setScale(2, RoundingMode.HALF_UP);
     ctPaymentOptionDescriptionPA.setAmount(amountInEuro);
 
-    var date = installment.getDueDate();
-    if (date != null) {
-      ctPaymentOptionDescriptionPA.setDueDate(
-          DatatypeFactory.newInstance().newXMLGregorianCalendar(String.valueOf(date)));
-    }
-
     ctPaymentOptionDescriptionPA.setOptions(StAmountOption.EQ);
-    ctPaymentOptionDescriptionPA.setDetailDescription(installment.getDescription());
+    ctPaymentOptionDescriptionPA.setDetailDescription(formattedRemittanceInformation);
 
     ctPaymentOptionsDescriptionListPA.setPaymentOptionDescription(ctPaymentOptionDescriptionPA);
     result.setPaymentList(ctPaymentOptionsDescriptionListPA);
