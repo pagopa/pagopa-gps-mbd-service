@@ -33,6 +33,11 @@ data "azurerm_key_vault" "domain_key_vault" {
   resource_group_name = "pagopa-${var.env_short}-itn-${local.domain}-sec-rg"
 }
 
+data "azurerm_key_vault" "shared_domain_key_vault" {
+  name                = "pagopa-${var.env_short}-shared-kv"
+  resource_group_name = "pagopa-${var.env_short}-shared-sec-rg"
+}
+
 data "azurerm_key_vault_secret" "key_vault_sonar" {
   name         = "sonar-token"
   key_vault_id = data.azurerm_key_vault.key_vault.id
@@ -41,6 +46,11 @@ data "azurerm_key_vault_secret" "key_vault_sonar" {
 data "azurerm_key_vault_secret" "key_vault_bot_token" {
   name         = "pagopa-platform-domain-github-bot-cd-pat"
   key_vault_id = data.azurerm_key_vault.domain_key_vault.id
+}
+
+data "azurerm_key_vault_secret" "key_vault_bot_read_packages_token" {
+  name         = "pagopa-platform-domain-github-bot-read-packages"
+  key_vault_id = data.azurerm_key_vault.shared_domain_key_vault.id
 }
 
 data "azurerm_key_vault_secret" "key_vault_cucumber_token" {

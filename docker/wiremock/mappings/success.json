@@ -1,0 +1,14 @@
+{
+  "priority": 10,
+  "request": {
+    "method": "ANY",
+    "urlPathPattern": ".*"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"status\": \"OK\"}"
+  }
+}

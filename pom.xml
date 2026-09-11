@@ -12,13 +12,29 @@
 
     <groupId>it.gov.pagopa</groupId>
     <artifactId>pagopa-gps-mbd-service</artifactId>
-    <version>1.2.8</version>
+    <version>1.2.6-52-feature_PAGOPA-3720-mbd-payment-option</version>
     <name>MBD GPS Service</name>
     <description>MBD GPS Service</description>
 
     <properties>
         <java.version>17</java.version>
+        <sonar.exclusions>
+            **/model/**,
+            **/dto/**,
+            **/config/**,
+            **/exception/**,
+            **/util/**,
+            **/consumer/**,
+            **/Application.java
+        </sonar.exclusions>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>github</id>
+            <url>https://public:${env.GITHUB_TOKEN_READ_PACKAGES}@maven.pkg.github.com/pagopa/pagopa-noticenumber-generator</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -28,6 +44,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- Spring Cloud OpenFeign client -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
 
         <!-- Spring utils-->
@@ -55,6 +77,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
 
         <!-- Swagger/OpenAPI -->
         <dependency>
@@ -62,7 +88,6 @@
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.3.0</version>
         </dependency>
-
 
         <!-- utilities -->
         <dependency>
@@ -80,9 +105,63 @@
             <artifactId>logback-ecs-encoder</artifactId>
             <version>1.5.0</version>
         </dependency>
+
+        <!-- Spring Kafka -->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+
+        <!-- Notice Number Generator -->
+        <dependency>
+            <groupId>it.gov.pagopa</groupId>
+            <artifactId>pagopa-noticenumber-generator</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+
+        <!-- Jackson XML -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+        </dependency>
+
+        <!-- Jakarta XML -->
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.jws</groupId>
+            <artifactId>jakarta.jws-api</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.xml.ws</groupId>
+            <artifactId>jakarta.xml.ws-api</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
     </dependencies>
 
+    <!-- Gestione centralizzata delle versioni di Spring Cloud compatibile con Spring Boot 3.2.3 -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>2023.0.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <build>
+        <finalName>application</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -92,9 +171,14 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.7</version>
+                <version>0.8.11</version>
                 <configuration>
                     <excludes>
+                        <exclude>**/model/**</exclude>
+                        <exclude>**/dto/**</exclude>
+                        <exclude>**/config/**</exclude>
+                        <exclude>**/exception/**</exclude>
+                        <exclude>**/Application.class</exclude>
                     </excludes>
                 </configuration>
                 <executions>
@@ -131,6 +215,30 @@
                 <configuration>
                     <source>17</source>
                     <target>17</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.sun.xml.ws</groupId>
+                <artifactId>jaxws-maven-plugin</artifactId>
+                <version>4.0.3</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!-- Directory containing your WSDL files -->
+                    <wsdlDirectory>src/main/resources/wsdl</wsdlDirectory>
+
+                    <!-- Target package for generated models -->
+                    <packageName>it.gov.pagopa.mbd.gps.service.model.partner</packageName>
+
+                    <!-- Directory for generated source files -->
+                    <sourceDestDir>${project.build.directory}/generated-sources/wsimport</sourceDestDir>
+
+                    <extension>true</extension>
                 </configuration>
             </plugin>
         </plugins>

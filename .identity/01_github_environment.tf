@@ -37,6 +37,7 @@ locals {
   repo_secrets = {
     "SONAR_TOKEN" : data.azurerm_key_vault_secret.key_vault_sonar.value,
     "BOT_TOKEN_GITHUB" : data.azurerm_key_vault_secret.key_vault_bot_token.value,
+    "READ_PACKAGES_TOKEN": data.azurerm_key_vault_secret.key_vault_bot_read_packages_token.value,
     "CUCUMBER_PUBLISH_TOKEN" : data.azurerm_key_vault_secret.key_vault_cucumber_token.value,
     "SUBKEY" : var.env_short != "p" ? data.azurerm_key_vault_secret.key_vault_integration_test_subkey[0].value : "-",
     "SLACK_WEBHOOK_URL_DEPLOY" : data.azurerm_key_vault_secret.key_vault_deploy_slack_webhook.value,

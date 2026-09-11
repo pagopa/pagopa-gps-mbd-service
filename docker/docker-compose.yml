@@ -1,6 +1,24 @@
 version: '3.8'
 
 services:
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    command: redis-server --requirepass secret
+    ports:
+      - "6379:6379"
+
+  # Mock Server
+  apiconfig-mock:
+    image: wiremock/wiremock:latest
+    container_name: apiconfig-mock
+    ports:
+      - "9091:8080"
+    volumes:
+      - ./wiremock/mappings:/home/wiremock/mappings
+    entrypoint: ["/docker-entrypoint.sh", "--global-response-templating", "--disable-gzip"]
+
   app:
     container_name: 'pagopa-gps-mbd-service'
     image: ${image}
@@ -8,7 +26,25 @@ services:
     build:
       dockerfile: Dockerfile
       context: ../
+      args:
+        GITHUB_TOKEN_READ_PACKAGES: ${GITHUB_TOKEN_READ_PACKAGES}
     env_file:
       - ./.env
+    environment:
+      # Redis Config
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=secret
+
+      # External Clients Config
+      - GPD_HOST=http://apiconfig-mock:8080
+      - APICONFIG_CACHE_URL=http://apiconfig-mock:8080
+      - APICONFIG_SUBKEY=mock-local-key
+
+      # Kafka Config
+      - SPRING_KAFKA_LISTENER_AUTO_STARTUP=false
+    depends_on:
+      - redis
+      - apiconfig-mock
     ports:
       - "8080:8080"

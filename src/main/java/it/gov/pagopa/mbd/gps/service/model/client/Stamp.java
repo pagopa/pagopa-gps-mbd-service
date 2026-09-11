@@ -1,4 +1,4 @@
-package it.gov.pagopa.mbd.gps.service.model;
+package it.gov.pagopa.mbd.gps.service.model.client;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
