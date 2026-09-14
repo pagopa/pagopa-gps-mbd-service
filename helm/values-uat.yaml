@@ -95,6 +95,9 @@ microservice-chart:
     KAFKA_CONFIG_SECURITY_PROTOCOL: "SASL_SSL"
     KAFKA_CONFIG_SASL_MECHANISM: "PLAIN"
     GPD_HOST: "https://api.uat.platform.pagopa.it/gpd/api"
+    REDIS_HOST: "pagopa-u-redis.redis.cache.windows.net"
+    REDIS_PORT: "6380"
+    REDIS_SSL: "true"
   envSecret:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: "app-insight-connection-string"
