@@ -58,7 +58,7 @@ public class TipoMarcaDaBollo implements Serializable {
   @XmlElement(name = "documentHash", required = true)
   @XmlSchemaType(name = "base64Binary")
   @NotNull(message = "Document hash is required")
-  private byte[] documentHash;
+  private String documentHash;
 
   public BigDecimal getAmount() {
     return amount;
@@ -92,11 +92,11 @@ public class TipoMarcaDaBollo implements Serializable {
     this.province = province;
   }
 
-  public byte[] getDocumentHash() {
+  public String getDocumentHash() {
     return documentHash;
   }
 
-  public void setDocumentHash(byte[] documentHash) {
+  public void setDocumentHash(String documentHash) {
     this.documentHash = documentHash;
   }
 }
