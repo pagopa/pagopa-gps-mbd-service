@@ -24,7 +24,7 @@ import java.math.BigDecimal;
     propOrder = {"amount", "debtor", "fiscalCode", "province", "documentHash"})
 @XmlRootElement(
     name = "marcaDaBollo",
-    namespace = "http://www.agenziaentrate.gov.it/2014/MarcaDaBollo")
+    namespace = "http://pagopa-api.pagopa.gov.it/pa/MarcaDaBollo")
 public class TipoMarcaDaBollo implements Serializable {
 
   private static final long serialVersionUID = 1L;
