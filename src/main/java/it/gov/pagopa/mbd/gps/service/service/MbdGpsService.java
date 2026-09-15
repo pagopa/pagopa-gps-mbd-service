@@ -355,7 +355,7 @@ public class MbdGpsService {
     transfer.setStamp(
         Stamp.builder()
             .stampType(TRANSFER_STAMP_TYPE)
-            .hashDocument(new String(marcaDaBollo.getDocumentHash()))
+            .hashDocument(java.util.Base64.getEncoder().encodeToString(marcaDaBollo.getDocumentHash()))
             .provincialResidence(marcaDaBollo.getProvince())
             .build());
     transfer.setCompanyName(businessName);
