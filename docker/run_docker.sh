@@ -45,7 +45,7 @@ done
 
 
 stack_name=$(cd .. && basename "$PWD")
-docker compose -p "${stack_name}" up -d --remove-orphans --force-recreate --build
+GITHUB_TOKEN_READ_PACKAGES=${GITHUB_TOKEN_READ_PACKAGES} docker compose -p "${stack_name}" up -d --remove-orphans --force-recreate --build
 
 # waiting the containers
 printf 'Waiting for the service'
@@ -54,6 +54,7 @@ max_attempts=50
 until $(curl --output /dev/null --silent --head --fail http://localhost:8080/actuator/info); do
     if [ ${attempt_counter} -eq ${max_attempts} ];then
       echo "Max attempts reached"
+      docker logs pagopa-gps-mbd-service
       exit 1
     fi
 
