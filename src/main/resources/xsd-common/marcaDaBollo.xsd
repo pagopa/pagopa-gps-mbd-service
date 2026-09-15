@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Il seguente XSD è il protocollo di comunicazione tra mbd service e gps mbd -->
 <xsd:schema
         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
         xmlns:mbd="http://www.agenziaentrate.gov.it/2014/MarcaDaBollo"
