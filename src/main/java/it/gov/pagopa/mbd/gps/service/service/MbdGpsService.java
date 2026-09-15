@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -244,7 +243,8 @@ public class MbdGpsService {
   }
 
   private PaDemandPaymentNoticeResponse createPaDemandPaymentNoticeResponse(
-      PaymentPositionModelV3 gpsResponse, String formattedRemittanceInformation) throws DatatypeConfigurationException {
+      PaymentPositionModelV3 gpsResponse, String formattedRemittanceInformation)
+      throws DatatypeConfigurationException {
 
     var result = factory.createPaDemandPaymentNoticeResponse();
     result.setOutcome(StOutcome.OK);

@@ -47,7 +47,7 @@ class ConfigCacheServiceTest {
   @DisplayName("onStart - KO: Throws IllegalStateException on initial fetch error (Fail-Fast)")
   void onStart_ExceptionHandled() {
     when(apiConfigCacheClient.getCache(anyString(), anyList()))
-            .thenThrow(new RuntimeException("Connection error"));
+        .thenThrow(new RuntimeException("Connection error"));
 
     assertThrows(IllegalStateException.class, () -> configCacheService.onStart());
   }

@@ -29,44 +29,44 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @AutoConfigureMockMvc
 @ActiveProfiles("local")
 @TestPropertySource(
-        properties = {
-                "apiConfigCacheClient.url=http://localhost:8080",
-                "service.gpd.host=http://localhost:8080"
-        })
+    properties = {
+      "apiConfigCacheClient.url=http://localhost:8080",
+      "service.gpd.host=http://localhost:8080"
+    })
 class OpenApiGenerationTest {
 
-    @Autowired private ObjectMapper objectMapper;
+  @Autowired private ObjectMapper objectMapper;
 
-    @Autowired private MockMvc mvc;
+  @Autowired private MockMvc mvc;
 
-    @MockBean private ConfigCacheService configCacheService;
+  @MockBean private ConfigCacheService configCacheService;
 
-    @BeforeEach
-    void setUp() {
-        Map<String, CreditorInstitution> map = new HashMap<>();
-        map.put("77777777777", new CreditorInstitution());
+  @BeforeEach
+  void setUp() {
+    Map<String, CreditorInstitution> map = new HashMap<>();
+    map.put("77777777777", new CreditorInstitution());
 
-        Mockito.when(configCacheService.getCreditorInstitutions()).thenReturn(map);
-    }
+    Mockito.when(configCacheService.getCreditorInstitutions()).thenReturn(map);
+  }
 
-    @Test
-    void swaggerSpringPlugin() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/v3/api-docs").accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
-                .andDo(
-                        result -> {
-                            assertNotNull(result);
-                            assertNotNull(result.getResponse());
-                            final String content = result.getResponse().getContentAsString();
-                            assertFalse(content.isBlank());
-                            assertFalse(content.contains("${"), "Generated swagger contains placeholders");
-                            Object swagger =
-                                    objectMapper.readValue(result.getResponse().getContentAsString(), Object.class);
-                            String formatted =
-                                    objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(swagger);
-                            Path basePath = Paths.get("openapi/");
-                            Files.createDirectories(basePath);
-                            Files.write(basePath.resolve("openapi.json"), formatted.getBytes());
-                        });
-    }
+  @Test
+  void swaggerSpringPlugin() throws Exception {
+    mvc.perform(MockMvcRequestBuilders.get("/v3/api-docs").accept(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
+        .andDo(
+            result -> {
+              assertNotNull(result);
+              assertNotNull(result.getResponse());
+              final String content = result.getResponse().getContentAsString();
+              assertFalse(content.isBlank());
+              assertFalse(content.contains("${"), "Generated swagger contains placeholders");
+              Object swagger =
+                  objectMapper.readValue(result.getResponse().getContentAsString(), Object.class);
+              String formatted =
+                  objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(swagger);
+              Path basePath = Paths.get("openapi/");
+              Files.createDirectories(basePath);
+              Files.write(basePath.resolve("openapi.json"), formatted.getBytes());
+            });
+  }
 }

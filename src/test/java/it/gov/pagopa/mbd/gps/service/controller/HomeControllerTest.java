@@ -22,10 +22,10 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 @ActiveProfiles("local")
 @TestPropertySource(
-        properties = {
-                "apiConfigCacheClient.url=http://localhost:8080",
-                "service.gpd.host=http://localhost:8080"
-        })
+    properties = {
+      "apiConfigCacheClient.url=http://localhost:8080",
+      "service.gpd.host=http://localhost:8080"
+    })
 class HomeControllerTest {
 
   @Autowired private MockMvc mvc;
@@ -48,6 +48,6 @@ class HomeControllerTest {
   @Test
   void homeTestSuccess() throws Exception {
     mvc.perform(get("/"))
-            .andExpect(status().is3xxRedirection()); // Usato "/" al posto di stringa vuota
+        .andExpect(status().is3xxRedirection()); // Usato "/" al posto di stringa vuota
   }
 }

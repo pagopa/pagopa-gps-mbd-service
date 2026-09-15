@@ -17,24 +17,24 @@ import org.springframework.test.context.TestPropertySource;
 @SpringBootTest
 @ActiveProfiles("local")
 @TestPropertySource(
-        properties = {
-                "apiConfigCacheClient.url=http://localhost:8080",
-                "service.gpd.host=http://localhost:8080"
-        })
+    properties = {
+      "apiConfigCacheClient.url=http://localhost:8080",
+      "service.gpd.host=http://localhost:8080"
+    })
 class ApplicationTest {
 
-    @MockBean private ConfigCacheService configCacheService;
+  @MockBean private ConfigCacheService configCacheService;
 
-    @BeforeEach
-    void setUp() {
-        Map<String, CreditorInstitution> map = new HashMap<>();
-        map.put("77777777777", new CreditorInstitution());
+  @BeforeEach
+  void setUp() {
+    Map<String, CreditorInstitution> map = new HashMap<>();
+    map.put("77777777777", new CreditorInstitution());
 
-        when(configCacheService.getCreditorInstitutions()).thenReturn(map);
-    }
+    when(configCacheService.getCreditorInstitutions()).thenReturn(map);
+  }
 
-    @Test
-    void contextLoads() {
-        assertTrue(true);
-    }
+  @Test
+  void contextLoads() {
+    assertTrue(true);
+  }
 }
