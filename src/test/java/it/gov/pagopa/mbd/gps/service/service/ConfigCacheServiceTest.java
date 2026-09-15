@@ -44,12 +44,12 @@ class ConfigCacheServiceTest {
   }
 
   @Test
-  @DisplayName("onStart - KO: Handles exception on initial fetch without breaking app startup")
+  @DisplayName("onStart - KO: Throws IllegalStateException on initial fetch error (Fail-Fast)")
   void onStart_ExceptionHandled() {
     when(apiConfigCacheClient.getCache(anyString(), anyList()))
-        .thenThrow(new RuntimeException("Connection error"));
+            .thenThrow(new RuntimeException("Connection error"));
 
-    assertDoesNotThrow(() -> configCacheService.onStart());
+    assertThrows(IllegalStateException.class, () -> configCacheService.onStart());
   }
 
   @Test
@@ -58,9 +58,11 @@ class ConfigCacheServiceTest {
     ConfigDataV1 mockResponse = createMockConfigData();
     when(apiConfigCacheClient.getCache(anyString(), anyList())).thenReturn(mockResponse);
 
-    // First fetch (populates cache)
+    // Popola prima la cache via onStart()
+    configCacheService.onStart();
+
+    // Recupera i dati dalla cache
     Map<String, CreditorInstitution> result1 = configCacheService.getCreditorInstitutions();
-    // Second fetch (uses cache without invoking Feign client again)
     Map<String, CreditorInstitution> result2 = configCacheService.getCreditorInstitutions();
 
     assertNotNull(result1);
@@ -72,20 +74,19 @@ class ConfigCacheServiceTest {
   @Test
   @DisplayName("getCreditorInstitutions - KO: Throws AppException when cache is unavailable")
   void getCreditorInstitutions_ThrowsException_WhenCacheNotAvailable() {
-    when(apiConfigCacheClient.getCache(anyString(), anyList())).thenReturn(null);
-
+    // Nessuno stubbing necessario per apiConfigCacheClient poiche' la cache in memoria e' vuota
     assertThrows(AppException.class, () -> configCacheService.getCreditorInstitutions());
   }
 
   @Test
   @DisplayName("checkAndUpdateCache - Success: Cache updated using a valid CacheUpdateEvent")
   void checkAndUpdateCache_WithValidEvent() {
-    // Populate initial cache
+    // Popola la cache iniziale
     ConfigDataV1 initialData = createMockConfigData();
     when(apiConfigCacheClient.getCache(anyString(), anyList())).thenReturn(initialData);
-    configCacheService.getCreditorInstitutions();
+    configCacheService.onStart();
 
-    // Prepare event with newer version
+    // Prepara evento con versione piu' recente
     CacheUpdateEvent event = new CacheUpdateEvent();
     event.setCacheVersion("v2");
     event.setVersion("10");
@@ -102,7 +103,6 @@ class ConfigCacheServiceTest {
   @Test
   @DisplayName("checkAndUpdateCache - Ignores update event if incoming version is older")
   void checkAndUpdateCache_IgnoreOlderEvent() {
-    // Populate initial cache with v1 and version 10
     CacheUpdateEvent event1 = new CacheUpdateEvent();
     event1.setCacheVersion("v1");
     event1.setVersion("10");
@@ -111,14 +111,13 @@ class ConfigCacheServiceTest {
     when(apiConfigCacheClient.getCache(anyString(), anyList())).thenReturn(data);
     configCacheService.checkAndUpdateCache(event1);
 
-    // Send event with lower version (e.g., 5)
+    // Invia evento con versione precedente (es. 5)
     CacheUpdateEvent olderEvent = new CacheUpdateEvent();
     olderEvent.setCacheVersion("v1");
     olderEvent.setVersion("5");
 
     configCacheService.checkAndUpdateCache(olderEvent);
 
-    // Feign client must not be called a second time
     verify(apiConfigCacheClient, times(1)).getCache(anyString(), anyList());
   }
 

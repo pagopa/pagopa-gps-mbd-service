@@ -4,13 +4,20 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.gov.pagopa.mbd.gps.service.model.cache.CreditorInstitution;
+import it.gov.pagopa.mbd.gps.service.service.ConfigCacheService;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
@@ -22,34 +29,44 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @AutoConfigureMockMvc
 @ActiveProfiles("local")
 @TestPropertySource(
-    properties = {
-      "apiConfigCacheClient.url=http://localhost:8080",
-      "service.gpd.host=http://localhost:8080"
-    })
+        properties = {
+                "apiConfigCacheClient.url=http://localhost:8080",
+                "service.gpd.host=http://localhost:8080"
+        })
 class OpenApiGenerationTest {
 
-  @Autowired private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
-  @Autowired private MockMvc mvc;
+    @Autowired private MockMvc mvc;
 
-  @Test
-  void swaggerSpringPlugin() throws Exception {
-    mvc.perform(MockMvcRequestBuilders.get("/v3/api-docs").accept(MediaType.APPLICATION_JSON))
-        .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
-        .andDo(
-            result -> {
-              assertNotNull(result);
-              assertNotNull(result.getResponse());
-              final String content = result.getResponse().getContentAsString();
-              assertFalse(content.isBlank());
-              assertFalse(content.contains("${"), "Generated swagger contains placeholders");
-              Object swagger =
-                  objectMapper.readValue(result.getResponse().getContentAsString(), Object.class);
-              String formatted =
-                  objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(swagger);
-              Path basePath = Paths.get("openapi/");
-              Files.createDirectories(basePath);
-              Files.write(basePath.resolve("openapi.json"), formatted.getBytes());
-            });
-  }
+    @MockBean private ConfigCacheService configCacheService;
+
+    @BeforeEach
+    void setUp() {
+        Map<String, CreditorInstitution> map = new HashMap<>();
+        map.put("77777777777", new CreditorInstitution());
+
+        Mockito.when(configCacheService.getCreditorInstitutions()).thenReturn(map);
+    }
+
+    @Test
+    void swaggerSpringPlugin() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.get("/v3/api-docs").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
+                .andDo(
+                        result -> {
+                            assertNotNull(result);
+                            assertNotNull(result.getResponse());
+                            final String content = result.getResponse().getContentAsString();
+                            assertFalse(content.isBlank());
+                            assertFalse(content.contains("${"), "Generated swagger contains placeholders");
+                            Object swagger =
+                                    objectMapper.readValue(result.getResponse().getContentAsString(), Object.class);
+                            String formatted =
+                                    objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(swagger);
+                            Path basePath = Paths.get("openapi/");
+                            Files.createDirectories(basePath);
+                            Files.write(basePath.resolve("openapi.json"), formatted.getBytes());
+                        });
+    }
 }

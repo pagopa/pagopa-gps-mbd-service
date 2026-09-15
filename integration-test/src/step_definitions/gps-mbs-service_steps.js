@@ -16,22 +16,22 @@ After(async function () {
 });
 
 When('an http POST request is sent to gps-mbd-service for physical person with fiscal code {string} and fullName {string}', async function (fiscalCode, fullName) {
-    body = buildRequestBody(100, fiscalCode, "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", fullName);
+    body = buildRequestBody(16.00, fiscalCode, "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", fullName);
     responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
 });
 
 When('an http POST request is sent to gps-mbd-service for legal entity with VAT {string} and fullName {string}', async function (vat, fullName) {
-    body = buildRequestBody(100, vat, "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", fullName);
+    body = buildRequestBody(16.00, vat, "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", fullName);
     responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
 });
 
 When('an http POST request is sent to gps-mbd-service for physical person with fiscal code {string} and missing fullName', async function (fiscalCode) {
-    body = buildRequestBody(100, fiscalCode, "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", null);
+    body = buildRequestBody(16.00, fiscalCode, "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", null);
     responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
 });
 
 When('an http POST request is sent to gps-mbd-service for legal entity with VAT {string} and missing fullName', async function (vat) {
-    body = buildRequestBody(100, vat, "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", null);
+    body = buildRequestBody(16.00, vat, "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", null);
     responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
 });
 
@@ -71,22 +71,22 @@ Then('the response faultCode is {string}', function (expectedFaultCode) {
 });
 
 When('an http POST request is sent to gps-mbd-service with debtor fiscal code {string}', async function (invalidFiscalCode) {
-    body = buildRequestBody(100, invalidFiscalCode, "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario Rossi");
+    body = buildRequestBody(16.00, invalidFiscalCode, "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario Rossi");
     responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
 });
 
 When('an http POST request is sent to gps-mbd-service with empty email', async function () {
-    body = buildRequestBody(100, "RSSMRA85T10H501Z", "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario Rossi", "77777777777", "");
+    body = buildRequestBody(16.00, "RSSMRA85T10H501Z", "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario Rossi", "77777777777", "");
     responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
 });
 
 When('an http POST request is sent to gps-mbd-service with invalid documentHash {string}', async function (invalidHash) {
-    body = buildRequestBody(100, "RSSMRA85T10H501Z", "MI", invalidHash, "Mario Rossi");
+    body = buildRequestBody(16.00, "RSSMRA85T10H501Z", "MI", invalidHash, "Mario Rossi");
     responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
 });
 
 When('an http POST request is sent to gps-mbd-service with non base64 documentHash {string}', async function (nonBase64Hash) {
-    body = buildRequestBody(100, "RSSMRA85T10H501Z", "MI", nonBase64Hash, "Mario Rossi");
+    body = buildRequestBody(16.00, "RSSMRA85T10H501Z", "MI", nonBase64Hash, "Mario Rossi");
     responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
 });
 
@@ -96,11 +96,11 @@ When('an http POST request is sent to gps-mbd-service with null amount', async f
 });
 
 When('an http POST request is sent to gps-mbd-service with empty province', async function () {
-    body = buildRequestBody(100, "RSSMRA85T10H501Z", "", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario Rossi");
+    body = buildRequestBody(16.00, "RSSMRA85T10H501Z", "", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario Rossi");
     responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
 });
 
 When('an http POST request is sent to gps-mbd-service for unknown creditor institution {string}', async function (unknownCiFiscalCode) {
-    body = buildRequestBody(100, "RSSMRA85T10H501Z", "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario Rossi", unknownCiFiscalCode);
+    body = buildRequestBody(16.00, "RSSMRA85T10H501Z", "MI", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "Mario Rossi", unknownCiFiscalCode);
     responseToCheck = await post(gpsMbdServiceHost + "/mbd/paymentOption", body);
 });

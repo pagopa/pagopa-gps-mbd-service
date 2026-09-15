@@ -19,8 +19,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 /**
- * Service class responsible for managing the cache of creditor institutions. It retrieves and
- * updates the cache from the API when necessary, ensuring thread safety and consistency.
+ * Service class responsible for managing the cache of creditor institutions.
  */
 @Slf4j
 @Service
@@ -35,25 +34,33 @@ public class ConfigCacheService {
   private String ocpSubKey;
 
   /**
-   * This method is called when the application is ready. It attempts to retrieve the cache for the
-   * first time. If an error occurs during this process, it logs the error message.
+   * Application startup listener. Forces an immediate cache load.
+   * If the cache cannot be loaded on startup, it throws an exception to fail
+   * Kubernetes probes and prevent the pod from serving bad traffic.
    */
   @EventListener(ApplicationReadyEvent.class)
   public void onStart() {
-    try {
-      checkAndUpdateCache(null);
-    } catch (Exception e) {
-      log.error("[MBD GPS Service] Error on first cache retrieval: {}", e.getMessage());
+    log.info("[MBD GPS Service] Performing mandatory initial cache load...");
+
+    CacheSnapshot current = cacheRef.get();
+    if (current != null && current.data != null && !current.data.isEmpty()) {
+      log.info("[MBD GPS Service] Cache already initialized at startup - skipping refresh");
+      return;
     }
+
+    CacheSnapshot initialSnapshot = checkAndUpdateCache(null);
+
+    if (initialSnapshot == null || initialSnapshot.data == null || initialSnapshot.data.isEmpty()) {
+      log.error("[MBD GPS Service] Critical Error: Mandatory initial cache load failed.");
+      throw new IllegalStateException("Failed to load initial configuration cache. Pod startup aborted.");
+    }
+
+    log.info("[MBD GPS Service] Initial cache loaded successfully. Total items: {}", initialSnapshot.data.size());
   }
 
   /**
-   * Retrieves the current cache of creditor institutions. If the cache is not available, it
-   * attempts to refresh it. If the cache is still not available after the refresh attempt, it
-   * throws an AppException.
-   *
-   * @return a map of creditor institutions keyed by their fiscal code
-   * @throws AppException if the cache is not available
+   * Fast, in-memory reader for creditor institutions.
+   * Throws AppException if the cache is empty/unavailable.
    */
   public Map<String, CreditorInstitution> getCreditorInstitutions() {
     CacheSnapshot current = cacheRef.get();
@@ -61,70 +68,77 @@ public class ConfigCacheService {
       return current.data;
     }
 
-    CacheSnapshot updated = checkAndUpdateCache(null);
-    if (updated == null || updated.data == null) {
-      throw new AppException(AppError.CACHE_NOT_AVAILABLE, "Configuration data not available");
-    }
-    return updated.data;
+    log.error("[MBD GPS Service] Cache requested but not available in memory.");
+    throw new AppException(AppError.CACHE_NOT_AVAILABLE, "Configuration data not available");
   }
 
   /**
-   * Checks if the cache needs to be refreshed based on the provided event. If a refresh is needed,
-   * it retrieves the latest configuration data from the API and updates the cache.
-   *
-   * @param event the cache update event that may trigger a refresh; can be null
-   * @return the current or updated cache snapshot
+   * Thread-safe check & update logic using double-checked locking and version guards.
    */
   public CacheSnapshot checkAndUpdateCache(CacheUpdateEvent event) {
     CacheSnapshot current = cacheRef.get();
-
-    if (current != null && !needsRefresh(current, event)) {
+    if (!needsRefresh(current, event)) {
       return current;
     }
 
     refreshLock.lock();
     try {
       current = cacheRef.get();
-      if (current != null && !needsRefresh(current, event)) {
+      if (!needsRefresh(current, event)) {
         return current;
       }
 
-      log.info("Refreshing cache...");
-      ConfigDataV1 response =
-          apiConfigCacheClient.getCache(ocpSubKey, List.of("creditorInstitutions"));
-
-      if (response != null && response.getCreditorInstitutions() != null) {
-        String incomingCacheVersion;
-        String incomingEventVersion;
-
-        if (event != null) {
-          incomingCacheVersion = event.getCacheVersion();
-          incomingEventVersion = event.getVersion();
-        } else if (current != null) {
-          incomingCacheVersion = current.cacheVersion;
-          incomingEventVersion = current.eventVersion;
-        } else {
-          incomingCacheVersion = null;
-          incomingEventVersion = null;
-        }
-
-        CacheSnapshot newSnapshot =
-            new CacheSnapshot(
-                incomingCacheVersion, incomingEventVersion, response.getCreditorInstitutions());
-
-        cacheRef.set(newSnapshot);
-        log.info("[MBD GPS Service] Cache updated successfully. Size: {}", newSnapshot.data.size());
-        return newSnapshot;
+      String incomingCacheVersion = event != null ? event.getCacheVersion() : null;
+      String incomingEventVersion = event != null ? event.getVersion() : null;
+      String servedEventVersion = current != null ? current.eventVersion : null;
+      
+      if (event != null
+              && current != null
+              && incomingCacheVersion != null
+              && incomingCacheVersion.equals(current.cacheVersion)
+              && !isNewer(incomingEventVersion, servedEventVersion)) {
+        log.info("[MBD GPS Service] Skipping cache update - event version is not newer (incoming={}, served={})",
+                incomingEventVersion, servedEventVersion);
+        return current;
       }
 
-      return current;
+      log.info("[MBD GPS Service] Refreshing cache from ApiConfig Client (Trigger: {})...",
+              event != null ? event.getCacheVersion() : "Initial/Manual");
+
+      ConfigDataV1 response = apiConfigCacheClient.getCache(ocpSubKey, List.of("creditorInstitutions"));
+
+      if (response == null || response.getCreditorInstitutions() == null) {
+        log.warn("[MBD GPS Service] ApiConfig Cache returned null or empty creditorInstitutions payload.");
+        if (current != null && current.data != null) {
+          return current;
+        }
+        return null;
+      }
+
+      CacheSnapshot newSnapshot = new CacheSnapshot(
+              incomingCacheVersion != null ? incomingCacheVersion : (current != null ? current.cacheVersion : null),
+              incomingEventVersion != null ? incomingEventVersion : (current != null ? current.eventVersion : null),
+              response.getCreditorInstitutions()
+      );
+
+      cacheRef.set(newSnapshot);
+      log.info("[MBD GPS Service] Cache updated successfully. Total items: {}", newSnapshot.data.size());
+      return newSnapshot;
+
+    } catch (Exception e) {
+      log.error("[MBD GPS Service] Error updating api-config cache: {}", e.getMessage(), e);
+      if (current != null && current.data != null) {
+        log.warn("[MBD GPS Service] Exception occurred during refresh. Fallback to serving previous valid cache.");
+        return current;
+      }
+      return null;
     } finally {
       refreshLock.unlock();
     }
   }
 
   private boolean needsRefresh(CacheSnapshot current, CacheUpdateEvent evt) {
-    if (current.data == null || current.cacheVersion == null) {
+    if (current == null || current.data == null) {
       return true;
     }
 
@@ -132,8 +146,12 @@ public class ConfigCacheService {
       return false;
     }
 
-    return !Objects.equals(evt.getCacheVersion(), current.cacheVersion)
-        || isNewer(evt.getVersion(), current.eventVersion);
+    if (current.cacheVersion == null || evt.getCacheVersion() == null
+            || !evt.getCacheVersion().equals(current.cacheVersion)) {
+      return true;
+    }
+
+    return isNewer(evt.getVersion(), current.eventVersion);
   }
 
   private boolean isNewer(String a, String b) {
@@ -148,9 +166,9 @@ public class ConfigCacheService {
   }
 
   private static class CacheSnapshot {
-    String cacheVersion;
-    String eventVersion;
-    Map<String, CreditorInstitution> data;
+    final String cacheVersion;
+    final String eventVersion;
+    final Map<String, CreditorInstitution> data;
 
     CacheSnapshot(String cacheVersion, String eventVersion, Map<String, CreditorInstitution> data) {
       this.cacheVersion = cacheVersion;
