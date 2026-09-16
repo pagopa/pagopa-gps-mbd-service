@@ -4,7 +4,7 @@
         xmlns:mbd="http://pagopa-api.pagopa.gov.it/pa/MarcaDaBollo"
         xmlns:common="http://pagopa-api.pagopa.gov.it/xsd/common-types/v1.0.0/"
         xmlns:tns="http://pagopa-api.pagopa.gov.it/pa/paForNode.xsd"
-        targetNamespace="http://pagopa-api.pagopa.gov.it/pa/MarcaDaBollo" elementFormDefault="qualified">
+        targetNamespace="http://pagopa-api.pagopa.gov.it/pa/MarcaDaBollo">
 
     <xsd:import namespace="http://pagopa-api.pagopa.gov.it/pa/paForNode.xsd"
                 schemaLocation="../wsdl/xsd/paForNode.xsd"/>

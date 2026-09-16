@@ -9,14 +9,12 @@ function buildRequestBody(amount, fiscalCode, province, documentHash, debtorFull
     const ciVal = ciFiscalCode || "77777777777";
     const entityType = fcVal.length === 11 ? 'G' : 'F';
 
-    let innerXml = '<marcaDaBollo xmlns="http://www.agenziaentrate.gov.it/2014/MarcaDaBollo">';
+    let innerXml = '<mbd:marcaDaBollo xmlns:mbd="http://pagopa-api.pagopa.gov.it/pa/MarcaDaBollo">';
 
-    // 1. amount
     if (amountVal !== '') {
         innerXml += `<amount>${amountVal}</amount>`;
     }
 
-    // 2. debtor
     innerXml += '<debtor>';
     innerXml += '<uniqueIdentifier>';
     innerXml += `<entityUniqueIdentifierType>${entityType}</entityUniqueIdentifierType>`;
@@ -33,22 +31,19 @@ function buildRequestBody(amount, fiscalCode, province, documentHash, debtorFull
     }
     innerXml += '</debtor>';
 
-    // 3. fiscalCode
     if (ciVal !== '') {
         innerXml += `<fiscalCode>${ciVal}</fiscalCode>`;
     }
 
-    // 4. province
     if (provVal !== '') {
         innerXml += `<province>${provVal}</province>`;
     }
 
-    // 5. documentHash
     if (hashVal !== '') {
         innerXml += `<documentHash>${hashVal}</documentHash>`;
     }
 
-    innerXml += '</marcaDaBollo>';
+    innerXml += '</mbd:marcaDaBollo>';
 
     const base64InnerXml = Buffer.from(innerXml).toString('base64');
 

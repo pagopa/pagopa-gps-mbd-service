@@ -1,7 +1,6 @@
 package it.gov.pagopa.mbd.gps.service.service;
 
 import it.gov.pagopa.mbd.gps.service.client.GpdClient;
-import it.gov.pagopa.mbd.gps.service.exception.AppError;
 import it.gov.pagopa.mbd.gps.service.exception.AppException;
 import it.gov.pagopa.mbd.gps.service.exception.MarcaDaBolloValidationException;
 import it.gov.pagopa.mbd.gps.service.model.*;
@@ -11,8 +10,6 @@ import it.gov.pagopa.mbd.gps.service.model.marcadabollo.TipoMarcaDaBollo;
 import it.gov.pagopa.mbd.gps.service.model.partner.*;
 import it.gov.pagopa.noticenumber.model.NoticeNumberGenerationResponse;
 import it.gov.pagopa.noticenumber.service.NoticeNumberGeneratorService;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validator;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBElement;
 import jakarta.xml.bind.JAXBException;
@@ -26,10 +23,8 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.regex.Pattern;
 import javax.xml.XMLConstants;
-import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -40,6 +35,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -62,11 +58,12 @@ public class MbdGpsService {
   private static final Schema MARCA_DA_BOLLO_SCHEMA = loadMarcaDaBolloSchema();
   private static final JAXBContext MARCA_DA_BOLLO_CONTEXT = createMarcaDaBolloContext();
   private static final JAXBContext PARTNER_CONTEXT = createPartnerContext();
+  private static final Pattern DEBTOR_FISCAL_CODE_PATTERN =
+      Pattern.compile("^[A-Z]{6}\\d{2}[A-Z]\\d{2}[A-Z]\\d{3}[A-Z]$|^\\d{11}$");
 
   private final ConfigCacheService configCacheService;
   private final GpdClient gpdClient;
   private final NoticeNumberGeneratorService noticeNumberGeneratorService;
-  private final Validator validator;
   private final ObjectFactory factory = new ObjectFactory();
 
   @Value("${mbd.payment-position.duedate-days}")
@@ -131,7 +128,7 @@ public class MbdGpsService {
               createPaDemandPaymentNoticeKOResponse(
                   request.getIdPA(), "PPT_SINTASSI_EXTRAXSD", e.getMessage())));
     } catch (JAXBException | XMLStreamException e) {
-      log.error("XSD/XML Validation failed for marcaDaBollo: {}", e.getMessage());
+      log.error("XSD/XML Validation failed for marcaDaBollo: {}", e);
       String details = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
       return marshalResponse(
           factory.createPaDemandPaymentNoticeResponse(
@@ -194,24 +191,59 @@ public class MbdGpsService {
     }
   }
 
-  private void checkMarcaDaBollo(TipoMarcaDaBollo marcaDaBollo) {
-    try {
-      validateMarcaDaBollo(marcaDaBollo);
-    } catch (AppException e) {
-      throw new MarcaDaBolloValidationException(e.getMessage());
+  void checkMarcaDaBollo(TipoMarcaDaBollo marcaDaBollo) {
+    if (marcaDaBollo == null) {
+      throw new MarcaDaBolloValidationException("marcaDaBollo is required");
     }
-  }
 
-  private void validateMarcaDaBollo(TipoMarcaDaBollo marcaDaBollo) {
-    Set<ConstraintViolation<TipoMarcaDaBollo>> violations = validator.validate(marcaDaBollo);
-    if (!violations.isEmpty()) {
-      String errorMessage =
-          violations.stream()
-              .map(v -> v.getPropertyPath() + ": " + v.getMessage())
-              .collect(Collectors.joining("; "));
+    if (marcaDaBollo.getAmount() == null
+        || marcaDaBollo.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+      throw new MarcaDaBolloValidationException(
+          "amount: Amount is required and must be greater than zero");
+    }
 
-      log.error("Validation failed for marcaDaBollo: {}", errorMessage);
-      throw new AppException(AppError.BAD_REQUEST, errorMessage);
+    if (marcaDaBollo.getDebtor() == null) {
+      throw new MarcaDaBolloValidationException("debtor: Debtor information is required");
+    }
+
+    if (marcaDaBollo.getDebtor().getUniqueIdentifier() == null
+        || StringUtils.isBlank(
+            marcaDaBollo.getDebtor().getUniqueIdentifier().getEntityUniqueIdentifierValue())
+        || !DEBTOR_FISCAL_CODE_PATTERN
+            .matcher(
+                marcaDaBollo.getDebtor().getUniqueIdentifier().getEntityUniqueIdentifierValue())
+            .matches()) {
+      throw new MarcaDaBolloValidationException(
+          "debtor: Entity unique identifier value must be a valid Fiscal Code (16 chars) or VAT number (11 digits)");
+    }
+
+    if (StringUtils.isBlank(marcaDaBollo.getDebtor().getFullName())) {
+      throw new MarcaDaBolloValidationException("debtor: Debtor full name is required");
+    }
+
+    if (StringUtils.isBlank(marcaDaBollo.getDebtor().getEmail())
+        || !marcaDaBollo
+            .getDebtor()
+            .getEmail()
+            .matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+      throw new MarcaDaBolloValidationException(
+          "debtor: Debtor email is required and must be a valid email address");
+    }
+
+    if (StringUtils.isBlank(marcaDaBollo.getFiscalCode())
+        || !marcaDaBollo.getFiscalCode().matches("^\\d{11}$")) {
+      throw new MarcaDaBolloValidationException(
+          "fiscalCode: Creditor Institution fiscal code must be an 11-digit number");
+    }
+
+    if (StringUtils.isBlank(marcaDaBollo.getProvince())
+        || marcaDaBollo.getProvince().trim().length() != 2) {
+      throw new MarcaDaBolloValidationException(
+          "province: Debtor residence province must be exactly 2 characters long");
+    }
+
+    if (marcaDaBollo.getDocumentHash() == null || marcaDaBollo.getDocumentHash().length == 0) {
+      throw new MarcaDaBolloValidationException("documentHash: Document hash is required");
     }
   }
 
@@ -243,8 +275,7 @@ public class MbdGpsService {
   }
 
   private PaDemandPaymentNoticeResponse createPaDemandPaymentNoticeResponse(
-      PaymentPositionModelV3 gpsResponse, String formattedRemittanceInformation)
-      throws DatatypeConfigurationException {
+      PaymentPositionModelV3 gpsResponse, String formattedRemittanceInformation) {
 
     var result = factory.createPaDemandPaymentNoticeResponse();
     result.setOutcome(StOutcome.OK);
@@ -355,7 +386,8 @@ public class MbdGpsService {
     transfer.setStamp(
         Stamp.builder()
             .stampType(TRANSFER_STAMP_TYPE)
-            .hashDocument(java.util.Base64.getEncoder().encodeToString(marcaDaBollo.getDocumentHash()))
+            .hashDocument(
+                java.util.Base64.getEncoder().encodeToString(marcaDaBollo.getDocumentHash()))
             .provincialResidence(marcaDaBollo.getProvince())
             .build());
     transfer.setCompanyName(businessName);
