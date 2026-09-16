@@ -85,65 +85,89 @@ public class ConfigCacheService {
       if (!needsRefresh(current, event)) {
         return current;
       }
-
-      String incomingCacheVersion = event != null ? event.getCacheVersion() : null;
-      String incomingEventVersion = event != null ? event.getVersion() : null;
-      String servedEventVersion = current != null ? current.eventVersion : null;
-
-      if (event != null
-          && current != null
-          && incomingCacheVersion != null
-          && incomingCacheVersion.equals(current.cacheVersion)
-          && !isNewer(incomingEventVersion, servedEventVersion)) {
-        log.info(
-            "[MBD GPS Service] Skipping cache update - event version is not newer (incoming={}, served={})",
-            incomingEventVersion,
-            servedEventVersion);
-        return current;
-      }
-
-      log.info(
-          "[MBD GPS Service] Refreshing cache from ApiConfig Client (Trigger: {})...",
-          event != null ? event.getCacheVersion() : "Initial/Manual");
-
-      ConfigDataV1 response =
-          apiConfigCacheClient.getCache(ocpSubKey, List.of("creditorInstitutions"));
-
-      if (response == null || response.getCreditorInstitutions() == null) {
-        log.warn(
-            "[MBD GPS Service] ApiConfig Cache returned null or empty creditorInstitutions payload.");
-        if (current != null && current.data != null) {
-          return current;
-        }
-        return null;
-      }
-
-      CacheSnapshot newSnapshot =
-          new CacheSnapshot(
-              incomingCacheVersion != null
-                  ? incomingCacheVersion
-                  : (current != null ? current.cacheVersion : null),
-              incomingEventVersion != null
-                  ? incomingEventVersion
-                  : (current != null ? current.eventVersion : null),
-              response.getCreditorInstitutions());
-
-      cacheRef.set(newSnapshot);
-      log.info(
-          "[MBD GPS Service] Cache updated successfully. Total items: {}", newSnapshot.data.size());
-      return newSnapshot;
-
+      return executeRefresh(event, current);
     } catch (Exception e) {
       log.error("[MBD GPS Service] Error updating api-config cache: {}", e.getMessage(), e);
       if (current != null && current.data != null) {
         log.warn(
-            "[MBD GPS Service] Exception occurred during refresh. Fallback to serving previous valid cache.");
+                "[MBD GPS Service] Exception occurred during refresh. Fallback to serving previous valid cache.");
         return current;
       }
       return null;
     } finally {
       refreshLock.unlock();
     }
+  }
+
+  private CacheSnapshot executeRefresh(CacheUpdateEvent event, CacheSnapshot current) {
+    String incomingCacheVersion = getCacheVersion(event);
+    String incomingEventVersion = getEventVersion(event);
+    String servedEventVersion = getServedEventVersion(current);
+
+    if (shouldSkipUpdate(event, current, incomingCacheVersion, incomingEventVersion, servedEventVersion)) {
+      log.info(
+              "[MBD GPS Service] Skipping cache update - event version is not newer (incoming={}, served={})",
+              incomingEventVersion,
+              servedEventVersion);
+      return current;
+    }
+
+    log.info(
+            "[MBD GPS Service] Refreshing cache from ApiConfig Client (Trigger: {})...",
+            incomingCacheVersion != null ? incomingCacheVersion : "Initial/Manual");
+
+    ConfigDataV1 response =
+            apiConfigCacheClient.getCache(ocpSubKey, List.of("creditorInstitutions"));
+
+    if (response == null || response.getCreditorInstitutions() == null) {
+      log.warn(
+              "[MBD GPS Service] ApiConfig Cache returned null or empty creditorInstitutions payload.");
+      return hasValidData(current) ? current : null;
+    }
+
+    String finalCacheVer = resolveVersion(incomingCacheVersion, current != null ? current.cacheVersion : null);
+    String finalEventVer = resolveVersion(incomingEventVersion, current != null ? current.eventVersion : null);
+
+    CacheSnapshot newSnapshot =
+            new CacheSnapshot(finalCacheVer, finalEventVer, response.getCreditorInstitutions());
+
+    cacheRef.set(newSnapshot);
+    log.info(
+            "[MBD GPS Service] Cache updated successfully. Total items: {}", newSnapshot.data.size());
+    return newSnapshot;
+  }
+
+  private String getCacheVersion(CacheUpdateEvent event) {
+    return event != null ? event.getCacheVersion() : null;
+  }
+
+  private String getEventVersion(CacheUpdateEvent event) {
+    return event != null ? event.getVersion() : null;
+  }
+
+  private String getServedEventVersion(CacheSnapshot current) {
+    return current != null ? current.eventVersion : null;
+  }
+
+  private boolean hasValidData(CacheSnapshot snapshot) {
+    return snapshot != null && snapshot.data != null;
+  }
+
+  private String resolveVersion(String primary, String fallback) {
+    return primary != null ? primary : fallback;
+  }
+
+  private boolean shouldSkipUpdate(
+          CacheUpdateEvent event,
+          CacheSnapshot current,
+          String incomingCacheVersion,
+          String incomingEventVersion,
+          String servedEventVersion) {
+    return event != null
+            && current != null
+            && incomingCacheVersion != null
+            && incomingCacheVersion.equals(current.cacheVersion)
+            && !isNewer(incomingEventVersion, servedEventVersion);
   }
 
   private boolean needsRefresh(CacheSnapshot current, CacheUpdateEvent evt) {

@@ -434,6 +434,9 @@ public class MbdGpsService {
           };
 
       SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+      schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "file");
+      schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+
       return schemaFactory.newSchema(schemaSources);
     } catch (Exception e) {
       throw new IllegalStateException("Failed to load marcaDaBollo.xsd schema", e);
