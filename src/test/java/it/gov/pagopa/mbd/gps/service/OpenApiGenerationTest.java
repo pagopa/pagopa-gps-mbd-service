@@ -2,6 +2,7 @@ package it.gov.pagopa.mbd.gps.service;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.mbd.gps.service.model.cache.CreditorInstitution;
@@ -13,7 +14,6 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -46,7 +46,7 @@ class OpenApiGenerationTest {
     Map<String, CreditorInstitution> map = new HashMap<>();
     map.put("77777777777", new CreditorInstitution());
 
-    Mockito.when(configCacheService.getCreditorInstitutions()).thenReturn(map);
+    when(configCacheService.getCreditorInstitutions()).thenReturn(map);
   }
 
   @Test
