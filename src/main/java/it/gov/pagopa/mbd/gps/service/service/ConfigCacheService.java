@@ -90,7 +90,7 @@ public class ConfigCacheService {
       log.error("[MBD GPS Service] Error updating api-config cache: {}", e.getMessage(), e);
       if (current != null && current.data != null) {
         log.warn(
-                "[MBD GPS Service] Exception occurred during refresh. Fallback to serving previous valid cache.");
+            "[MBD GPS Service] Exception occurred during refresh. Fallback to serving previous valid cache.");
         return current;
       }
       return null;
@@ -104,36 +104,39 @@ public class ConfigCacheService {
     String incomingEventVersion = getEventVersion(event);
     String servedEventVersion = getServedEventVersion(current);
 
-    if (shouldSkipUpdate(event, current, incomingCacheVersion, incomingEventVersion, servedEventVersion)) {
+    if (shouldSkipUpdate(
+        event, current, incomingCacheVersion, incomingEventVersion, servedEventVersion)) {
       log.info(
-              "[MBD GPS Service] Skipping cache update - event version is not newer (incoming={}, served={})",
-              incomingEventVersion,
-              servedEventVersion);
+          "[MBD GPS Service] Skipping cache update - event version is not newer (incoming={}, served={})",
+          incomingEventVersion,
+          servedEventVersion);
       return current;
     }
 
     log.info(
-            "[MBD GPS Service] Refreshing cache from ApiConfig Client (Trigger: {})...",
-            incomingCacheVersion != null ? incomingCacheVersion : "Initial/Manual");
+        "[MBD GPS Service] Refreshing cache from ApiConfig Client (Trigger: {})...",
+        incomingCacheVersion != null ? incomingCacheVersion : "Initial/Manual");
 
     ConfigDataV1 response =
-            apiConfigCacheClient.getCache(ocpSubKey, List.of("creditorInstitutions"));
+        apiConfigCacheClient.getCache(ocpSubKey, List.of("creditorInstitutions"));
 
     if (response == null || response.getCreditorInstitutions() == null) {
       log.warn(
-              "[MBD GPS Service] ApiConfig Cache returned null or empty creditorInstitutions payload.");
+          "[MBD GPS Service] ApiConfig Cache returned null or empty creditorInstitutions payload.");
       return hasValidData(current) ? current : null;
     }
 
-    String finalCacheVer = resolveVersion(incomingCacheVersion, current != null ? current.cacheVersion : null);
-    String finalEventVer = resolveVersion(incomingEventVersion, current != null ? current.eventVersion : null);
+    String finalCacheVer =
+        resolveVersion(incomingCacheVersion, current != null ? current.cacheVersion : null);
+    String finalEventVer =
+        resolveVersion(incomingEventVersion, current != null ? current.eventVersion : null);
 
     CacheSnapshot newSnapshot =
-            new CacheSnapshot(finalCacheVer, finalEventVer, response.getCreditorInstitutions());
+        new CacheSnapshot(finalCacheVer, finalEventVer, response.getCreditorInstitutions());
 
     cacheRef.set(newSnapshot);
     log.info(
-            "[MBD GPS Service] Cache updated successfully. Total items: {}", newSnapshot.data.size());
+        "[MBD GPS Service] Cache updated successfully. Total items: {}", newSnapshot.data.size());
     return newSnapshot;
   }
 
@@ -158,16 +161,16 @@ public class ConfigCacheService {
   }
 
   private boolean shouldSkipUpdate(
-          CacheUpdateEvent event,
-          CacheSnapshot current,
-          String incomingCacheVersion,
-          String incomingEventVersion,
-          String servedEventVersion) {
+      CacheUpdateEvent event,
+      CacheSnapshot current,
+      String incomingCacheVersion,
+      String incomingEventVersion,
+      String servedEventVersion) {
     return event != null
-            && current != null
-            && incomingCacheVersion != null
-            && incomingCacheVersion.equals(current.cacheVersion)
-            && !isNewer(incomingEventVersion, servedEventVersion);
+        && current != null
+        && incomingCacheVersion != null
+        && incomingCacheVersion.equals(current.cacheVersion)
+        && !isNewer(incomingEventVersion, servedEventVersion);
   }
 
   private boolean needsRefresh(CacheSnapshot current, CacheUpdateEvent evt) {
