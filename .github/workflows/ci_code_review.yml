@@ -24,6 +24,7 @@ permissions:
   id-token: write
   contents: read
   deployments: write
+  packages: read
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -42,7 +43,7 @@ jobs:
           project_key: ${{env.PROJECT_KEY}}
           coverage_exclusions: "**/config/*,**/*Mock*,**/model/**,**/entity/*,**/exception/**,**/util/**"
           cpd_exclusions: "**/model/**,**/entity/*"
-          java_version: 17
+          java_version: 21
 
       - name: suggester / junit
         uses: reviewdog/action-suggester@a3026c6020837c23b61a79d12db223a00df19e6a # v1
@@ -71,6 +72,8 @@ jobs:
       - name: Run Service on Docker
         shell: bash
         id: run_service_docker
+        env:
+          GITHUB_TOKEN_READ_PACKAGES: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd ./docker
           chmod +x ./run_docker.sh
@@ -86,4 +89,3 @@ jobs:
           cd ./integration-test
           chmod +x ./run_integration_test.sh
           ./run_integration_test.sh local
-

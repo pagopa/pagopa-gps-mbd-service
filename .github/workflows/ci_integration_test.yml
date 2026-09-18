@@ -32,6 +32,7 @@ permissions:
 jobs:
   integration_test:
     name: Test ${{(github.event.inputs == null && 'dev') || inputs.environment }}
+    environment: ${{(github.event.inputs == null && 'dev') || inputs.environment }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
