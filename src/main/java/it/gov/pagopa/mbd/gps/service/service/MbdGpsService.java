@@ -12,7 +12,6 @@ import it.gov.pagopa.noticenumber.model.NoticeNumberGenerationResponse;
 import it.gov.pagopa.noticenumber.service.NoticeNumberGeneratorService;
 import jakarta.xml.bind.JAXBException;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -226,9 +225,7 @@ public class MbdGpsService {
     ctPaymentOptionDescriptionPA.setAllCCP(ccp);
 
     BigDecimal amountInEuro =
-        BigDecimal.valueOf(installment.getAmount())
-            .divide(BigDecimal.valueOf(100))
-            .setScale(2, RoundingMode.HALF_UP);
+        BigDecimal.valueOf(installment.getAmount()).divide(BigDecimal.valueOf(100));
     ctPaymentOptionDescriptionPA.setAmount(amountInEuro);
 
     ctPaymentOptionDescriptionPA.setOptions(StAmountOption.EQ);
