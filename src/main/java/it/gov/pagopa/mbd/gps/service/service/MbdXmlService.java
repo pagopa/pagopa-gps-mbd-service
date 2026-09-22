@@ -16,6 +16,8 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Service;
@@ -80,6 +82,7 @@ public class MbdXmlService {
     };
   }
 
+  @SuppressWarnings("java:S2755")
   private static Schema loadMarcaDaBolloSchema() {
     try {
       ClassLoader classLoader = MbdXmlService.class.getClassLoader();
@@ -97,8 +100,8 @@ public class MbdXmlService {
           };
 
       SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-      schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "file");
-      schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+      schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "file, jar:file");
+      schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, StringUtils.EMPTY);
 
       return schemaFactory.newSchema(schemaSources);
     } catch (Exception e) {
