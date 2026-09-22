@@ -73,7 +73,7 @@ jobs:
         shell: bash
         id: run_service_docker
         env:
-          GITHUB_TOKEN_READ_PACKAGES: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN_READ_PACKAGES: ${{ secrets.READ_PACKAGES_TOKEN }}
         run: |
           cd ./docker
           chmod +x ./run_docker.sh
