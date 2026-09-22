@@ -5,6 +5,7 @@ import it.gov.pagopa.mbd.gps.service.exception.AppException;
 import it.gov.pagopa.mbd.gps.service.exception.MarcaDaBolloValidationException;
 import it.gov.pagopa.mbd.gps.service.model.cache.CreditorInstitution;
 import it.gov.pagopa.mbd.gps.service.model.client.*;
+import it.gov.pagopa.mbd.gps.service.model.enumeration.AppErrorCode;
 import it.gov.pagopa.mbd.gps.service.model.marcadabollo.TipoMarcaDaBollo;
 import it.gov.pagopa.mbd.gps.service.model.partner.*;
 import it.gov.pagopa.noticenumber.model.NoticeNumberGenerationResponse;
@@ -39,6 +40,9 @@ public class MbdGpsService {
   private static final String REMITTANCE_INFORMATION_PATTERN = "/RFB/%s/CNR/%s/TXT/%s";
   private static final Pattern DEBTOR_FISCAL_CODE_PATTERN =
       Pattern.compile("^[A-Z]{6}\\d{2}[A-Z]\\d{2}[A-Z]\\d{3}[A-Z]$|^\\d{11}$");
+  private static final Pattern DEBTOR_EMAIL_PATTERN =
+      Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+  private static final Pattern PA_FISCAL_CODE_PATTERN = Pattern.compile("^\\d{11}$");
 
   private final ConfigCacheService configCacheService;
   private final GpdClient gpdClient;
@@ -106,32 +110,33 @@ public class MbdGpsService {
           factory.createPaDemandPaymentNoticeResponse(
               createPaDemandPaymentNoticeResponse(gpdResponse, formattedRemittanceInformation)));
     } catch (MarcaDaBolloValidationException e) {
-      log.error("Validation failed for marcaDaBollo: {}", e.getMessage());
+      log.error("Validation failed for marcaDaBollo", e);
       return mbdXmlService.marshal(
           factory.createPaDemandPaymentNoticeResponse(
               createPaDemandPaymentNoticeKOResponse(
-                  request.getIdPA(), "PPT_SINTASSI_EXTRAXSD", e.getMessage())));
+                  request.getIdPA(),
+                  AppErrorCode.PPT_SINTASSI_EXTRAXSD.getCode(),
+                  e.getMessage())));
     } catch (JAXBException | XMLStreamException e) {
-      log.error("XSD/XML Validation failed for marcaDaBollo: {}", e);
+      log.error("XSD/XML Validation failed for marcaDaBollo", e);
       String details = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
       return mbdXmlService.marshal(
           factory.createPaDemandPaymentNoticeResponse(
               createPaDemandPaymentNoticeKOResponse(
-                  request.getIdPA(), "PPT_SINTASSI_EXTRAXSD", details)));
-
+                  request.getIdPA(), AppErrorCode.PPT_SINTASSI_EXTRAXSD.getCode(), details)));
     } catch (AppException e) {
       log.error("AppException: error processing PaDemandPaymentNoticeRequest", e);
       return mbdXmlService.marshal(
           factory.createPaDemandPaymentNoticeResponse(
               createPaDemandPaymentNoticeKOResponse(
-                  request.getIdPA(), "PAA_SYSTEM_ERROR", e.getMessage())));
+                  request.getIdPA(), AppErrorCode.PAA_SYSTEM_ERROR.getCode(), e.getMessage())));
     } catch (Exception e) {
       log.error("Exception: error processing PaDemandPaymentNoticeRequest XML", e);
       return mbdXmlService.marshal(
           factory.createPaDemandPaymentNoticeResponse(
               createPaDemandPaymentNoticeKOResponse(
                   request.getIdPA(),
-                  "PAA_SYSTEM_ERROR",
+                  AppErrorCode.PAA_SYSTEM_ERROR.getCode(),
                   e.getMessage() != null ? e.getMessage() : "Unexpected system error")));
     }
   }
@@ -167,16 +172,13 @@ public class MbdGpsService {
     }
 
     if (StringUtils.isBlank(marcaDaBollo.getDebtor().getEmail())
-        || !marcaDaBollo
-            .getDebtor()
-            .getEmail()
-            .matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+        || !DEBTOR_EMAIL_PATTERN.matcher(marcaDaBollo.getDebtor().getEmail()).matches()) {
       throw new MarcaDaBolloValidationException(
           "debtor: Debtor email is required and must be a valid email address");
     }
 
     if (StringUtils.isBlank(marcaDaBollo.getFiscalCode())
-        || !marcaDaBollo.getFiscalCode().matches("^\\d{11}$")) {
+        || !PA_FISCAL_CODE_PATTERN.matcher(marcaDaBollo.getFiscalCode()).matches()) {
       throw new MarcaDaBolloValidationException(
           "fiscalCode: Creditor Institution fiscal code must be an 11-digit number");
     }
