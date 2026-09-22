@@ -163,7 +163,8 @@ public class MbdGpsService {
                 marcaDaBollo.getDebtor().getUniqueIdentifier().getEntityUniqueIdentifierValue())
             .matches()) {
       throw new MarcaDaBolloValidationException(
-          "debtor: Entity unique identifier value must be a valid Fiscal Code (16 chars) or VAT number (11 digits)");
+          "debtor: Entity unique identifier value must be a valid Fiscal Code (16 chars) or VAT"
+              + " number (11 digits)");
     }
 
     if (StringUtils.isBlank(marcaDaBollo.getDebtor().getFullName())) {
