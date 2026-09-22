@@ -3,36 +3,20 @@ package it.gov.pagopa.mbd.gps.service.service;
 import it.gov.pagopa.mbd.gps.service.client.GpdClient;
 import it.gov.pagopa.mbd.gps.service.exception.AppException;
 import it.gov.pagopa.mbd.gps.service.exception.MarcaDaBolloValidationException;
-import it.gov.pagopa.mbd.gps.service.model.*;
 import it.gov.pagopa.mbd.gps.service.model.cache.CreditorInstitution;
 import it.gov.pagopa.mbd.gps.service.model.client.*;
 import it.gov.pagopa.mbd.gps.service.model.marcadabollo.TipoMarcaDaBollo;
 import it.gov.pagopa.mbd.gps.service.model.partner.*;
 import it.gov.pagopa.noticenumber.model.NoticeNumberGenerationResponse;
 import it.gov.pagopa.noticenumber.service.NoticeNumberGeneratorService;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBElement;
 import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Marshaller;
-import jakarta.xml.bind.Unmarshaller;
-import java.io.ByteArrayInputStream;
-import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.regex.Pattern;
-import javax.xml.XMLConstants;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.util.StreamReaderDelegate;
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -53,11 +37,6 @@ public class MbdGpsService {
   private static final String TRANSFER_STAMP_TYPE = "01";
   private static final String TRANSFER_ID = "1";
   private static final String REMITTANCE_INFORMATION_PATTERN = "/RFB/%s/CNR/%s/TXT/%s";
-  private static final String ENTITY_UID_TYPE_ELEMENT = "entityUniqueIdentifierType";
-  private static final String ENTITY_UID_VALUE_ELEMENT = "entityUniqueIdentifierValue";
-  private static final Schema MARCA_DA_BOLLO_SCHEMA = loadMarcaDaBolloSchema();
-  private static final JAXBContext MARCA_DA_BOLLO_CONTEXT = createMarcaDaBolloContext();
-  private static final JAXBContext PARTNER_CONTEXT = createPartnerContext();
   private static final Pattern DEBTOR_FISCAL_CODE_PATTERN =
       Pattern.compile("^[A-Z]{6}\\d{2}[A-Z]\\d{2}[A-Z]\\d{3}[A-Z]$|^\\d{11}$");
 
@@ -65,6 +44,7 @@ public class MbdGpsService {
   private final GpdClient gpdClient;
   private final NoticeNumberGeneratorService noticeNumberGeneratorService;
   private final ObjectFactory factory = new ObjectFactory();
+  private final MbdXmlService mbdXmlService;
 
   @Value("${mbd.payment-position.duedate-days}")
   private int dueDateDays;
@@ -80,14 +60,18 @@ public class MbdGpsService {
 
   public String createDebtPosition(PaDemandPaymentNoticeRequest request) {
     try {
-      log.debug("Processing paDemandPaymentNoticeRequest XML: {}", marshalRequest(request));
+      log.debug(
+          "Processing paDemandPaymentNoticeRequest XML: {}",
+          mbdXmlService.marshal(factory.createPaDemandPaymentNoticeRequest(request)));
+
       TipoMarcaDaBollo marcaDaBollo =
-          unmarshalMarcaDaBollo(request.getDatiSpecificiServizioRequest());
+          mbdXmlService.unmarshalMarcaDaBollo(request.getDatiSpecificiServizioRequest());
       checkMarcaDaBollo(marcaDaBollo);
+
       String ciFiscalCode = marcaDaBollo.getFiscalCode();
       CreditorInstitution creditor = configCacheService.getCreditorInstitutions().get(ciFiscalCode);
       if (creditor == null) {
-        return marshalResponse(
+        return mbdXmlService.marshal(
             factory.createPaDemandPaymentNoticeResponse(
                 createPaDemandPaymentNoticeKOResponse(
                     request.getIdPA(),
@@ -118,76 +102,37 @@ public class MbdGpsService {
           gpdClient.createDebtPosition(
               marcaDaBollo.getFiscalCode(), mappingRequest, true, SERVICE_TYPE);
 
-      return marshalResponse(
+      return mbdXmlService.marshal(
           factory.createPaDemandPaymentNoticeResponse(
               createPaDemandPaymentNoticeResponse(gpdResponse, formattedRemittanceInformation)));
     } catch (MarcaDaBolloValidationException e) {
       log.error("Validation failed for marcaDaBollo: {}", e.getMessage());
-      return marshalResponse(
+      return mbdXmlService.marshal(
           factory.createPaDemandPaymentNoticeResponse(
               createPaDemandPaymentNoticeKOResponse(
                   request.getIdPA(), "PPT_SINTASSI_EXTRAXSD", e.getMessage())));
     } catch (JAXBException | XMLStreamException e) {
       log.error("XSD/XML Validation failed for marcaDaBollo: {}", e);
       String details = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
-      return marshalResponse(
+      return mbdXmlService.marshal(
           factory.createPaDemandPaymentNoticeResponse(
               createPaDemandPaymentNoticeKOResponse(
                   request.getIdPA(), "PPT_SINTASSI_EXTRAXSD", details)));
 
     } catch (AppException e) {
       log.error("AppException: error processing PaDemandPaymentNoticeRequest", e);
-      return marshalResponse(
+      return mbdXmlService.marshal(
           factory.createPaDemandPaymentNoticeResponse(
               createPaDemandPaymentNoticeKOResponse(
                   request.getIdPA(), "PAA_SYSTEM_ERROR", e.getMessage())));
     } catch (Exception e) {
       log.error("Exception: error processing PaDemandPaymentNoticeRequest XML", e);
-      return marshalResponse(
+      return mbdXmlService.marshal(
           factory.createPaDemandPaymentNoticeResponse(
               createPaDemandPaymentNoticeKOResponse(
                   request.getIdPA(),
                   "PAA_SYSTEM_ERROR",
                   e.getMessage() != null ? e.getMessage() : "Unexpected system error")));
-    }
-  }
-
-  TipoMarcaDaBollo unmarshalMarcaDaBollo(byte[] datiSpecificiServizio)
-      throws JAXBException, XMLStreamException {
-    Unmarshaller unmarshaller = MARCA_DA_BOLLO_CONTEXT.createUnmarshaller();
-    unmarshaller.setSchema(MARCA_DA_BOLLO_SCHEMA);
-    XMLStreamReader reader = createMarcaDaBolloReader(datiSpecificiServizio);
-    try {
-      JAXBElement<TipoMarcaDaBollo> element =
-          unmarshaller.unmarshal(reader, TipoMarcaDaBollo.class);
-      return element.getValue();
-    } finally {
-      reader.close();
-    }
-  }
-
-  private String marshalResponse(JAXBElement<PaDemandPaymentNoticeResponse> element) {
-    try {
-      Marshaller marshaller = PARTNER_CONTEXT.createMarshaller();
-      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
-      StringWriter writer = new StringWriter();
-      marshaller.marshal(element, writer);
-      return writer.toString();
-    } catch (JAXBException e) {
-      throw new IllegalStateException("Unable to marshal PaDemandPaymentNoticeResponse", e);
-    }
-  }
-
-  private String marshalRequest(PaDemandPaymentNoticeRequest request) {
-    try {
-      Marshaller marshaller = PARTNER_CONTEXT.createMarshaller();
-      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
-      StringWriter writer = new StringWriter();
-      marshaller.marshal(factory.createPaDemandPaymentNoticeRequest(request), writer);
-      return writer.toString();
-    } catch (JAXBException e) {
-      log.warn("Unable to marshal PaDemandPaymentNoticeRequest for logging", e);
-      return String.valueOf(request);
     }
   }
 
@@ -247,33 +192,6 @@ public class MbdGpsService {
     }
   }
 
-  /**
-   * Builds a secure, namespace-aware {@link XMLStreamReader} for the marcaDaBollo payload.
-   *
-   * <p>The {@code entityUniqueIdentifierType} and {@code entityUniqueIdentifierValue} elements are
-   * declared unqualified in {@code paForNode.xsd}; their namespace is stripped so the payload
-   * unmarshals correctly even when the document exposes a single default namespace.
-   */
-  private XMLStreamReader createMarcaDaBolloReader(byte[] datiSpecificiServizio)
-      throws XMLStreamException {
-    XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-    inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-    inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
-    XMLStreamReader baseReader =
-        inputFactory.createXMLStreamReader(new ByteArrayInputStream(datiSpecificiServizio));
-    return new StreamReaderDelegate(baseReader) {
-      @Override
-      public String getNamespaceURI() {
-        String localName = getLocalName();
-        if (ENTITY_UID_TYPE_ELEMENT.equals(localName)
-            || ENTITY_UID_VALUE_ELEMENT.equals(localName)) {
-          return "";
-        }
-        return super.getNamespaceURI();
-      }
-    };
-  }
-
   private PaDemandPaymentNoticeResponse createPaDemandPaymentNoticeResponse(
       PaymentPositionModelV3 gpsResponse, String formattedRemittanceInformation) {
 
@@ -305,7 +223,6 @@ public class MbdGpsService {
             .noneMatch(elem -> elem.getPostalIban() == null || elem.getPostalIban().isBlank());
     ctPaymentOptionDescriptionPA.setAllCCP(ccp);
 
-    // Converte l'importo da centesimi in Euro per la risposta Nodo
     BigDecimal amountInEuro =
         BigDecimal.valueOf(installment.getAmount())
             .divide(BigDecimal.valueOf(100))
@@ -396,49 +313,5 @@ public class MbdGpsService {
     paymentPosition.addPaymentOption(paymentOption);
 
     return paymentPosition;
-  }
-
-  private static JAXBContext createMarcaDaBolloContext() {
-    try {
-      return JAXBContext.newInstance(TipoMarcaDaBollo.class);
-    } catch (JAXBException e) {
-      throw new IllegalStateException("Unable to initialize marcaDaBollo JAXB context", e);
-    }
-  }
-
-  private static JAXBContext createPartnerContext() {
-    try {
-      return JAXBContext.newInstance(
-          PaDemandPaymentNoticeResponse.class.getPackageName(),
-          PaDemandPaymentNoticeResponse.class.getClassLoader());
-    } catch (JAXBException e) {
-      throw new IllegalStateException("Unable to initialize partner JAXB context", e);
-    }
-  }
-
-  private static Schema loadMarcaDaBolloSchema() {
-    try {
-      ClassLoader classLoader = MbdGpsService.class.getClassLoader();
-      URL paForNodeUrl = classLoader.getResource("wsdl/xsd/paForNode.xsd");
-      URL marcaDaBolloUrl = classLoader.getResource("xsd-common/marcaDaBollo.xsd");
-
-      if (paForNodeUrl == null || marcaDaBolloUrl == null) {
-        throw new IllegalArgumentException("XSD files not found in classpath");
-      }
-
-      Source[] schemaSources =
-          new Source[] {
-            new StreamSource(paForNodeUrl.openStream(), paForNodeUrl.toExternalForm()),
-            new StreamSource(marcaDaBolloUrl.openStream(), marcaDaBolloUrl.toExternalForm())
-          };
-
-      SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-      schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "file");
-      schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-
-      return schemaFactory.newSchema(schemaSources);
-    } catch (Exception e) {
-      throw new IllegalStateException("Failed to load marcaDaBollo.xsd schema", e);
-    }
   }
 }

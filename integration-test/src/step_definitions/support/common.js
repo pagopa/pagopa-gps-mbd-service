@@ -1,10 +1,6 @@
 // integration-test/src/step_definitions/support/common.js
 const axios = require("axios");
 
-if (process.env.CANARY) {
-    axios.defaults.headers.common['X-Canary'] = 'canary';
-}
-
 function post(url, body) {
     return axios.post(url, body, {
         headers: {

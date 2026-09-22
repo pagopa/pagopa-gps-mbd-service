@@ -2,8 +2,6 @@ package it.gov.pagopa.mbd.gps.service.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -39,6 +37,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
 @ExtendWith(MockitoExtension.class)
 class MbdGpsServiceTest {
@@ -49,14 +48,26 @@ class MbdGpsServiceTest {
 
   @Mock private NoticeNumberGeneratorService noticeNumberGeneratorService;
 
+  private MbdXmlService mbdXmlService;
   private MbdGpsService mbdGpsService;
 
   private static final String CI_FISCAL_CODE = "77777777777";
   private static final String NAV = "311111111111111111";
 
   @BeforeEach
-  void setUp() {
-    mbdGpsService = new MbdGpsService(configCacheService, gpdClient, noticeNumberGeneratorService);
+  void setUp() throws Exception {
+    Jaxb2Marshaller partnerMarshaller = new Jaxb2Marshaller();
+    partnerMarshaller.setPackagesToScan("it.gov.pagopa.mbd.gps.service.model.partner");
+    partnerMarshaller.afterPropertiesSet();
+
+    Jaxb2Marshaller marcaDaBolloMarshaller = new Jaxb2Marshaller();
+    marcaDaBolloMarshaller.setPackagesToScan("it.gov.pagopa.mbd.gps.service.model.marcadabollo");
+    marcaDaBolloMarshaller.afterPropertiesSet();
+
+    mbdXmlService = new MbdXmlService(partnerMarshaller, marcaDaBolloMarshaller);
+    mbdGpsService =
+        new MbdGpsService(
+            configCacheService, gpdClient, noticeNumberGeneratorService, mbdXmlService);
   }
 
   @Test
@@ -142,33 +153,6 @@ class MbdGpsServiceTest {
   }
 
   @Test
-  void testUnmarshalMarcaDaBollo() throws Exception {
-    String xml =
-        """
-            <mbd:marcaDaBollo xmlns:mbd="http://pagopa-api.pagopa.gov.it/pa/MarcaDaBollo">
-              <amount>16.00</amount>
-              <debtor>
-                <uniqueIdentifier>
-                  <entityUniqueIdentifierType>F</entityUniqueIdentifierType>
-                  <entityUniqueIdentifierValue>PLTPPP00R10H501O</entityUniqueIdentifierValue>
-                </uniqueIdentifier>
-                <fullName>Pippo Pluto</fullName>
-                <email>pippo.pluto@paperino.it</email>
-              </debtor>
-              <fiscalCode>77777777777</fiscalCode>
-              <province>MI</province>
-              <documentHash>af4WYySYOCa6Xgk+ByxIvxuaPsx1JerRgipP1xeM8bI=</documentHash>
-            </mbd:marcaDaBollo>
-            """;
-
-    byte[] xmlBytes = xml.getBytes(StandardCharsets.UTF_8);
-    TipoMarcaDaBollo result = mbdGpsService.unmarshalMarcaDaBollo(xmlBytes);
-
-    assertNotNull(result);
-    assertEquals(new BigDecimal("16.00"), result.getAmount());
-  }
-
-  @Test
   @DisplayName("createDebtPosition - KO: malformed XML content in datiSpecificiServizioRequest")
   void createDebtPosition_MalformedXmlContent() {
     PaDemandPaymentNoticeRequest request = buildRequest("<<<XML_NON_VALIDO>>>");
@@ -244,15 +228,6 @@ class MbdGpsServiceTest {
   }
 
   @Test
-  @DisplayName("unmarshalMarcaDaBollo - KO: invalid XML bytes throw UnmarshalException")
-  void unmarshalMarcaDaBollo_InvalidXml() {
-    byte[] invalidBytes = "<invalid>xml</invalid>".getBytes(StandardCharsets.UTF_8);
-
-    assertThatThrownBy(() -> mbdGpsService.unmarshalMarcaDaBollo(invalidBytes))
-        .isInstanceOf(jakarta.xml.bind.UnmarshalException.class);
-  }
-
-  @Test
   @DisplayName("createDebtPosition - KO: GPD response contains empty paymentOptions list")
   void createDebtPosition_EmptyPaymentOptions() {
     PaDemandPaymentNoticeRequest request = buildRequest(validMarcaDaBolloXml());
@@ -283,24 +258,24 @@ class MbdGpsServiceTest {
   void checkMarcaDaBollo_InvalidUniqueIdentifier() throws Exception {
     String xmlInvalidCf =
         """
-      <mbd:marcaDaBollo xmlns:mbd="http://pagopa-api.pagopa.gov.it/pa/MarcaDaBollo">
-        <amount>16.00</amount>
-        <debtor>
-          <uniqueIdentifier>
-            <entityUniqueIdentifierType>F</entityUniqueIdentifierType>
-            <entityUniqueIdentifierValue>INVALID_CF_123</entityUniqueIdentifierValue>
-          </uniqueIdentifier>
-          <fullName>Mario Rossi</fullName>
-          <email>mario.rossi@example.com</email>
-        </debtor>
-        <fiscalCode>77777777777</fiscalCode>
-        <province>MI</province>
-        <documentHash>47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=</documentHash>
-      </mbd:marcaDaBollo>
-      """;
+          <mbd:marcaDaBollo xmlns:mbd="http://pagopa-api.pagopa.gov.it/pa/MarcaDaBollo">
+            <amount>16.00</amount>
+            <debtor>
+              <uniqueIdentifier>
+                <entityUniqueIdentifierType>F</entityUniqueIdentifierType>
+                <entityUniqueIdentifierValue>INVALID_CF_123</entityUniqueIdentifierValue>
+              </uniqueIdentifier>
+              <fullName>Mario Rossi</fullName>
+              <email>mario.rossi@example.com</email>
+            </debtor>
+            <fiscalCode>77777777777</fiscalCode>
+            <province>MI</province>
+            <documentHash>47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=</documentHash>
+          </mbd:marcaDaBollo>
+          """;
 
     TipoMarcaDaBollo mb =
-        mbdGpsService.unmarshalMarcaDaBollo(xmlInvalidCf.getBytes(StandardCharsets.UTF_8));
+        mbdXmlService.unmarshalMarcaDaBollo(xmlInvalidCf.getBytes(StandardCharsets.UTF_8));
 
     assertThatThrownBy(() -> mbdGpsService.checkMarcaDaBollo(mb))
         .isInstanceOf(MarcaDaBolloValidationException.class);
@@ -330,7 +305,7 @@ class MbdGpsServiceTest {
   @DisplayName("checkMarcaDaBollo - KO: debtor fullName empty spaces or invalid email")
   void checkMarcaDaBollo_InvalidNameAndEmailBranches() throws Exception {
     TipoMarcaDaBollo mb =
-        mbdGpsService.unmarshalMarcaDaBollo(
+        mbdXmlService.unmarshalMarcaDaBollo(
             validMarcaDaBolloXml().getBytes(StandardCharsets.UTF_8));
 
     mb.getDebtor().setFullName("   ");
@@ -349,15 +324,13 @@ class MbdGpsServiceTest {
   @DisplayName("checkMarcaDaBollo - KO: debtor uniqueIdentifier value is blank or null")
   void checkMarcaDaBollo_BlankUniqueIdentifierValue() throws Exception {
     TipoMarcaDaBollo mb =
-        mbdGpsService.unmarshalMarcaDaBollo(
+        mbdXmlService.unmarshalMarcaDaBollo(
             validMarcaDaBolloXml().getBytes(StandardCharsets.UTF_8));
 
-    // Ramo 1: Value blank/spaces
     mb.getDebtor().getUniqueIdentifier().setEntityUniqueIdentifierValue("   ");
     assertThatThrownBy(() -> mbdGpsService.checkMarcaDaBollo(mb))
         .isInstanceOf(MarcaDaBolloValidationException.class);
 
-    // Ramo 2: Value null
     mb.getDebtor().getUniqueIdentifier().setEntityUniqueIdentifierValue(null);
     assertThatThrownBy(() -> mbdGpsService.checkMarcaDaBollo(mb))
         .isInstanceOf(MarcaDaBolloValidationException.class);
@@ -367,21 +340,18 @@ class MbdGpsServiceTest {
   @DisplayName("checkMarcaDaBollo - KO: fiscalCode or province or documentHash empty checks")
   void checkMarcaDaBollo_OtherFieldsValidation() throws Exception {
     TipoMarcaDaBollo mb =
-        mbdGpsService.unmarshalMarcaDaBollo(
+        mbdXmlService.unmarshalMarcaDaBollo(
             validMarcaDaBolloXml().getBytes(StandardCharsets.UTF_8));
 
-    // Ramo fiscalCode vuoto
     mb.setFiscalCode("   ");
     assertThatThrownBy(() -> mbdGpsService.checkMarcaDaBollo(mb))
         .isInstanceOf(MarcaDaBolloValidationException.class);
 
-    // Ramo province vuoto
     mb.setFiscalCode("77777777777");
     mb.setProvince("   ");
     assertThatThrownBy(() -> mbdGpsService.checkMarcaDaBollo(mb))
         .isInstanceOf(MarcaDaBolloValidationException.class);
 
-    // Ramo documentHash vuoto/null
     mb.setProvince("MI");
     mb.setDocumentHash(new byte[0]);
     assertThatThrownBy(() -> mbdGpsService.checkMarcaDaBollo(mb))
