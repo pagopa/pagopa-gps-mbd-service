@@ -16,9 +16,9 @@ overrides:
     - api.platform.pagopa.it
   base_path: "/pagopa-gps-mbd-service"
   endpoints:
-    GET /v1/info:
+    GET /info:
       response_time_threshold: 5
       availability_threshold: 0.95
-    POST /v1/mbd/paymentOption:
+    POST /mbd/paymentOption:
       response_time_threshold: 5
       availability_threshold: 0.95
