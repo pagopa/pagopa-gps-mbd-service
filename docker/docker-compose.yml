@@ -1,5 +1,9 @@
 version: '3.8'
 
+secrets:
+  GITHUB_TOKEN_READ_PACKAGES:
+    environment: GITHUB_TOKEN_READ_PACKAGES
+
 services:
 
   redis:
@@ -26,8 +30,8 @@ services:
     build:
       dockerfile: Dockerfile
       context: ../
-      args:
-        GITHUB_TOKEN_READ_PACKAGES: ${GITHUB_TOKEN_READ_PACKAGES}
+      secrets:
+        - GITHUB_TOKEN_READ_PACKAGES
     env_file:
       - ./.env
     environment:
