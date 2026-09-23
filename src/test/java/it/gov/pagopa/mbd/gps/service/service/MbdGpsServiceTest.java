@@ -104,7 +104,7 @@ class MbdGpsServiceTest {
   }
 
   @Test
-  @DisplayName("createDebtPosition - KO: invalid marcaDaBollo payload (PPT_SINTASSI_EXTRAXSD)")
+  @DisplayName("createDebtPosition - KO: invalid marcaDaBollo payload (PAA_SINTASSI_EXTRAXSD)")
   void createDebtPosition_InvalidPayload() {
     PaDemandPaymentNoticeRequest request = buildRequest(invalidMarcaDaBolloXml());
 
@@ -112,7 +112,7 @@ class MbdGpsServiceTest {
         unmarshalResponse(mbdGpsService.createDebtPosition(request));
 
     assertThat(response.getOutcome()).isEqualTo(StOutcome.KO);
-    assertThat(response.getFault().getFaultCode()).isEqualTo("PPT_SINTASSI_EXTRAXSD");
+    assertThat(response.getFault().getFaultCode()).isEqualTo("PAA_SINTASSI_EXTRAXSD");
 
     verify(configCacheService, never()).getCreditorInstitutions();
   }
@@ -161,7 +161,7 @@ class MbdGpsServiceTest {
         unmarshalResponse(mbdGpsService.createDebtPosition(request));
 
     assertThat(response.getOutcome()).isEqualTo(StOutcome.KO);
-    assertThat(response.getFault().getFaultCode()).isEqualTo("PPT_SINTASSI_EXTRAXSD");
+    assertThat(response.getFault().getFaultCode()).isEqualTo("PAA_SINTASSI_EXTRAXSD");
 
     verify(configCacheService, never()).getCreditorInstitutions();
   }
