@@ -18,21 +18,23 @@ on:
           - dev
           - uat
           - prod
+      semver:
+        required: true
+        type: choice
+        description: Select the new Semantic Version
+        options:
+          - major
+          - minor
+          - patch
+          - buildNumber
+          - skip
+        default: skip
+
       beta:
         required: false
         type: boolean
         description: deploy beta version on AKS
         default: false
-
-      version:
-        required: false
-        type: choice
-        description: Select the version
-        options:
-          - patch
-          - skip_or_promote
-          - new_release
-          - breaking_change
 
 permissions:
   packages: write
@@ -49,54 +51,28 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       semver: ${{ steps.get_semver.outputs.semver }}
-      environment: ${{ steps.get_env.outputs.environment }}
+      environment: ${{ steps.output.outputs.environment }}
     steps:
-      - name: pull request rejected
-        if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged != true
+      - name: Get semver
+        id: get_semver
+        uses: pagopa/github-actions-template/semver-setup@705d571bb13b279776fd20e9eb20232dc25679e4 # v2.7.0
+
+      - if: ${{ github.event.inputs.environment == null || github.event.inputs.environment == 'dev' }}
+        run: echo "ENVIRNOMENT=dev" >> $GITHUB_ENV
+
+      - if: ${{ github.event.inputs.environment == 'uat' }}
+        run: echo "ENVIRNOMENT=uat" >> $GITHUB_ENV
+
+      - if: ${{ github.event.inputs.environment == 'prod' }}
+        run: echo "ENVIRNOMENT=prod" >> $GITHUB_ENV
+
+      - if: ${{ github.event.inputs.environment == 'all' }}
+        run: echo "ENVIRNOMENT=all" >> $GITHUB_ENV
+
+      - id: output
+        name: Set Output
         run: |
-          echo "❌ PR was closed without a merge"
-          exit 1
-
-      # Set Semvar
-      - run: echo "SEMVER=patch" >> $GITHUB_ENV
-
-      - if: ${{ (github.event.pull_request.merged && contains(github.event.pull_request.labels.*.name, 'skip')) }}
-        run: echo "SEMVER=skip" >> $GITHUB_ENV
-
-      - if: ${{ (github.event.pull_request.merged && contains(github.event.pull_request.labels.*.name, 'patch')) }}
-        run: echo "SEMVER=patch" >> $GITHUB_ENV
-
-      - if: ${{ (github.event.pull_request.merged && contains(github.event.pull_request.labels.*.name, 'minor')) }}
-        run: echo "SEMVER=minor" >> $GITHUB_ENV
-
-      - if: ${{ (github.event.pull_request.merged && contains(github.event.pull_request.labels.*.name, 'major')) }}
-        run: echo "SEMVER=major" >> $GITHUB_ENV
-
-      # force semver if dev, !=main or skip release
-      - if: ${{ inputs.version == 'new_release' }}
-        run: echo "SEMVER=minor" >> $GITHUB_ENV
-
-      - if: ${{ inputs.version == 'breaking_change' }}
-        run: echo "SEMVER=major" >> $GITHUB_ENV
-
-      - if: ${{ github.ref_name != 'main' }}
-        run: echo "SEMVER=buildNumber" >> $GITHUB_ENV
-
-      - if: ${{ inputs.version == 'skip_or_promote' }}
-        run: echo "SEMVER=skip" >> $GITHUB_ENV
-      - id: get_semver
-        name: Set Output
-        run: echo "semver=${{env.SEMVER}}" >> $GITHUB_OUTPUT
-
-      # Set Environment
-      - run: echo "ENVIRNOMENT=${{ inputs.environment}}" >> $GITHUB_ENV
-
-      - if: ${{ inputs.environment == null }}
-        run: echo "ENVIRONMENT=dev" >> $GITHUB_ENV
-
-      - id: get_env
-        name: Set Output
-        run: echo "environment=${{env.ENVIRNOMENT}}" >> $GITHUB_OUTPUT
+          echo "environment=${{env.ENVIRNOMENT}}" >> $GITHUB_OUTPUT
 
   release:
     name: Create a New Release
