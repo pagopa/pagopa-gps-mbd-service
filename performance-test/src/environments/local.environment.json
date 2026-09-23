@@ -2,7 +2,7 @@
   "environment": [
     {
       "env": "local",
-      "gpsMbdHost": "http://localhost:8080"
+      "gpsMbdHost": "https://localhost:8080"
     }
   ]
 }

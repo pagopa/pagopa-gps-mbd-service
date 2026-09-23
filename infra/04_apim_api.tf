@@ -1,8 +1,8 @@
 locals {
   repo_name = "pagopa-gps-mbd-service"
 
-  display_name = "MBD GPS Service"
-  description  = "API for MBD GPS Service"
+  display_name = "MBD GPS Vertical Service"
+  description  = "API for GPS-MBD Vertical Service"
   path  = "pagopa-gps-mbd-service"
 
   host         = "api.${var.apim_dns_zone_prefix}.${var.external_domain}"

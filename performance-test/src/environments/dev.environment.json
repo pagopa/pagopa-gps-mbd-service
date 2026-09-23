@@ -1,0 +1,8 @@
+{
+  "environment": [
+    {
+      "env": "dev",
+      "gps_mbd_service_host": "https://api.dev.platform.pagopa.it/pagopa-gps-mbd-service/v1"
+    }
+  ]
+}

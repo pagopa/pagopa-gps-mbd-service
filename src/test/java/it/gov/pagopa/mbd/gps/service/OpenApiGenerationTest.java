@@ -2,27 +2,52 @@ package it.gov.pagopa.mbd.gps.service;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.gov.pagopa.mbd.gps.service.model.cache.CreditorInstitution;
+import it.gov.pagopa.mbd.gps.service.service.ConfigCacheService;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @SpringBootTest(classes = Application.class)
 @AutoConfigureMockMvc
+@ActiveProfiles("local")
+@TestPropertySource(
+    properties = {
+      "apiConfigCacheClient.url=http://localhost:8080",
+      "service.gpd.host=http://localhost:8080"
+    })
 class OpenApiGenerationTest {
 
-  @Autowired ObjectMapper objectMapper;
+  @Autowired private ObjectMapper objectMapper;
 
   @Autowired private MockMvc mvc;
+
+  @MockBean private ConfigCacheService configCacheService;
+
+  @BeforeEach
+  void setUp() {
+    Map<String, CreditorInstitution> map = new HashMap<>();
+    map.put("77777777777", new CreditorInstitution());
+
+    when(configCacheService.getCreditorInstitutions()).thenReturn(map);
+  }
 
   @Test
   void swaggerSpringPlugin() throws Exception {
