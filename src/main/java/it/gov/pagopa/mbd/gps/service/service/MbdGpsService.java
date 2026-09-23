@@ -12,6 +12,7 @@ import it.gov.pagopa.noticenumber.model.NoticeNumberGenerationResponse;
 import it.gov.pagopa.noticenumber.service.NoticeNumberGeneratorService;
 import jakarta.xml.bind.JAXBException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -225,8 +226,7 @@ public class MbdGpsService {
             .noneMatch(elem -> elem.getPostalIban() == null || elem.getPostalIban().isBlank());
     ctPaymentOptionDescriptionPA.setAllCCP(ccp);
 
-    BigDecimal amountInEuro =
-        BigDecimal.valueOf(installment.getAmount()).divide(BigDecimal.valueOf(100));
+    BigDecimal amountInEuro = formatEuroCentAmount(installment.getAmount());
     ctPaymentOptionDescriptionPA.setAmount(amountInEuro);
 
     ctPaymentOptionDescriptionPA.setOptions(StAmountOption.EQ);
@@ -313,5 +313,11 @@ public class MbdGpsService {
     paymentPosition.addPaymentOption(paymentOption);
 
     return paymentPosition;
+  }
+
+  private BigDecimal formatEuroCentAmount(long grandTotal) {
+    BigDecimal amount = new BigDecimal(grandTotal);
+    BigDecimal divider = new BigDecimal(100);
+    return amount.divide(divider, 2, RoundingMode.UNNECESSARY);
   }
 }
