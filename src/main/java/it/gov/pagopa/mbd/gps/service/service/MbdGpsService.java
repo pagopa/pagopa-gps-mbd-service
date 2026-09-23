@@ -115,7 +115,7 @@ public class MbdGpsService {
           factory.createPaDemandPaymentNoticeResponse(
               createPaDemandPaymentNoticeKOResponse(
                   request.getIdPA(),
-                  AppErrorCode.PPT_SINTASSI_EXTRAXSD.getCode(),
+                  AppErrorCode.PPA_SINTASSI_EXTRAXSD.getCode(),
                   e.getMessage())));
     } catch (JAXBException | XMLStreamException e) {
       log.error("XSD/XML Validation failed for marcaDaBollo", e);
@@ -123,7 +123,7 @@ public class MbdGpsService {
       return mbdXmlService.marshal(
           factory.createPaDemandPaymentNoticeResponse(
               createPaDemandPaymentNoticeKOResponse(
-                  request.getIdPA(), AppErrorCode.PPT_SINTASSI_EXTRAXSD.getCode(), details)));
+                  request.getIdPA(), AppErrorCode.PPA_SINTASSI_EXTRAXSD.getCode(), details)));
     } catch (AppException e) {
       log.error("AppException: error processing PaDemandPaymentNoticeRequest", e);
       return mbdXmlService.marshal(
