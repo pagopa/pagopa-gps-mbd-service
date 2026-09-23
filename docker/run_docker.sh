@@ -12,9 +12,11 @@ fi
 
 pip3 install yq
 
+IS_LOCAL_RUN=false
 if [ "$ENV" = "local" ]; then
   image="service-local:latest"
   ENV="dev"
+  IS_LOCAL_RUN=true
 else
   repository=$(yq -r '."microservice-chart".image.repository' ../helm/values-$ENV.yaml)
   image="${repository}:latest"
@@ -43,9 +45,22 @@ for line in $(echo "$secret" | jq -r '. | to_entries[] | select(.key) | "\(.key)
   echo "${array[0]}=$value" >> .env
 done
 
+if [ "$IS_LOCAL_RUN" = true ]; then
+  echo "REDIS_HOST=redis" >> .env
+  echo "REDIS_PORT=6379" >> .env
+  echo "REDIS_PASSWORD=secret" >> .env
+  echo "REDIS_SSL=false" >> .env
+  echo "APICONFIG_CACHE_URL=http://apiconfig-mock:8080" >> .env
+  echo "GPD_HOST=http://apiconfig-mock:8080" >> .env
+fi
 
 stack_name=$(cd .. && basename "$PWD")
 GITHUB_TOKEN_READ_PACKAGES=${GITHUB_TOKEN_READ_PACKAGES} docker compose -p "${stack_name}" up -d --remove-orphans --force-recreate --build
+
+if [ "$IS_LOCAL_RUN" = true ]; then
+  echo "Flushing local Redis cache..."
+  docker exec redis redis-cli -a secret FLUSHALL || true
+fi
 
 # waiting the containers
 printf 'Waiting for the service'
