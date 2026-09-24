@@ -7,7 +7,7 @@ secrets:
 services:
 
   redis:
-    image: redis:alpine
+    image: redis:alpine@sha256:ba6e394f6acc2a695ef1b6944f161b9ca813711739be68319fa0db3470673f1d
     container_name: redis
     command: redis-server --requirepass secret
     ports:
@@ -15,7 +15,7 @@ services:
 
   # Mock Server
   apiconfig-mock:
-    image: wiremock/wiremock:latest
+    image: wiremock/wiremock:latest@sha256:0d4ecb3e4dc8213fd7a4d37d6a78f6e6b553a6d2e15bd51b0999781282ac61b3
     container_name: apiconfig-mock
     ports:
       - "19091:8080"
