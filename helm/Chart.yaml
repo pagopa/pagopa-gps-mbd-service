@@ -2,8 +2,8 @@ apiVersion: v2
 name: pagopa-gps-mbd-service
 description: Microservice that handles payment option generation for MBD
 type: application
-version: 0.80.0
-appVersion: 2.0.1-PIDM-2620
+version: 0.81.0
+appVersion: 2.0.2-PIDM-2620
 dependencies:
   - name: microservice-chart
     version: 8.0.2
