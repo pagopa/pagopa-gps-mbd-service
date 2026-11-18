@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: "pagopa-gps-mbd-service"
   image:
     repository: ghcr.io/pagopa/pagopa-gps-mbd-service
-    tag: "2.0.2-PIDM-2620"
+    tag: "2.0.0"
     pullPolicy: Always
   livenessProbe:
     handlerType: httpGet
@@ -63,15 +63,15 @@ microservice-chart:
     cooldownPeriod: 60 # seconds
     triggers:
       - type: cpu
+        metricType: Utilization
         metadata:
-          type: Utilization
           value: "75"
       - type: memory
+        metricType: Utilization
         metadata:
-          type: Utilization
           value: "70"
   envConfig:
-    JAVA_TOOL_OPTIONS: "-XX:-UseBASE64Intrinsics"
+    JAVA_OPTS: "-XX:-UseBASE64Intrinsics"
     APP_NAME: "pagopa-gps-mbd-service"
     APP_ENVIRONMENT: "dev"
     WEBSITE_SITE_NAME: "pagopa-gps-mbd-service"

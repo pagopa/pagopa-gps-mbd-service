@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: "pagopa-gps-mbd-service"
   image:
     repository: ghcr.io/pagopa/pagopa-gps-mbd-service
-    tag: "2.0.2-PIDM-2620"
+    tag: "2.0.0"
     pullPolicy: Always
   livenessProbe:
     handlerType: httpGet
@@ -63,17 +63,15 @@ microservice-chart:
     cooldownPeriod: 60 # seconds
     triggers:
       - type: cpu
+        metricType: Utilization # Allowed types are 'Utilization' or 'AverageValue'
         metadata:
-          # Required
-          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "75"
       - type: memory
+        metricType: Utilization # Allowed types are 'Utilization' or 'AverageValue'
         metadata:
-          # Required
-          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "70"
   envConfig:
-    JAVA_TOOL_OPTIONS: "-XX:-UseBASE64Intrinsics"
+    JAVA_OPTS: "-XX:-UseBASE64Intrinsics"
     APP_NAME: "pagopa-gps-mbd-service"
     APP_ENVIRONMENT: "uat"
     WEBSITE_SITE_NAME: "pagopa-gps-mbd-service" # required to show cloud role name in application insights
@@ -136,5 +134,5 @@ microservice-chart:
         repository: ghcr.io/pagopa/pagopa-gps-mbd-service
         tag: "0.0.0"
         pullPolicy: Always
-      envConfig: {}
+      envConfig: {JAVA_OPTS: "-XX:-UseBASE64Intrinsics"}
       envSecret: {}
