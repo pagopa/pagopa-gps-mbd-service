@@ -71,6 +71,7 @@ microservice-chart:
           type: Utilization
           value: "70"
   envConfig:
+    JAVA_TOOL_OPTIONS: "-XX:-UseBASE64Intrinsics -XX:UseAVX=2"
     APP_NAME: "pagopa-gps-mbd-service"
     APP_ENVIRONMENT: "dev"
     WEBSITE_SITE_NAME: "pagopa-gps-mbd-service"
