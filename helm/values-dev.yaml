@@ -71,6 +71,7 @@ microservice-chart:
         metadata:
           value: "70"
   envConfig:
+    JAVA_OPTS: "-XX:-UseBASE64Intrinsics"
     APP_NAME: "pagopa-gps-mbd-service"
     APP_ENVIRONMENT: "dev"
     WEBSITE_SITE_NAME: "pagopa-gps-mbd-service"
